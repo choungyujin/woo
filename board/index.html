@@ -752,6 +752,15 @@
   .ccard{background:#fff;border:0;border-bottom:1px solid var(--line-2);border-radius:0;padding:14px 0}
   .ccard:last-child{border-bottom:0}
   .kv div{padding:9px 0;font-size:14px;color:var(--ink-2)}
+  .news-list{gap:0}
+  .news{border:0;border-top:1px solid var(--line-2);border-radius:0;padding:14px 0;background:none}
+  .news:first-child{border-top:0;padding-top:2px}
+  .news-head{font-size:12.5px;gap:8px}
+  .news h3{margin:7px 0 0;font-size:15.5px;font-weight:750;line-height:1.5;color:var(--ink)}
+  .news p{margin:6px 0 0;font-size:14px;color:var(--ink-2);line-height:1.65}
+  .news-src{font-size:12.5px;color:var(--muted)}
+  .news-tag{font-size:12px;font-weight:750}
+  .news-foot{border-top:0;margin-top:8px;padding-top:0;font-size:12.5px}
   .snap-list{border-radius:12px;border:1px solid var(--line-2)}
   .chart-block{border:1px solid var(--line-2);border-radius:12px;box-shadow:none}
 
@@ -764,7 +773,11 @@
   @media(min-width:680px){ .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
   .kpi{background:none;border:0;border-radius:0;padding:14px 0 0}
   .kpi + .kpi{padding-left:16px}
-  @media(max-width:679px){ .kpi:nth-child(2n){padding-left:16px;border-left:1px solid var(--line-2)} }
+  @media(max-width:679px){
+    .kpi:nth-child(odd){padding-left:0;border-left:0}
+    .kpi:nth-child(even){padding-left:16px;border-left:1px solid var(--line-2)}
+    .kpi:nth-child(n+3){border-top:1px solid var(--line-2)}
+  }
   @media(min-width:680px){ .kpi + .kpi{border-left:1px solid var(--line-2)} }
   .kpi .k{font-size:13px;color:var(--muted);font-weight:650}
   .kpi .v{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.03em;margin-top:2px}
@@ -4763,8 +4776,8 @@
       topic: t, title: t, plat: "reels", length: sec + "초", tone: tone, toneLabel: toneName(tone),
       context: "내 아이디어 생성기 · " + stampNow() + " · 인스타 릴스", stamp: stampNow(),
       audience: "직접 정한 주제",
-      rank: "저장·공유 목표 · 마지막 한 문장이 저장을 부릅니다",
-      mongle: "몽글노트 한 줄 입력 장면을 3컷에 넣었습니다",
+      rank: "저장·공유형 · 마지막 한 문장이 저장 유도",
+      mongle: "몽글노트 한 줄 입력 장면을 3컷에",
       hook: hook,
       cuts: [
         { no: 1, role: "공감 훅", time: times[0], screen: s1, line: c1 },
@@ -4830,8 +4843,8 @@
       topic: t, title: t, plat: "shorts", length: sec + "초", tone: tone, toneLabel: toneName(tone),
       context: "내 아이디어 생성기 · " + stampNow() + " · 유튜브 쇼츠", stamp: stampNow(),
       audience: "직접 정한 주제",
-      rank: "첫 2초 결론 · 끝까지 보는 비율을 노립니다",
-      mongle: "3줄 기록법을 몽글노트 화면으로 시연",
+      rank: "첫 2초 결론형 · 끝까지 보는 비율",
+      mongle: "3줄 기록법을 몽글노트로 시연",
       hook: hook,
       cuts: [
         { no: 1, role: "결론 훅", time: times[0], screen: s1, line: c1 },
