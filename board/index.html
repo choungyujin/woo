@@ -427,6 +427,71 @@
   .snap-cell b{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
   .snap-cell em{font-style:normal;font-size:10px;font-weight:700}
 
+  /* ---------- 쇼츠·릴스 스튜디오 ---------- */
+  .short-context{display:grid;gap:6px;margin:0 0 14px}
+  @media(min-width:760px){ .short-context{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  .sctx{display:flex;align-items:baseline;gap:7px;background:var(--gray-bg);border-radius:10px;padding:6px 10px;font-size:11.5px;color:var(--ink-2);line-height:1.45}
+  .sctx b{font-weight:750;color:var(--ink);white-space:nowrap}
+  .sctx span{color:var(--muted);min-width:0;word-break:keep-all}
+  .idea-list{display:grid;gap:12px}
+  @media(min-width:900px){ .idea-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start} }
+  .idea{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;box-shadow:var(--shadow)}
+  .idea-top{display:flex;align-items:flex-start;gap:9px}
+  .idea-no{flex:0 0 24px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,#f0a6c6,#bda2ea);color:#fff;font-size:12px;font-weight:800}
+  .idea-top h3{margin:0;font-size:14px;line-height:1.45;letter-spacing:-.01em;font-weight:750}
+  .idea-meta{margin:6px 0 0;display:flex;gap:6px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);align-items:center}
+  .idea-meta i{font-style:normal;background:var(--violet-bg);color:var(--violet);border-radius:999px;padding:1px 8px;font-weight:750}
+  .idea-meta i.len{background:var(--info-bg);color:var(--info)}
+  .idea-aud{margin:9px 0 0;font-size:12px;color:var(--ink-2);line-height:1.6}
+  .idea-aud b{color:var(--muted);font-weight:750;margin-right:5px}
+  .hook-box{margin:10px 0 0;padding:11px 13px;border-radius:12px;background:linear-gradient(135deg,#fff1f7,#f3ecfd);border:1px solid #efe4f8}
+  .hook-box b{display:block;font-size:10.5px;color:#9a6bb5;font-weight:800;letter-spacing:.02em;margin-bottom:4px}
+  .hook-box p{margin:0;font-size:14px;font-weight:750;line-height:1.5;letter-spacing:-.015em;color:#2c2540;word-break:keep-all}
+  .cuts{margin:11px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .cuts li{border-left:2px solid #e7def5;padding:0 0 0 10px}
+  .cut-head{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:10.5px;color:var(--muted)}
+  .cut-head b{font-size:11.5px;font-weight:800;color:var(--violet)}
+  .cut-screen,.cut-line{margin:3px 0 0;font-size:12px;line-height:1.6;color:var(--ink-2);word-break:keep-all}
+  .cut-screen b,.cut-line b{color:var(--muted);font-weight:750;margin-right:4px}
+  .cut-line{color:var(--ink)}
+  .idea-narr{margin:11px 0 0;font-size:11.5px;line-height:1.7;color:var(--ink-2);background:#fbfbfd;border:1px dashed var(--line);border-radius:10px;padding:9px 11px;word-break:keep-all}
+  .idea-narr b{color:var(--muted);font-weight:750;margin-right:5px}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0 0}
+  .tags span{font-size:11px;font-weight:650;color:#7a5aa8;background:#f6f1fd;border-radius:999px;padding:2px 8px}
+  .idea-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+  .idea-actions .btn{padding:8px 12px;font-size:12.5px;border-radius:10px}
+  .gen-form{display:grid;gap:9px;grid-template-columns:1fr;align-items:end}
+  @media(min-width:720px){ .gen-form{grid-template-columns:minmax(0,1fr) 150px 110px auto} }
+  .gen-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .gen-field>span{font-size:11px;color:var(--muted);font-weight:700}
+  .gen-field input,.gen-field select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13.5px;color:var(--ink);outline:none}
+  .gen-field input:focus,.gen-field select:focus{border-color:#9aa3b5;box-shadow:0 0 0 3px rgba(21,22,26,.06)}
+  .gen-out{margin-top:12px}
+  .draft{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px}
+  .draft-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .draft-top h4{margin:0;font-size:13.5px;font-weight:750;line-height:1.45}
+  .draft .note{margin:6px 0 0;font-size:11px;color:var(--muted)}
+  .st{font-size:10px;font-weight:800;border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .st.wait{background:var(--warn-bg);color:var(--warn)}
+  .st.done{background:var(--ok-bg);color:var(--ok)}
+  .draft-list{display:flex;flex-direction:column;gap:8px}
+  .draft-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:#fff}
+  .draft-row .t{flex:1 1 150px;min-width:0;font-size:12.5px;line-height:1.45;font-weight:650;word-break:break-word}
+  .draft-row .m{font-size:10.5px;color:var(--muted);white-space:nowrap}
+  .mini{font-size:11.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:650;color:var(--ink-2);white-space:nowrap}
+  .mini:hover{border-color:#cdd2db;background:#fbfbfc}
+  .mini.on{background:var(--ok-bg);color:var(--ok);border-color:#cceadb}
+  .draft-empty{border:1px dashed var(--line);border-radius:11px;padding:12px;font-size:11.5px;color:var(--muted);line-height:1.6}
+  .shorts-thumb{display:grid;gap:16px;grid-template-columns:1fr}
+  @media(min-width:720px){ .shorts-thumb{grid-template-columns:minmax(0,1fr) 300px;align-items:start} }
+  .thumb-side{display:flex;flex-direction:column;gap:10px}
+  .thumb-side label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--muted);font-weight:700}
+  .thumb-side select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;color:var(--ink);outline:none}
+  .thumb-side .btn{justify-content:center}
+  .thumb-note{margin:0;font-size:11.5px;color:var(--muted);line-height:1.6}
+  .thumb-frame{display:flex;justify-content:center}
+  .thumb-frame canvas{width:100%;max-width:300px;height:auto;display:block;border-radius:22px;box-shadow:0 18px 40px -22px rgba(60,40,90,.55);border:1px solid #eee6f6;background:#f6f1fb}
+
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -468,7 +533,7 @@
     <div class="chips">
       <span class="chip">기준일 <b id="chipSnapshot">2026-11-16</b> 내보내기</span>
       <span class="chip">화면 갱신 <b id="chipGenerated">—</b></span>
-      <span class="chip">자동 점검 <b>매일 20:30</b></span>
+      <span class="chip">자동 점검 <b>09:30 · 12:30 · 16:30 · 20:30</b></span>
       <span class="chip" id="chipSource" role="status" aria-live="polite">잠김</span>
     </div>
   </div>
@@ -497,6 +562,7 @@
     <button class="tab" role="tab" id="tab-dm" aria-controls="panel-dm" aria-selected="false" data-tab="dm" tabindex="-1">DM 현황</button>
     <button class="tab" role="tab" id="tab-growth" aria-controls="panel-growth" aria-selected="false" data-tab="growth" tabindex="-1">성장 추이</button>
     <button class="tab" role="tab" id="tab-tips" aria-controls="panel-tips" aria-selected="false" data-tab="tips" tabindex="-1">홍보·수익화 팁</button>
+    <button class="tab" role="tab" id="tab-shorts" aria-controls="panel-shorts" aria-selected="false" data-tab="shorts" tabindex="-1">🎬 쇼츠·릴스</button>
     <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data" tabindex="-1">데이터 관리</button>
   </nav>
 
@@ -654,7 +720,71 @@
     <div id="tipsBody"></div>
   </section>
 
-  <!-- ============ 7. 데이터 관리 ============ -->
+  <!-- ============ 7. 쇼츠·릴스 스튜디오 ============ -->
+  <section class="panel" id="panel-shorts" role="tabpanel" aria-labelledby="tab-shorts" hidden>
+    <div class="block">
+      <div class="block-head">
+        <h2>🎬 오늘의 몽글노트 쇼츠·릴스 아이디어 <span class="count" id="shortsCount">0개</span></h2>
+        <p>오늘 실제로 확인한 유튜브 구독 영상·인스타·스레드 소통에서 이어지는 아이디어입니다. 아이디어 갱신 <b id="shortsUpdated">—</b> · 카드의 <b>전체 대본 복사</b>로 3초 훅·4컷 구성·나레이션·해시태그를 한 번에 가져가세요.</p>
+      </div>
+      <div class="block-body">
+        <div class="short-context" id="shortsContext"></div>
+        <div class="idea-list" id="ideaList"></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>내 아이디어 → 쇼츠·릴스 대본</h2>
+        <p>오늘 겪은 일을 한 줄로 적고 톤·길이만 고르면 0~3초 훅과 4컷 대본이 바로 나옵니다. 외부 AI를 부르지 않고 이 화면 안의 문장 틀로만 만들고, 만든 대본은 <b>제작 대기 / 완료</b> 상태로 이 기기에 저장됩니다.</p>
+      </div>
+      <div class="block-body">
+        <div class="gen-form">
+          <label class="gen-field"><span>한 줄 주제 / 오늘 겪은 일</span>
+            <input id="genTopic" type="text" maxlength="80" autocomplete="off" placeholder="예: 아이 재우고 혼자 커피 마신 밤">
+          </label>
+          <label class="gen-field"><span>톤</span>
+            <select id="genTone">
+              <option value="diary">담백한 일기형</option>
+              <option value="hook">호기심 훅형</option>
+              <option value="mom">육아·현실공감형</option>
+            </select>
+          </label>
+          <label class="gen-field"><span>길이</span>
+            <select id="genLen">
+              <option value="30">30초</option>
+              <option value="15">15초</option>
+            </select>
+          </label>
+          <button class="btn primary" id="genBtn" type="button">대본 만들기</button>
+        </div>
+        <div class="gen-out" id="genOut"></div>
+        <h3 class="group-label" style="margin:20px 2px 8px">저장한 내 대본 <span class="count" id="genSavedCount">0개</span></h3>
+        <div id="genSaved"></div>
+      </div>
+    </div>
+
+    <div class="block" id="shortsThumbBlock">
+      <div class="block-head">
+        <h2>세로형 첫 컷 미리보기 <span class="count">9:16</span></h2>
+        <p>선택한 아이디어의 0~3초 훅을 세로 카드로 그립니다. 외부 이미지·폰트 요청 없이 이 화면의 Canvas로만 그려 <b>PNG로 저장</b>됩니다.</p>
+      </div>
+      <div class="block-body shorts-thumb">
+        <div class="thumb-side">
+          <label>미리보기 선택
+            <select id="thumbPick"></select>
+          </label>
+          <button class="btn primary" id="thumbSave" type="button">PNG로 저장 (1080×1920)</button>
+          <p class="thumb-note" id="thumbNote">0~3초 훅을 세로 카드로 그립니다.</p>
+        </div>
+        <div class="thumb-frame">
+          <canvas id="thumbCanvas" width="1080" height="1920" aria-label="9:16 첫 컷 미리보기"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8. 데이터 관리 ============ -->
   <section class="panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" hidden>
     <div id="importedBannerWrap"></div>
 
@@ -843,7 +973,8 @@
       dm: d.dm || {},
       growth: Array.isArray(d.growth) ? d.growth : [],
       dailyNews: Array.isArray(d.dailyNews) ? d.dailyNews : [],
-      tips: (d.tips && typeof d.tips === "object") ? d.tips : null
+      tips: (d.tips && typeof d.tips === "object") ? d.tips : null,
+      shortsIdeas: (d.shortsIdeas && typeof d.shortsIdeas === "object") ? d.shortsIdeas : null
     };
   }
 
@@ -873,10 +1004,15 @@
   }
 
   /* ---------- 잠금(PIN) · 암호화 데이터 ---------- */
-  var ENC_URL = "./data.enc.json";              /* 공개 저장소에는 암호문만 둔다 */
+  /* 암호문은 GitHub 공개 저장소의 raw 주소에서 바로 받는다.
+     (GitHub Pages가 꺼져 있어도 HTTPS로 열리고 CORS(*)를 허용한다) */
+  var ENC_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/data.enc.json";
+  var ENC_LOCAL = "./data.enc.json";            /* 같은 폴더 사본 (2순위) */
+  var ENV_CACHE = "arisia949_env_v1";           /* 마지막으로 받아 둔 암호문 (3순위·오프라인) */
   var REMEMBER_KEY = "arisia949_unlock_v1";
   var DATA_TTL = 5 * 60 * 1000;                 /* 앱 복귀 시 재확인 간격 */
   var KDF_FALLBACK_ITER = 600000;
+  var fetchedFrom = "remote";                   /* remote | local | cache */
 
   var sessionKey = null;      /* AES-GCM CryptoKey (메모리에만) */
   var envelope = null;        /* 마지막으로 받은 암호문 */
@@ -886,9 +1022,9 @@
   var deferredPrompt = null;
 
   var SOURCE_LABEL = {
-    loading:  "데이터 확인 중…",
-    remote:   "잠금 해제 · 최신",
-    fallback: "오프라인 · 마지막 화면",
+    loading:  "확인 중…",
+    remote:   "방금 동기화됨",
+    fallback: "오프라인 캐시",
     locked:   "잠김"
   };
 
@@ -927,11 +1063,37 @@
       .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
   }
 
+  function readEnvCache(){
+    try {
+      var s = localStorage.getItem(ENV_CACHE);
+      if(!s) return null;
+      var o = JSON.parse(s);
+      return (o && o.iv && o.ct) ? o : null;
+    } catch(e){ return null; }
+  }
+  function writeEnvCache(env){
+    try { localStorage.setItem(ENV_CACHE, JSON.stringify(env)); } catch(e){}
+  }
+  function fetchJson(url){
+    return fetch(url + "?ts=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+  }
+
+  /* 최신 암호문: 원격 raw → 같은 폴더 → 이 기기에 받아 둔 사본 */
   function fetchEnvelope(force){
     if(envelope && !force) return Promise.resolve(envelope);
-    return fetch(ENC_URL + "?v=" + Date.now(), { cache: "no-store" })
-      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function(j){ envelope = j; return j; });
+    return fetchJson(ENC_URL)
+      .then(function(j){ fetchedFrom = "remote"; writeEnvCache(j); envelope = j; return j; })
+      .catch(function(err){
+        console.warn("원격 암호문을 못 받았습니다:", err);
+        return fetchJson(ENC_LOCAL)
+          .then(function(j){ fetchedFrom = "local"; writeEnvCache(j); envelope = j; return j; })
+          .catch(function(err2){
+            var c = readEnvCache();
+            if(!c) throw err2;
+            fetchedFrom = "cache"; envelope = c; return c;
+          });
+      });
   }
 
   /* 이 기기 기억: 파생 키(raw)만 저장하고 PIN은 저장하지 않는다. */
@@ -1025,7 +1187,8 @@
       renderAll();
     }
 
-    remoteState = "remote"; lastSyncAt = Date.now(); setSourceChip();
+    remoteState = (fetchedFrom === "cache") ? "fallback" : "remote";
+    lastSyncAt = Date.now(); setSourceChip();
     if(how === "unlock" || how === "remembered") toast("잠금을 해제했습니다");
   }
 
@@ -1089,7 +1252,7 @@
 
   function lockNow(){
     sessionKey = null;
-    DATA = { meta: {}, accounts: [], comments: [], excluded: [], dm: {}, growth: [], dailyNews: [], tips: null };
+    DATA = { meta: {}, accounts: [], comments: [], excluded: [], dm: {}, growth: [], dailyNews: [], tips: null, shortsIdeas: null };
     BASE = DATA;
     if(appStarted) renderAll();
     var p = $("pinInput"); if(p) p.value = "";
@@ -1305,7 +1468,7 @@
   }
 
   /* ---------- tabs ---------- */
-  var TABS = ["follow", "insta", "threads", "dm", "growth", "tips", "data"];
+  var TABS = ["follow", "insta", "threads", "dm", "growth", "tips", "shorts", "data"];
   function setTab(name){
     if(TABS.indexOf(name) < 0) name = "follow";
     TABS.forEach(function(t){
@@ -1552,6 +1715,7 @@
     renderSource();
     renderGrowth();
     renderTips();
+    renderShorts();
   }
 
   /* ---------- interactions ---------- */
@@ -1914,6 +2078,548 @@
     }
 
     box.innerHTML = h;
+  }
+
+  /* ---------- 쇼츠·릴스 스튜디오 ---------- */
+  var SHORTS_KEY = "arisia949_shorts_v1";
+  var NL = String.fromCharCode(10);
+  var shortsBound = false;
+  var shortsLast = null;      /* 방금 만든 대본 — 화면 표시용 */
+  var thumbSel = null;        /* { kind:"idea"|"draft", id:"…" } */
+
+  function shortsBlock(){
+    return (DATA.shortsIdeas && typeof DATA.shortsIdeas === "object") ? DATA.shortsIdeas : null;
+  }
+  function shortsIdeaList(){
+    var s = shortsBlock();
+    return (s && Array.isArray(s.ideas)) ? s.ideas : [];
+  }
+  function findIdea(id){
+    var list = shortsIdeaList();
+    for(var i = 0; i < list.length; i++){ if(list[i] && list[i].id === id) return list[i]; }
+    return null;
+  }
+  function toneName(t){
+    return t === "hook" ? "호기심 훅형" : t === "mom" ? "육아·현실공감형" : "담백한 일기형";
+  }
+
+  function readDrafts(){
+    try {
+      var o = JSON.parse(localStorage.getItem(SHORTS_KEY) || "[]");
+      return Array.isArray(o) ? o : [];
+    } catch(e){ return []; }
+  }
+  function writeDrafts(list){
+    try { localStorage.setItem(SHORTS_KEY, JSON.stringify(list.slice(0, 40))); } catch(e){}
+  }
+  function findDraft(id){
+    var list = readDrafts();
+    for(var i = 0; i < list.length; i++){ if(list[i] && list[i].id === id) return list[i]; }
+    return null;
+  }
+
+  function legacyCopy(txt, done){
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    if(ok) done();
+    else toast("복사가 막혔어요 — 대본을 길게 눌러 선택해 주세요");
+  }
+  function copyText(txt, msg){
+    var done = function(){ toast(msg || "대본을 복사했습니다"); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){ legacyCopy(txt, done); });
+    } else {
+      legacyCopy(txt, done);
+    }
+  }
+
+  function scriptOf(o){
+    var L = [];
+    L.push("[몽글노트 쇼츠·릴스 대본]");
+    L.push("제목: " + String(o.title || o.topic || ""));
+    L.push("길이: " + String(o.length || "30초") + " · 톤: " + String(o.toneLabel || toneName(o.tone)));
+    if(o.audience) L.push("타깃: " + o.audience);
+    if(o.context) L.push("맥락: " + o.context);
+    L.push("");
+    L.push("0~3초 훅");
+    L.push(String(o.hook || ""));
+    L.push("");
+    (o.cuts || []).forEach(function(c){
+      L.push(String(c.no) + "컷 (" + String(c.time) + ") " + String(c.role || ""));
+      if(c.screen) L.push("  화면: " + c.screen);
+      if(c.line) L.push("  자막/나레이션: " + c.line);
+      L.push("");
+    });
+    if(o.narration){ L.push("나레이션 (통으로 읽기)"); L.push(o.narration); L.push(""); }
+    L.push("해시태그: " + (o.hashtags || []).join(" "));
+    return L.join(NL);
+  }
+
+  function ideaCard(i, idx){
+    var cuts = (i.cuts || []).map(function(c){
+      return '<li><div class="cut-head"><b>' + esc(String(c.no) + '컷 · ' + (c.role || "")) + '</b><span>' + esc(c.time || "") + '</span></div>' +
+        (c.screen ? '<p class="cut-screen"><b>화면</b>' + esc(c.screen) + '</p>' : '') +
+        (c.line ? '<p class="cut-line"><b>자막</b>' + esc(c.line) + '</p>' : '') +
+      '</li>';
+    }).join("");
+    var tags = (i.hashtags || []).map(function(t){ return '<span>' + esc(t) + '</span>'; }).join("");
+    return '<article class="idea" data-idea-card="' + esc(i.id) + '">' +
+      '<div class="idea-top"><span class="idea-no">' + (idx + 1) + '</span><div><h3>' + esc(i.title || "") + '</h3>' +
+        '<div class="idea-meta"><i class="len">' + esc(i.length || "30초") + '</i><i>' + esc(i.tone || "") + '</i>' +
+          '<span>' + esc(i.source || "") + '</span></div></div></div>' +
+      (i.audience ? '<p class="idea-aud"><b>타깃 공감</b>' + esc(i.audience) + '</p>' : '') +
+      '<div class="hook-box"><b>0~3초 훅</b><p>' + esc(i.hook || "") + '</p></div>' +
+      (cuts ? '<ol class="cuts">' + cuts + '</ol>' : '') +
+      (i.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(i.narration) + '</p>' : '') +
+      (tags ? '<div class="tags">' + tags + '</div>' : '') +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-copy-idea="' + esc(i.id) + '">전체 대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-idea="' + esc(i.id) + '">9:16 첫 컷 미리보기</button>' +
+      '</div></article>';
+  }
+
+  function draftBody(o){
+    var cuts = (o.cuts || []).map(function(c){
+      return '<li><div class="cut-head"><b>' + esc(String(c.no) + '컷 · ' + (c.role || "")) + '</b><span>' + esc(c.time || "") + '</span></div>' +
+        (c.screen ? '<p class="cut-screen"><b>화면</b>' + esc(c.screen) + '</p>' : '') +
+        (c.line ? '<p class="cut-line"><b>자막</b>' + esc(c.line) + '</p>' : '') +
+      '</li>';
+    }).join("");
+    var tags = (o.hashtags || []).map(function(t){ return '<span>' + esc(t) + '</span>'; }).join("");
+    return '<div class="hook-box"><b>0~3초 훅</b><p>' + esc(o.hook || "") + '</p></div>' +
+      (cuts ? '<ol class="cuts">' + cuts + '</ol>' : '') +
+      (o.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(o.narration) + '</p>' : '') +
+      (tags ? '<div class="tags">' + tags + '</div>' : "");
+  }
+
+  function renderGenOut(){
+    var box = $("genOut");
+    if(!box) return;
+    if(!shortsLast){ box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="draft"><div class="draft-top"><span class="st ' + (shortsLast.status === "done" ? "done" : "wait") + '">' +
+      (shortsLast.status === "done" ? "완료" : "제작 대기") + '</span><h4>' + esc(shortsLast.topic) + '</h4>' +
+      '<span class="m" style="font-size:10.5px;color:var(--muted)">' + esc(shortsLast.length) + ' · ' + esc(shortsLast.toneLabel) + '</span></div>' +
+      '<p class="note">방금 만든 대본입니다 — 제작 대기로 저장했어요. 아래 목록에서 완료로 바꿀 수 있습니다.</p>' +
+      draftBody(shortsLast) +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-copy-draft="' + esc(shortsLast.id) + '">전체 대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-draft="' + esc(shortsLast.id) + '">9:16 첫 컷 미리보기</button>' +
+      '</div></div>';
+  }
+
+  function renderDrafts(){
+    var box = $("genSaved"), cnt = $("genSavedCount");
+    if(!box) return;
+    var list = readDrafts();
+    if(cnt) cnt.textContent = num(list.length) + "개";
+    if(!list.length){
+      box.innerHTML = '<div class="draft-empty">아직 저장한 대본이 없습니다. 위에서 한 줄 주제를 적고 <b>대본 만들기</b>를 누르면 제작 대기로 저장됩니다.</div>';
+      return;
+    }
+    box.innerHTML = '<div class="draft-list">' + list.map(function(d){
+      var done = d.status === "done";
+      return '<div class="draft-row" data-draft="' + esc(d.id) + '">' +
+        '<span class="st ' + (done ? "done" : "wait") + '">' + (done ? "완료" : "제작 대기") + '</span>' +
+        '<span class="t">' + esc(d.topic) + '</span>' +
+        '<span class="m">' + esc(d.toneLabel || toneName(d.tone)) + ' · ' + esc(String(d.length || (d.len || "30") + "초")) + (d.at ? ' · ' + esc(d.at) : '') + '</span>' +
+        '<button class="mini" type="button" data-dact="copy">복사</button>' +
+        '<button class="mini" type="button" data-dact="thumb">9:16</button>' +
+        '<button class="mini' + (done ? " on" : "") + '" type="button" data-dact="toggle">' + (done ? "완료 취소" : "완료로") + '</button>' +
+        '<button class="mini" type="button" data-dact="del">삭제</button>' +
+      '</div>';
+    }).join("") + '</div>';
+  }
+
+  function generateShorts(topic, tone, len){
+    var t = String(topic || "").replace(/[.?!。！？]+$/, "").trim();
+    var sec = String(len) === "15" ? "15" : "30";
+    var times = sec === "15" ? ["0~3초", "3~6초", "6~11초", "11~15초"] : ["0~3초", "3~9초", "9~21초", "21~30초"];
+    var q = "「" + t + "」";
+    var hook, problem, note, end, s1, s2, s3, s4;
+
+    if(tone === "mom"){
+      hook = "아이 재우고 나서야 알았어요 — " + t + ".";
+      problem = "그 순간을 못 참아서 하루가 통째로 무너질 때 있잖아요. 문제는 화를 참는 게 아니라, 화의 정체를 모르는 거였어요.";
+      note = "몽글노트에 " + q + " 한 줄을 적고 몽글이 질문에 답했더니, 목소리가 한 톤 낮아졌어요.";
+      end = "오늘 아이에게 화내기 전에, 뭐라고 적어두고 싶으세요?";
+      s1 = "현관 또는 아이 방 앞, 엄마 손이 잠깐 멈추는 클로즈업. 숨소리만 남기고 배경음은 최소로.";
+      s2 = "아이 신발이 흩어진 현관, 엄마 목소리가 조금씩 올라가는 순간. 아이 얼굴이 굳는 클로즈업.";
+      s3 = "몽글노트에 '지금 화난 이유' 한 줄 입력 → 몽글이 질문 카드 → 자주 쓴 단어 칩이 마인드맵으로 이어지는 화면.";
+      s4 = "아침 현관, 아이 신발을 같이 신기는 손. 질문 자막만 남기고 마무리.";
+    } else if(tone === "hook"){
+      hook = q + ", 이게 왜 통했는지 " + sec + "초 안에 보여드릴게요.";
+      problem = "비슷한 얘기는 많은데, 직접 해본 사람 말은 잘 없더라고요. 그래서 해봤습니다.";
+      note = "몽글노트에 " + q + "를 적고 몽글이 질문에 답했더니, 결론이 이 한 줄로 바뀌었어요.";
+      s1 = "화면을 가득 채운 훅 자막. 배경은 흐리게, 0.4초 만에 큰 글씨가 뜨는 컷.";
+      s2 = "같은 주제의 흔한 조언 화면을 빠르게 넘김. 손가락이 멈추는 지점은 딱 하나.";
+      s3 = "몽글노트 한 화면 — 생각정리에 주제를 입력 → 질문 카드 3개 → 마인드맵 → 핵심 한 줄 카드.";
+      s4 = "화면에 질문 한 줄과 선택지 두 개. 마지막에 몽글노트 로고.";
+    } else {
+      hook = t + ". 오늘 이 한 줄이 제일 오래 남았어요.";
+      problem = "적어두지 않으면 그냥 지나가는 하루예요. 머릿속에선 계속 맴도는데, 막상 손으로 옮기면 사라져요.";
+      note = "몽글노트에 한 줄 적었더니, 몽글이가 물었어요. '그중에 제일 중요한 건 뭐예요?' 답하다 보면 정리가 돼요.";
+      end = "오늘 하루, 한 줄로 남긴다면 뭐라고 적으시겠어요?";
+      s1 = "어두운 책상, 손으로 메모 한 줄 쓰는 클로즈업. 펜 소리만 남김.";
+      s2 = "휴대폰 메모 앱 목록을 빠르게 스크롤 — 열어도 비어 있는 화면만 지나감. 시계는 00:40.";
+      s3 = "몽글노트 생각정리 화면. 한 줄 입력 → 몽글이 질문 카드 → 자주 쓴 단어 칩이 마인드맵으로 뻗고, '지금 가장 중요한 생각' 카드가 남는 화면.";
+      s4 = "화면이 천천히 밝아지고 질문 한 줄만 남음. 마지막에 몽글노트 로고.";
+    }
+    if(!end) end = "당신이라면 이 상황에서 뭘 고르시겠어요?";
+
+    var tags = ["#몽글노트"];
+    tags.push(tone === "mom" ? "#육아일기" : tone === "hook" ? "#숏폼기획" : "#생각정리");
+    if(/아이|육아|엄마|아빠|재우|화내/.test(t)) tags.push("#육아맘");
+    if(/앱|개발|코딩|출시/.test(t)) tags.push("#앱만들기");
+    if(/메모|생각|정리|기록/.test(t)) tags.push("#기록");
+    if(/릴스|쇼츠|영상|콘텐츠/.test(t)) tags.push("#콘텐츠기획");
+    var seen = {}, outTags = [];
+    tags.forEach(function(x){ if(!seen[x]){ seen[x] = 1; outTags.push(x); } });
+    outTags = outTags.slice(0, 5);
+
+    var now = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    var stamp = now.getFullYear() + "-" + p2(now.getMonth() + 1) + "-" + p2(now.getDate());
+    var id = "g" + now.getTime() + String(Math.floor(Math.random() * 900) + 100);
+
+    return {
+      id: id,
+      topic: t,
+      title: t,
+      length: sec + "초",
+      tone: tone,
+      toneLabel: toneName(tone),
+      context: "내 아이디어 생성기 · " + stamp + " 직접 입력",
+      audience: "직접 정한 주제 — 올리기 전에 '누가 이걸 저장할까'를 한 줄로 정해 보세요.",
+      hook: hook,
+      cuts: [
+        { no: 1, role: "훅", time: times[0], screen: s1, line: hook },
+        { no: 2, role: "문제", time: times[1], screen: s2, line: problem },
+        { no: 3, role: "몽글노트 장면", time: times[2], screen: s3, line: note },
+        { no: 4, role: "여운 질문", time: times[3], screen: s4, line: end }
+      ],
+      narration: hook + " " + problem + " " + note + " " + end,
+      hashtags: outTags,
+      status: "wait",
+      at: stamp
+    };
+  }
+
+  function runGen(){
+    var ti = $("genTopic"), tn = $("genTone"), ln = $("genLen");
+    var topic = String((ti && ti.value) || "").trim();
+    if(!topic){ toast("한 줄 주제를 먼저 적어 주세요"); if(ti) ti.focus(); return; }
+    var draft = generateShorts(topic, (tn && tn.value) || "diary", (ln && ln.value) || "30");
+    var list = readDrafts();
+    list.unshift(draft);
+    writeDrafts(list);
+    shortsLast = draft;
+    renderGenOut();
+    renderDrafts();
+    fillThumbPick();
+    pickThumb("draft", draft.id, true);
+    toast("대본을 만들고 제작 대기로 저장했습니다");
+  }
+
+  function draftAction(id, act){
+    var list = readDrafts();
+    var idx = -1;
+    for(var i = 0; i < list.length; i++){ if(list[i].id === id){ idx = i; break; } }
+    if(idx < 0) return;
+    if(act === "copy"){ copyText(scriptOf(list[idx]), "대본을 복사했습니다"); return; }
+    if(act === "thumb"){ pickThumb("draft", id, false); return; }
+    if(act === "toggle"){
+      list[idx].status = list[idx].status === "done" ? "wait" : "done";
+      if(shortsLast && shortsLast.id === id) shortsLast.status = list[idx].status;
+      writeDrafts(list);
+      renderDrafts();
+      renderGenOut();
+      toast(list[idx].status === "done" ? "완료로 표시했습니다" : "제작 대기로 돌렸습니다");
+      return;
+    }
+    if(act === "del"){
+      list.splice(idx, 1);
+      writeDrafts(list);
+      if(shortsLast && shortsLast.id === id) shortsLast = null;
+      renderDrafts();
+      renderGenOut();
+      fillThumbPick();
+      drawThumbNow();
+      toast("대본을 지웠습니다");
+    }
+  }
+
+  function pickThumb(kind, id, quiet){
+    thumbSel = { kind: kind, id: id };
+    var sel = $("thumbPick");
+    if(sel) sel.value = kind + ":" + id;
+    drawThumbNow();
+    if(!quiet){
+      var blk = $("shortsThumbBlock");
+      if(blk && blk.scrollIntoView) blk.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function fillThumbPick(){
+    var sel = $("thumbPick");
+    if(!sel) return;
+    var cur = thumbSel ? (thumbSel.kind + ":" + thumbSel.id) : "";
+    var html = "";
+    shortsIdeaList().forEach(function(i){ html += '<option value="idea:' + esc(i.id) + '">아이디어 · ' + esc(i.title || i.id) + '</option>'; });
+    readDrafts().forEach(function(d){ html += '<option value="draft:' + esc(d.id) + '">내 대본 · ' + esc(d.topic) + '</option>'; });
+    sel.innerHTML = html;
+    var vals = [];
+    for(var i = 0; i < sel.options.length; i++) vals.push(sel.options[i].value);
+    if(cur && vals.indexOf(cur) >= 0) sel.value = cur;
+    else if(vals.length) sel.value = vals[0];
+    if(sel.value){
+      var p = String(sel.value).split(":");
+      if(p.length === 2) thumbSel = { kind: p[0], id: p[1] };
+    }
+  }
+
+  function roundRect(g, x, y, w, h, r){
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.lineTo(x + w - r, y);
+    g.quadraticCurveTo(x + w, y, x + w, y + r);
+    g.lineTo(x + w, y + h - r);
+    g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    g.lineTo(x + r, y + h);
+    g.quadraticCurveTo(x, y + h, x, y + h - r);
+    g.lineTo(x, y + r);
+    g.quadraticCurveTo(x, y, x + r, y);
+    g.closePath();
+  }
+  function softBlob(g, x, y, r, color){
+    var rg = g.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, color);
+    rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg;
+    g.beginPath();
+    g.arc(x, y, r, 0, Math.PI * 2);
+    g.fill();
+  }
+  function setFont(g, weight, size){
+    g.font = weight + " " + size + 'px "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif';
+  }
+  function wrapCanvas(g, text, maxW, maxLines){
+    var out = [], cur = "";
+    var chars = String(text || "").split("");
+    for(var i = 0; i < chars.length; i++){
+      var test = cur + chars[i];
+      if(cur && g.measureText(test).width > maxW){ out.push(cur); cur = chars[i]; }
+      else cur = test;
+    }
+    if(cur) out.push(cur);
+    if(maxLines && out.length > maxLines){
+      out = out.slice(0, maxLines);
+      var last = out[maxLines - 1];
+      while(last.length > 1 && g.measureText(last + "…").width > maxW){ last = last.slice(0, -1); }
+      out[maxLines - 1] = last + "…";
+    }
+    return out;
+  }
+
+  function drawThumb(canvas, o){
+    if(!canvas || !canvas.getContext) return;
+    var W = 1080, H = 1920, g = canvas.getContext("2d");
+    if(canvas.width !== W) canvas.width = W;
+    if(canvas.height !== H) canvas.height = H;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+
+    var grad = g.createLinearGradient(0, 0, W * 0.7, H);
+    grad.addColorStop(0, "#fdf6ef");
+    grad.addColorStop(0.52, "#f6effc");
+    grad.addColorStop(1, "#e9e2f7");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, W, H);
+
+    softBlob(g, 170, 250, 300, "rgba(255,214,232,.85)");
+    softBlob(g, 930, 560, 250, "rgba(222,208,247,.9)");
+    softBlob(g, 880, 1660, 340, "rgba(214,228,250,.8)");
+    softBlob(g, 140, 1430, 240, "rgba(255,232,214,.8)");
+
+    g.fillStyle = "rgba(150,120,190,.28)";
+    for(var s = 0; s < 26; s++){
+      var px = (s * 197 + 60) % W, py = (s * 337 + 120) % H;
+      g.beginPath();
+      g.arc(px, py, (s % 3) + 2, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "#8a7bb0";
+    setFont(g, "700", 36);
+    g.fillText("MONGLE NOTE  ·  첫 3초", W / 2, 300);
+
+    roundRect(g, 84, 430, W - 168, 1070, 72);
+    g.fillStyle = "rgba(255,255,255,.74)";
+    g.fill();
+    g.strokeStyle = "rgba(150,130,190,.26)";
+    g.lineWidth = 3;
+    g.stroke();
+
+    var hook = String(o.hook || "");
+    var maxW = W - 168 - 160;
+    var size = 104;
+    setFont(g, "800", size);
+    var lines = wrapCanvas(g, hook, maxW, 6);
+    while(lines.length > 4 && size > 62){
+      size -= 8;
+      setFont(g, "800", size);
+      lines = wrapCanvas(g, hook, maxW, 6);
+    }
+    var lh = Math.round(size * 1.34);
+    var blockH = lines.length * lh;
+    var startY = 430 + (1070 - blockH) / 2 + lh / 2;
+    g.fillStyle = "#2b2440";
+    for(var i = 0; i < lines.length; i++){ g.fillText(lines[i], W / 2, startY + i * lh); }
+
+    g.fillStyle = "#8f7fae";
+    setFont(g, "600", 34);
+    g.fillText("마음에 남은 한 줄은, 적어두면 오래 남아요", W / 2, 1580);
+
+    g.fillStyle = "#6a5c8c";
+    setFont(g, "750", 38);
+    g.fillText("생각이 자료가 되는 공간, 몽글노트", W / 2, 1690);
+
+    g.fillStyle = "#a294bd";
+    setFont(g, "600", 30);
+    g.fillText(String(o.sub || ""), W / 2, 1752);
+
+    roundRect(g, W / 2 - 90, 1832, 180, 8, 4);
+    g.fillStyle = "rgba(150,120,190,.32)";
+    g.fill();
+  }
+
+  function drawThumbNow(){
+    var c = $("thumbCanvas");
+    if(!c) return;
+    var o = null;
+    if(thumbSel && thumbSel.kind === "idea") o = findIdea(thumbSel.id);
+    else if(thumbSel && thumbSel.kind === "draft") o = findDraft(thumbSel.id);
+    drawThumb(c, {
+      hook: (o && o.hook) ? o.hook : "오늘의 생각을 한 줄로 남겨보세요",
+      sub: o ? (String(o.length || "30초") + " · " + String(o.toneLabel || toneName(o.tone))) : "몽글노트 쇼츠·릴스 스튜디오"
+    });
+    var note = $("thumbNote");
+    if(note){
+      note.textContent = o
+        ? ("선택: " + String(o.title || o.topic || "") + " — 0~3초 훅을 1080×1920 PNG로 저장합니다.")
+        : "0~3초 훅을 1080×1920 PNG로 저장합니다.";
+    }
+  }
+
+  function saveThumb(){
+    var c = $("thumbCanvas");
+    if(!c || !c.toDataURL) return;
+    var d = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    var stamp = d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + "_" + p2(d.getHours()) + p2(d.getMinutes());
+    var name = "몽글노트_쇼츠_첫컷_" + stamp + ".png";
+    /* 앱(아리아 소셜보드 WebView)에서는 앱 저장 통로로 바로 넘긴다 — 파일 이름이 .png로 유지된다 */
+    if(window.AiriaSave && typeof window.AiriaSave.save === "function"){
+      try {
+        window.AiriaSave.save(c.toDataURL("image/png"), name, "image/png");
+        toast("9:16 첫 컷을 PNG로 저장했습니다");
+        return;
+      } catch(e){ /* 브라우저 방식으로 */ }
+    }
+    function deliver(url, revoke){
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      if(revoke) setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast("9:16 첫 컷을 PNG로 저장했습니다");
+    }
+    if(c.toBlob){
+      c.toBlob(function(b){
+        if(!b){ deliver(c.toDataURL("image/png"), false); return; }
+        deliver(URL.createObjectURL(b), true);
+      }, "image/png");
+    } else {
+      deliver(c.toDataURL("image/png"), false);
+    }
+  }
+
+  function renderShorts(){
+    var box = $("ideaList");
+    if(!box) return;
+    bindShorts();
+
+    var s = shortsBlock();
+    var list = shortsIdeaList();
+    var cnt = $("shortsCount");
+    if(cnt) cnt.textContent = num(list.length) + "개";
+    var up = $("shortsUpdated");
+    if(up) up.textContent = (s && s.updated) ? fmtDate(s.updated) : "—";
+
+    var ctx = $("shortsContext");
+    if(ctx){
+      var items = (s && Array.isArray(s.context)) ? s.context : [];
+      ctx.innerHTML = items.length ? items.map(function(c){
+        return '<span class="sctx"><b>' + esc(c.label) + '</b><span>' + esc(c.note) + '</span></span>';
+      }).join("") : "";
+    }
+
+    box.innerHTML = list.length
+      ? list.map(function(i, idx){ return ideaCard(i, idx); }).join("")
+      : '<div class="empty"><span class="big">🎬</span><strong>아직 아이디어가 없습니다</strong><p>데이터의 shortsIdeas 블록에 아이디어를 넣으면 여기에 카드로 표시됩니다.</p></div>';
+
+    renderDrafts();
+    renderGenOut();
+    fillThumbPick();
+    drawThumbNow();
+  }
+
+  function bindShorts(){
+    if(shortsBound) return;
+    var panel = $("panel-shorts");
+    if(!panel) return;
+    shortsBound = true;
+
+    panel.addEventListener("click", function(e){
+      var t = e.target.closest ? e.target.closest("button") : null;
+      if(!t) return;
+      var cid = t.getAttribute("data-copy-idea");
+      if(cid){ var idea = findIdea(cid); if(idea) copyText(scriptOf(idea), "대본을 복사했습니다"); return; }
+      var tid = t.getAttribute("data-thumb-idea");
+      if(tid){ pickThumb("idea", tid, false); return; }
+      if(t.getAttribute("data-copy-draft")){ var d1 = findDraft(t.getAttribute("data-copy-draft")); if(d1) copyText(scriptOf(d1), "대본을 복사했습니다"); return; }
+      if(t.getAttribute("data-thumb-draft")){ pickThumb("draft", t.getAttribute("data-thumb-draft"), false); return; }
+      if(t.id === "genBtn"){ runGen(); return; }
+      if(t.id === "thumbSave"){ saveThumb(); return; }
+      var row = t.closest ? t.closest("[data-draft]") : null;
+      if(row && t.getAttribute("data-dact")){ draftAction(row.getAttribute("data-draft"), t.getAttribute("data-dact")); return; }
+    });
+
+    panel.addEventListener("change", function(e){
+      if(e.target && e.target.id === "thumbPick"){
+        var p = String(e.target.value || "").split(":");
+        if(p.length === 2){ thumbSel = { kind: p[0], id: p[1] }; drawThumbNow(); }
+      }
+    });
+
+    panel.addEventListener("keydown", function(e){
+      if(e.target && e.target.id === "genTopic" && e.key === "Enter"){
+        e.preventDefault();
+        runGen();
+      }
+    });
   }
   /* ---------- export / import ---------- */
   function exportData(){
