@@ -957,6 +957,18 @@
   .vid-actions .btn{width:100%;white-space:nowrap}
   .sx-link{align-self:flex-start;background:none;border:0;padding:4px 0;font:inherit;font-size:13.5px;font-weight:650;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .vid-hint{margin:0;font-size:13px;line-height:1.65;color:var(--muted);word-break:keep-all}
+  /* 올라갈 글(캠션·해시태그) 확인·수정 */
+  .share-edit{border:1px solid var(--line);border-radius:12px;background:#FBFAF7;padding:12px}
+  .share-edit[hidden]{display:none !important}
+  .se-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .se-head b{font-size:13.5px;font-weight:800;color:var(--ink)}
+  .se-head span{font-size:12px;font-weight:650;color:var(--muted);white-space:nowrap}
+  #shareText{width:100%;box-sizing:border-box;min-height:128px;max-height:280px;resize:vertical;border:1px solid var(--line);
+    border-radius:10px;background:#fff;padding:10px 11px;font:inherit;font-size:13.5px;line-height:1.62;color:var(--ink);
+    word-break:keep-all;overflow-wrap:anywhere}
+  #shareText:focus{outline:2px solid rgba(255,107,87,.34);outline-offset:1px;border-color:#F2A08E}
+  .se-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+  .se-foot span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
   @media(min-width:760px) and (max-width:999px){
     .vid-out{grid-template-columns:minmax(0,290px) minmax(0,1fr);align-items:start}
     #vidPreview{max-height:520px}
@@ -1327,6 +1339,18 @@
           </div>
           <div class="vid-side">
             <p class="vid-meta" id="vidMeta">—</p>
+            <div class="share-edit" id="shareEdit" hidden>
+              <div class="se-head">
+                <b>올라갈 글</b>
+                <span id="shareNote">캡션 · 해시태그만</span>
+              </div>
+              <label class="sr" for="shareText">올라갈 글(캡션과 해시태그) — 고쳐도 됩니다</label>
+              <textarea id="shareText" rows="6" spellcheck="false" autocomplete="off"></textarea>
+              <div class="se-foot">
+                <span id="shareChars">0자</span>
+                <button class="mini" id="shareCopy" type="button">글만 복사</button>
+              </div>
+            </div>
             <div class="vid-actions">
               <button class="btn primary" id="vidSave" type="button">⬇️ 영상 저장</button>
               <button class="btn up" id="vidUpload" type="button">📤 올리기 ↗</button>
@@ -3393,9 +3417,12 @@
   }
 
 /* ==========================================================================
-   v1.4 — 쇼츠 · 릴스 스튜디오 (3단계: 플랫폼 → 대본 → 영상·업로드)
+   v1.5 — 쇼츠 · 릴스 스튜디오 (3단계: 플랫폼 → 대본 → 영상·업로드)
    · 대본은 데이터(shortsIdeas)에서, 영상은 이 화면의 Canvas + MediaRecorder 로만 만든다
    · 자막은 한글 '어절(공백)' 단위로만 줄바꿈한다 (keep-all)
+   · v1.5: 올라갈 글은 화면에서 확인·수정하고, 복사·공유로 나가는 문구는
+           언제나 '캡션 + 해시태그'(쇼츠는 제목 + 설명 + 해시태그)뿐이다.
+           4컷 대본·화면 지시문·컷 번호는 절대 섞이지 않는다(shareDirty 검사).
    ========================================================================== */
   var SHORTS_KEY = "arisia949_shorts_v1";
   var PLAT_KEY = "arisia949_plat_v1";
@@ -3404,7 +3431,7 @@
   var shortsLast = null;          /* 방금 만든 대본 */
   var sel = null;                 /* { kind:"idea"|"draft", id:"…" } */
   var plat = "reels";             /* reels | shorts */
-  var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0 };
+  var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0, textKey:"" };
 
   var PLAT = {
     reels: {
@@ -3414,7 +3441,7 @@
       dur: [3.5, 4, 4.5, 3],
       roles: ["공감 훅", "감정", "전환", "여운"],
       upload: { label: "📤 인스타 릴스 올리기 ↗", url: "https://www.instagram.com/",
-                copy: "릴스 캡션·해시태그를 복사했어요 — 인스타에서 붙여넣기" }
+                copy: "릴스 올라갈 글(캡션·해시태그)만 복사했어요 — 인스타에서 붙여넣기" }
     },
     shorts: {
       key: "shorts", icon: "▶", name: "유튜브 쇼츠", short: "쇼츠",
@@ -3423,7 +3450,7 @@
       dur: [2.5, 4, 5, 3.5],
       roles: ["결론 훅", "1단계", "2·3단계", "요약"],
       upload: { label: "📤 유튜브 쇼츠 올리기 ↗", url: "https://www.youtube.com/upload",
-                copy: "쇼츠 제목·설명·태그를 복사했어요 — 유튜브에서 붙여넣기" }
+                copy: "쇼츠 올라갈 글(제목·설명·해시태그)만 복사했어요 — 유튜브에서 붙여넣기" }
     }
   };
 
@@ -3597,6 +3624,45 @@
              text: String(v.caption || "") + NL + NL + tags, msg: q.upload.copy };
   }
 
+  /* ---------- 올라갈 글 (캡션·해시태그만 — 대본은 절대 넣지 않는다) ---------- */
+  /* 4컷 대본의 구조 표시(컷 번호·화면·자막·나레이션·STEP·컷 시간)가 섞였는지 본다. */
+  var SHARE_DIRTY = /(^|\n)\s*\d+\s*컷|(^|\n)\s*화면\s*[:：]|(^|\n)\s*자막\s*[:：]|(^|\n)\s*나레이션|(^|\n)\s*STEP\s*\d|\(\s*\d+(\.\d+)?\s*~/i;
+  function shareDirty(t){ return SHARE_DIRTY.test(String(t == null ? "" : t)); }
+  function normShare(t){
+    return String(t == null ? "" : t)
+      .replace(/\r\n?/g, NL)
+      .replace(/[ \t]+$/gm, "")
+      .replace(/\n{3,}/g, NL + NL)
+      .replace(/^\s+|\s+$/g, "");
+  }
+  /* 복사·공유로 나가는 단 하나의 문구. 입력칸의 사용자가 고친 값을 쓰고, 대본이 섞이면 원래 문구로 되돌린다. */
+  function shareTextNow(){
+    var v = VIDEO.view || viewOfSel();
+    var plan = uploadPlan(v);
+    var ta = $("shareText");
+    var t = "";
+    if(ta && String(ta.value || "").trim()) t = normShare(ta.value);
+    if(!t && plan) t = normShare(plan.text);
+    if(shareDirty(t) && plan) t = normShare(plan.text);
+    return t;
+  }
+  function fillShare(v){
+    var box = $("shareText"), wrap = $("shareEdit");
+    if(!box || !wrap) return;
+    var plan = uploadPlan(v);
+    if(!plan){ wrap.hidden = true; return; }
+    wrap.hidden = false;
+    var key = String(v.plat || plat) + "|" + String(v.id || v.title || "");
+    if(VIDEO.textKey !== key){
+      box.value = normShare(plan.text);
+      VIDEO.textKey = key;
+    }
+    var c = $("shareChars");
+    if(c) c.textContent = (box.value.length || 0) + "자";
+    var n = $("shareNote");
+    if(n) n.textContent = (v.plat === "shorts") ? "제목 · 설명 · 해시태그만" : "캡션 · 해시태그만";
+  }
+
   /* ---------- 화면: 아이디어 목록 ---------- */
   function platChip(p){
     var q = P(p);
@@ -3679,6 +3745,7 @@
       hint.textContent = "‘영상 저장’은 휴대폰에, ‘" + q.short + " 올리기’는 " + (q.key === "shorts" ? "유튜브" : "인스타") + "로 바로 갑니다. 올릴 글은 자동으로 복사돼요.";
     }
     if(meta && !VIDEO.blob) meta.textContent = "—";
+    fillShare(v);
   }
 
   function renderPlatform(){
@@ -3725,6 +3792,7 @@
   /* ---------- 화면: 대본 선택 ---------- */
   function selectScript(kind, id, quiet){
     sel = { kind: kind, id: id };
+    VIDEO.textKey = "";
     var s = $("vidPick");
     if(s) s.value = kind + ":" + id;
     renderIdeas();
@@ -4619,11 +4687,12 @@
         var out = $("vidOut");
         if(out) out.hidden = false;
         progressText(1, 4, 4);
+        VIDEO.textKey = "";
         var plan = uploadPlan(v);
         var up = $("vidUpload");
         if(up && plan) up.textContent = plan.label;
         var hint = $("vidHint");
-        if(hint) hint.textContent = "이제 ‘" + (p === "shorts" ? "유튜브 쇼츠" : "인스타 릴스") + " 올리기’를 누르면 올릴 글이 복사되고 앱이 열립니다.";
+        if(hint) hint.textContent = "‘" + (p === "shorts" ? "유튜브 쇼츠" : "인스타 릴스") + " 올리기’를 누르면 올라갈 글(캡션·해시태그)만 복사되고, 방금 만든 영상이 올라간 상태로 공유 창이 열립니다.";
         updateStep3();
         if(out && out.hidden === false && out.scrollIntoView){
           setTimeout(function(){ out.scrollIntoView({ behavior: "smooth", block: "center" }); }, 120);
@@ -4707,13 +4776,92 @@
     try { w = window.open(url, "_blank"); } catch(e){ w = null; }
     if(!w){ try { location.href = url; } catch(e){} }
   }
+  /* ---------- 바로 올리기 (영상 + 캡션·해시태그를 한 번에) ---------- */
+  function mimePlain(){
+    var m = String(VIDEO.mime || "video/mp4").split(";")[0].trim();
+    return m.indexOf("video/") === 0 ? m : "video/mp4";
+  }
+  function shareFileName(){
+    if(VIDEO.name) return VIDEO.name;
+    var ext = mimePlain().indexOf("webm") >= 0 ? ".webm" : ".mp4";
+    return "몽글노트_" + P(VIDEO.plat || plat).short + "_" + stampName() + ext;
+  }
+
+  /* 앱(WebView): AiriaShare 네이티브 브리지.
+     영상을 cacheDir/share 로 청크 전송하고, 글은 네이티브 클립보드에 넣은 뒤 ACTION_SEND 공유 시트를 띄운다.
+     인스타 앱은 EXTRA_TEXT 를 무시하는 경우가 많아 클립보드 복사를 반드시 병행한다. */
+  function nativeShareVideo(text){
+    if(!(window.AiriaShare && typeof window.AiriaShare.shareVideo === "function")) return false;
+    var blob = VIDEO.blob;
+    if(!blob) return false;
+    var token = "";
+    try { token = String(window.AiriaShare.shareVideo(shareFileName(), mimePlain(), text) || ""); } catch(e){ token = ""; }
+    if(!token) return false;
+    var CHUNK = 1024 * 1024, off = 0;
+    toast("영상을 공유 창으로 보내는 중…");
+    (function step(){
+      if(off >= blob.size){
+        try { window.AiriaShare.finishShare(token); } catch(e){ toast("공유 창을 열지 못했어요"); }
+        return;
+      }
+      var part = blob.slice(off, Math.min(blob.size, off + CHUNK));
+      var fr = new FileReader();
+      fr.onload = function(){
+        var s = String(fr.result || "");
+        var i = s.indexOf(",");
+        var b64 = i >= 0 ? s.slice(i + 1) : s;
+        var ok = false;
+        try { ok = window.AiriaShare.shareChunk(token, b64); } catch(e){ ok = false; }
+        if(!ok){
+          try { window.AiriaShare.cancelShare(token); } catch(e){}
+          toast("공유할 영상을 준비하지 못했어요 — ‘영상 저장’ 후 갤러리에서 올려 주세요");
+          return;
+        }
+        off += CHUNK;
+        step();
+      };
+      fr.onerror = function(){
+        try { window.AiriaShare.cancelShare(token); } catch(e){}
+        toast("공유할 영상을 읽지 못했어요 — ‘영상 저장’ 후 갤러리에서 올려 주세요");
+      };
+      fr.readAsDataURL(part);
+    })();
+    return true;
+  }
+
+  /* PC·모바일 브라우저: 파일 + 텍스트를 함께 공유할 수 있으면 그대로 공유 */
+  function webShareVideo(text){
+    if(!(navigator.share && navigator.canShare && typeof File === "function")) return false;
+    var blob = VIDEO.blob;
+    if(!blob) return false;
+    var file = null;
+    try { file = new File([blob], shareFileName(), { type: mimePlain() }); } catch(e){ file = null; }
+    if(!file) return false;
+    var can = false;
+    try { can = navigator.canShare({ files: [file] }); } catch(e){ can = false; }
+    if(!can) return false;
+    try {
+      navigator.share({ files: [file], text: text }).then(function(){
+        toast("공유 창에서 인스타(릴스)·유튜브를 골라 주세요");
+      }).catch(function(){
+        copyText(text, "올라갈 글을 복사했어요 — 영상도 저장해 두었습니다");
+        try { browserSave(VIDEO.blob, shareFileName()); } catch(e){}
+      });
+    } catch(e){ return false; }
+    return true;
+  }
+
   function doUpload(){
     var v = VIDEO.view || viewOfSel();
     if(!v){ toast("먼저 대본을 골라 주세요"); return; }
     if(!VIDEO.blob){ toast("먼저 영상을 만들어 주세요"); return; }
     var plan = uploadPlan(v);
     if(!plan) return;
-    copyText(plan.text, plan.msg);
+    var text = shareTextNow() || normShare(plan.text);   /* 캡션 + 해시태그만 — 대본은 들어가지 않는다 */
+    if(nativeShareVideo(text)) return;                    /* 앱: 영상 + 글을 공유 시트로 한 번에 */
+    if(webShareVideo(text)) return;                       /* 브라우저: 파일 + 텍스트 동시 공유 */
+    copyText(text, plan.msg);                             /* 폴백: 글 복사 + 영상 저장 + 업로드 창 */
+    try { browserSave(VIDEO.blob, shareFileName()); } catch(e){}
     openOut(plan.url);
   }
 
@@ -4969,6 +5117,7 @@
       if(t.id === "vidGo"){ makeVideo(); return; }
       if(t.id === "vidSave"){ saveVideo(); return; }
       if(t.id === "vidUpload"){ doUpload(); return; }
+      if(t.id === "shareCopy"){ copyText(shareTextNow(), "올라갈 글만 복사했어요 — 대본은 들어가지 않습니다"); return; }
       if(t.id === "vidAgain"){ makeVideo(); return; }
       if(t.getAttribute("data-copy")){ copyText(scriptOf(viewOfSel()), "대본을 복사했습니다"); return; }
       if(t.getAttribute("data-to-video")){
@@ -4986,6 +5135,14 @@
 
       var row = t.closest ? t.closest("[data-draft]") : null;
       if(row && t.getAttribute("data-dact")){ draftAction(row.getAttribute("data-draft"), t.getAttribute("data-dact")); return; }
+    });
+
+    panel.addEventListener("input", function(e){
+      if(!e.target) return;
+      if(e.target.id === "shareText"){
+        var c = $("shareChars");
+        if(c) c.textContent = (e.target.value.length || 0) + "자";
+      }
     });
 
     panel.addEventListener("change", function(e){
