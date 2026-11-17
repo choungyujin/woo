@@ -3643,7 +3643,10 @@
     var t = "";
     if(ta && String(ta.value || "").trim()) t = normShare(ta.value);
     if(!t && plan) t = normShare(plan.text);
-    if(shareDirty(t) && plan) t = normShare(plan.text);
+    if(shareDirty(t) && plan){
+      t = normShare(plan.text);
+      toast("대본 표시(컷·화면·자막)는 공유 문구에서 빠집니다 — 캡션·해시태그만 나가요");
+    }
     return t;
   }
   function fillShare(v){
