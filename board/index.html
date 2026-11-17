@@ -493,6 +493,220 @@
   .thumb-frame canvas{width:100%;max-width:300px;height:auto;display:block;border-radius:22px;box-shadow:0 18px 40px -22px rgba(60,40,90,.55);border:1px solid #eee6f6;background:#f6f1fb}
 
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  /* ================= v1.2 UI ================= */
+  :root{
+    --bg:#F8F7F4; --card:#FFFFFF; --ink:#141417; --ink-2:#43434B; --muted:#8B8B93;
+    --line:rgba(20,20,25,.08); --line-2:rgba(20,20,25,.05);
+    --radius:20px;
+    --shadow:0 1px 2px rgba(20,20,25,.03), 0 14px 32px -28px rgba(20,20,25,.4);
+    --coral:#FF6B57; --plum:#6C5CE7; --sand:#F2EDE4;
+  }
+  body{background:var(--bg);font-size:14.5px}
+  .wrap{max-width:1120px;padding:0 16px 44px}
+
+  /* ---------- 헤더: 초슬림 ---------- */
+  .hero{background:var(--bg);color:var(--ink);padding:calc(14px + env(safe-area-inset-top,0px)) 16px 4px}
+  .hero .eyebrow,.hero .sub{display:none}
+  .hero-inner{max-width:1120px}
+  .hero-top{align-items:center;gap:10px}
+  .hero h1{font-size:18px;font-weight:800;letter-spacing:-.03em}
+  .hero-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .prof,button.prof{
+    background:#fff;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;
+    padding:8px 12px;font-size:12.5px;font-weight:650;box-shadow:none;text-decoration:none;
+  }
+  .prof:hover,button.prof:hover{background:#fff;border-color:rgba(20,20,25,.18)}
+  .hero-actions a.prof{display:none}
+  .chips{margin-top:8px;gap:6px}
+  .chips .chip:not(.sync):not(#chipSource){display:none}
+  .chip{background:transparent;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:4px 9px}
+  .chip b{color:var(--ink-2)}
+
+  /* ---------- 탭: 한 줄 가로 스크롤 ---------- */
+  .tabs{
+    position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;
+    padding:8px 16px;margin:10px -16px 16px;background:rgba(248,247,244,.92);
+    border-bottom:1px solid var(--line-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  }
+  .tab{
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    padding:8px 13px;font-size:12.5px;font-weight:650;border-radius:999px;white-space:nowrap;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:none}
+  .tab-star{background:linear-gradient(135deg,#FFF1EC,#F1EDFF);border-color:rgba(255,107,87,.32);color:#B8432E;font-weight:750}
+  .tab-star[aria-selected="true"]{background:linear-gradient(135deg,#FF7A59,#6C5CE7);border-color:transparent;color:#fff;box-shadow:0 10px 22px -14px rgba(108,92,231,.9)}
+
+  /* ---------- 카드·블록 ---------- */
+  .block{border-radius:20px;border:1px solid var(--line);box-shadow:none;margin-bottom:12px}
+  .block-head{padding:16px 18px 12px}
+  .block-head h2{font-size:14.5px;font-weight:750;letter-spacing:-.02em}
+  .block-head p{font-size:12px;line-height:1.55}
+  .block-body{padding:14px 18px 18px}
+  .count{background:#F2F1EC;color:#6E6A5E;font-size:11px;padding:2px 7px}
+  .toolbar{background:transparent;padding:12px 18px}
+  .fbtn{background:#fff;border-radius:999px;font-size:12px;padding:6px 11px}
+  .fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+  .btn{border-radius:12px;font-size:13px;padding:9px 14px}
+  .btn.primary{background:var(--ink);border-color:var(--ink)}
+  .notice{border-radius:14px;background:#FCF7EC;border-color:#EFE2C8;font-size:12px}
+  .notice.blue{background:#F1F4FC;border-color:#DFE6F7}
+  .listhead{background:transparent}
+  .cards{gap:9px}
+  .card{border-radius:16px;box-shadow:none;min-height:0;padding:12px}
+  .card .v{font-size:20px}
+  .card .h{font-size:10px}
+
+  /* ---------- 오늘 탭 ---------- */
+  .today-hero{background:linear-gradient(165deg,#fff 0%,#FCFBF8 100%);border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:12px}
+  .today-hero .eyebrow{display:block;color:var(--muted);font-size:10px;letter-spacing:.16em;margin:0 0 4px}
+  .today-hero h2{margin:0;font-size:18px;font-weight:800;letter-spacing:-.03em}
+  .today-hero .muted{margin:4px 0 0;font-size:11.5px;color:var(--muted)}
+  .kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+  @media(min-width:680px){ .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:11px 12px}
+  .kpi .k{display:block;font-size:11px;color:var(--muted);font-weight:650}
+  .kpi .v{display:block;font-size:21px;font-weight:800;letter-spacing:-.03em;margin-top:3px;font-variant-numeric:tabular-nums}
+  .kpi .d{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+  .kpi .d b{font-weight:700}
+  .kpi .d.up{color:#0F8A5F}
+  .kpi .d.down{color:#B8432E}
+  .spark-card{margin-top:8px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px 10px}
+  .spark-head{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted)}
+  .spark svg{display:block;width:100%;height:52px;margin-top:2px}
+  .spark-foot{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
+  .spark-empty{margin:6px 0 0;font-size:11.5px;color:var(--muted)}
+  .ctx-fold{border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:10px}
+  .ctx-fold>summary{cursor:pointer;list-style:none;padding:9px 13px;font-size:11.5px;font-weight:650;color:var(--muted)}
+  .ctx-fold>summary::-webkit-details-marker{display:none}
+  .ctx-fold>summary::after{content:"  ＋";float:right;color:var(--muted)}
+  .ctx-fold[open]>summary::after{content:"  －"}
+  .ctx-list{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 12px}
+  [data-sec="insta"] .notice.blue{background:#FBFAF7;border-color:var(--line);color:var(--muted)}
+
+  .pick-card{
+    position:relative;overflow:hidden;border-radius:22px;padding:18px;margin-bottom:12px;color:#fff;
+    background:radial-gradient(140% 130% at 100% 0%, #FF7A59 0%, #C6518F 45%, #4B3A82 100%);
+    box-shadow:0 18px 40px -32px rgba(75,58,130,.9);
+  }
+  .pick-eyebrow{margin:0;font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.82;font-weight:700}
+  .pick-card h3{margin:7px 0 0;font-size:16px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+  .pick-hook{margin:8px 0 0;font-size:13px;line-height:1.6;opacity:.95}
+  .pick-meta{margin:8px 0 0;font-size:11px;opacity:.78}
+  .pick-btn{
+    margin-top:14px;border:0;border-radius:12px;background:#fff;color:#3B2F63;
+    padding:10px 14px;font-size:12.5px;font-weight:750;cursor:pointer;
+  }
+  .pick-btn:hover{opacity:.92}
+
+  .todo-row{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .todo-row:last-child{border-bottom:0;padding-bottom:0}
+  .todo-tag{flex:0 0 auto;font-size:10px;font-weight:750;padding:3px 7px;border-radius:999px;background:#F2F1EC;color:#6E6A5E;white-space:nowrap}
+  .todo-main{min-width:0}
+  .todo-who{font-size:12.5px;font-weight:700;text-decoration:none;word-break:break-all}
+  .todo-who:hover{text-decoration:underline}
+  .todo-txt{margin:3px 0 0;font-size:12px;color:var(--ink-2);line-height:1.55;word-break:break-word}
+
+  .fold{margin:0 0 12px;border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden}
+  .fold>summary{cursor:pointer;padding:13px 16px;font-size:12.5px;font-weight:700;color:var(--ink-2);list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .fold>summary::-webkit-details-marker{display:none}
+  .fold>summary::after{content:"＋";font-size:13px;color:var(--muted)}
+  .fold[open]>summary::after{content:"－"}
+  .fold>.summary{margin:0;padding:0 12px 14px}
+  .fold>.summary .group:first-child .group-label{color:var(--muted)}
+  .fold>.summary .group:first-child .group-label .d{color:var(--muted)}
+  .panel-plain{display:block;padding:0 2px}
+  .panel-plain .block{margin-bottom:10px}
+
+  /* ---------- 세그먼트(댓글·DM) ---------- */
+  .segbar{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none}
+  .segbar::-webkit-scrollbar{display:none}
+  .seg{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:650;cursor:pointer;white-space:nowrap}
+  .seg.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  /* ---------- 쇼츠 스튜디오 ---------- */
+  .studio{
+    border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:12px;
+    background:radial-gradient(120% 120% at 0% 0%, #FFF4EF 0%, #F4F0FF 48%, #FFFFFF 100%);
+  }
+  .studio-head .eyebrow{margin:0;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#B8432E;font-weight:750}
+  .studio-head h2{margin:6px 0 0;font-size:20px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .studio-head .muted{margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.55}
+  .short-context{display:block;margin-top:10px}
+  .sctx{display:inline-flex;gap:6px;align-items:baseline;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;color:var(--muted)}
+  .sctx b{color:var(--ink-2);font-weight:700}
+  .studio-grid{display:grid;gap:10px;margin-top:14px}
+  @media(min-width:760px){ .studio-grid{grid-template-columns:1.08fr .92fr;align-items:start} }
+  .idea-hero{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px}
+  .hero-eyebrow{margin:0;font-size:10px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:#B8432E}
+  .idea-hero h3{margin:8px 0 0;font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+  .hero-meta{margin:6px 0 0;font-size:11px;color:var(--muted)}
+  .idea-hero .hook-box{margin-top:10px}
+  .idea-more{margin-top:12px;border-top:1px solid var(--line-2);padding-top:10px}
+  .idea-more>summary{cursor:pointer;font-size:11.5px;font-weight:700;color:var(--muted);list-style:none}
+  .idea-more>summary::-webkit-details-marker{display:none}
+  .idea-more>summary::after{content:"  ⌄"}
+  .idea-more[open]>summary::after{content:"  ⌃"}
+  #shortsThumbBlock{border-radius:20px}
+  #shortsThumbBlock .shorts-thumb{display:flex;flex-direction:column-reverse;gap:10px;padding:14px 14px 16px}
+  #shortsThumbBlock .thumb-frame{display:flex;justify-content:center}
+  #shortsThumbBlock canvas{width:auto;max-height:300px;border-radius:14px;border:1px solid var(--line);box-shadow:0 14px 30px -24px rgba(20,20,25,.7)}
+  #shortsThumbBlock .thumb-side{display:flex;flex-direction:column;gap:8px}
+  #shortsThumbBlock .thumb-side label{font-size:11px;color:var(--muted);font-weight:650;display:block}
+  #shortsThumbBlock select{width:100%;margin-top:5px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;background:#fff}
+  #shortsThumbBlock .thumb-note{margin:0;font-size:10.5px;color:var(--muted)}
+  @media(max-width:600px){
+    #shortsThumbBlock .block-head p{display:none}
+    #shortsThumbBlock .thumb-note{display:none}
+    #shortsThumbBlock canvas{max-height:250px}
+    .studio{padding:15px}
+  }
+  .slim-grid{display:grid;gap:9px}
+  @media(min-width:760px){ .slim-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start} }
+  .idea-slim{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 14px}
+  .idea-slim-top{display:flex;gap:9px;align-items:flex-start}
+  .idea-slim-main{min-width:0}
+  .idea-slim h3{margin:0;font-size:13.5px;font-weight:750;letter-spacing:-.02em;line-height:1.4}
+  .idea-slim-meta{margin:3px 0 0;font-size:10.5px;color:var(--muted)}
+  .idea-slim-hook{margin:8px 0 0;font-size:12px;color:var(--ink-2);line-height:1.55}
+  .idea-no{flex:0 0 auto;display:grid;place-items:center;width:22px;height:22px;border-radius:8px;background:#F2F1EC;color:#6E6A5E;font-size:11px;font-weight:800}
+  .slim-empty{margin:0;font-size:12px;color:var(--muted)}
+
+  /* ---------- 공통: 아이디어·대본 내부 ---------- */
+  .hook-box{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#FBF7F4;border:1px solid rgba(255,107,87,.16)}
+  .hook-box b{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#B8432E;font-weight:750}
+  .hook-box p{margin:5px 0 0;font-size:13px;line-height:1.6;font-weight:650;color:var(--ink)}
+  .cuts{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px}
+  .cuts li{background:#FBFAF7;border:1px solid var(--line-2);border-radius:12px;padding:9px 11px}
+  .cut-head{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:var(--muted)}
+  .cut-head b{color:var(--ink-2);font-weight:750}
+  .cut-screen,.cut-line{margin:5px 0 0;font-size:12px;line-height:1.55;color:var(--ink-2)}
+  .cut-screen b,.cut-line b{display:inline-block;min-width:30px;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:750;margin-right:4px}
+  .idea-narr{margin:10px 0 0;font-size:12px;line-height:1.6;color:var(--ink-2);background:#FBFAF7;border-radius:12px;padding:10px 11px}
+  .idea-narr b{display:block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+  .tags span{font-size:10.5px;color:#6E6A5E;background:#F2F1EC;border-radius:999px;padding:3px 8px}
+  .idea-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .idea-aud{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
+  .idea-aud b{color:var(--ink-2);font-weight:700;margin-right:5px}
+  .gen-form{display:grid;gap:9px}
+  @media(min-width:720px){ .gen-form{grid-template-columns:1.6fr .9fr .7fr auto;align-items:end} }
+  .gen-field span{display:block;font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-bottom:4px}
+  .gen-field input,.gen-field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:11px;font-size:13px;background:#fff;outline:none}
+  .gen-field input:focus,.gen-field select:focus{border-color:rgba(20,20,25,.28)}
+  .draft-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+
+  /* ---------- 목록·댓글 등 미세 조정 ---------- */
+  .clist{background:transparent;padding:14px 18px 18px;gap:8px}
+  .ccard{border-radius:14px}
+  .row{padding:11px 18px}
+  .kv div{padding:8px 0;font-size:12.5px}
+  .snap-list{border-radius:14px}
+  .chart-block{border-radius:16px;box-shadow:none}
+  .toast{border-radius:14px;font-size:12.5px;background:#141417}
+  footer{max-width:1120px;padding:18px 16px 0;font-size:10.5px;color:#A6A29A}
+  footer .lock{color:var(--muted)}
+
 </style>
 </head>
 <body class="locked">
@@ -541,6 +755,38 @@
 
 <div class="wrap">
 
+
+  <nav class="tabs" role="tablist" aria-label="대시보드 탭" id="tabs">
+    <button class="tab" role="tab" id="tab-today" aria-controls="panel-today" aria-selected="true" data-tab="today">📊 오늘 요약</button>
+    <button class="tab tab-star" role="tab" id="tab-shorts" aria-controls="panel-shorts" aria-selected="false" data-tab="shorts" tabindex="-1">🎬 쇼츠·릴스</button>
+    <button class="tab" role="tab" id="tab-talk" aria-controls="panel-talk" aria-selected="false" data-tab="talk" tabindex="-1">💬 댓글·DM</button>
+    <button class="tab" role="tab" id="tab-follow" aria-controls="panel-follow" aria-selected="false" data-tab="follow" tabindex="-1">👥 맞팔 관리</button>
+    <button class="tab" role="tab" id="tab-tips" aria-controls="panel-tips" aria-selected="false" data-tab="tips" tabindex="-1">💡 홍보·수익화</button>
+    <button class="tab" role="tab" id="tab-manage" aria-controls="panel-manage" aria-selected="false" data-tab="manage" tabindex="-1">⚙️ 관리</button>
+  </nav>
+
+  <!-- ============ 0. 오늘 요약 ============ -->
+  <section class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
+    <div class="today-hero">
+      <p class="eyebrow">Today</p>
+      <h2>오늘 요약</h2>
+      <p class="muted" id="todaySub">—</p>
+      <div class="kpi-grid" id="todayKpi"></div>
+      <div class="spark-card" id="todaySpark"></div>
+    </div>
+
+    <div class="pick-card" id="todayShorts"></div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>지금 확인할 것 <span class="count" id="todayTodoCount">—</span></h2>
+        <p>답글 대기·새 DM처럼 지금 바로 반응하면 좋은 것만 모았습니다.</p>
+      </div>
+      <div class="block-body" id="todayTodo"></div>
+    </div>
+
+    <details class="fold">
+      <summary>전체 지표 자세히 (팔로우 · 오늘의 소통)</summary>
   <section class="summary" aria-label="요약">
     <div class="group">
       <h2 class="group-label">팔로우 현황</h2>
@@ -554,21 +800,32 @@
       <div class="cards c4" id="cardsTalk"></div>
     </div>
   </section>
+    </details>
 
-  <nav class="tabs" role="tablist" aria-label="대시보드 탭" id="tabs">
-    <button class="tab" role="tab" id="tab-follow" aria-controls="panel-follow" aria-selected="true" data-tab="follow">맞팔 현황</button>
-    <button class="tab" role="tab" id="tab-insta" aria-controls="panel-insta" aria-selected="false" data-tab="insta" tabindex="-1">인스타 댓글</button>
-    <button class="tab" role="tab" id="tab-threads" aria-controls="panel-threads" aria-selected="false" data-tab="threads" tabindex="-1">스레드 댓글</button>
-    <button class="tab" role="tab" id="tab-dm" aria-controls="panel-dm" aria-selected="false" data-tab="dm" tabindex="-1">DM 현황</button>
-    <button class="tab" role="tab" id="tab-growth" aria-controls="panel-growth" aria-selected="false" data-tab="growth" tabindex="-1">성장 추이</button>
-    <button class="tab" role="tab" id="tab-tips" aria-controls="panel-tips" aria-selected="false" data-tab="tips" tabindex="-1">홍보·수익화 팁</button>
-    <button class="tab" role="tab" id="tab-shorts" aria-controls="panel-shorts" aria-selected="false" data-tab="shorts" tabindex="-1">🎬 쇼츠·릴스</button>
-    <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data" tabindex="-1">데이터 관리</button>
-  </nav>
+    <details class="fold" id="todayGrowthFold">
+      <summary>성장 추이 자세히 (차트 · 스냅샷 기록)</summary>
+      <div class="panel-plain" id="growthHost"></div>
+    </details>
+  </section>
 
-  <!-- ============ 1. 맞팔 현황 ============ -->
+  <!-- ============ 3. 댓글·DM ============ -->
+  <section class="panel" id="panel-talk" role="tabpanel" aria-labelledby="tab-talk" hidden>
+    <div class="segbar" id="talkSeg" role="group" aria-label="보기 선택">
+      <button class="seg on" type="button" data-seg="all" aria-pressed="true">전체</button>
+      <button class="seg" type="button" data-seg="dm" aria-pressed="false">DM</button>
+      <button class="seg" type="button" data-seg="threads" aria-pressed="false">스레드</button>
+      <button class="seg" type="button" data-seg="insta" aria-pressed="false">인스타</button>
+    </div>
+    <div id="talkBody"></div>
+  </section>
+
+  <!-- ============ 4. 맞팔 관리 ============ -->
   <section class="panel" id="panel-follow" role="tabpanel" aria-labelledby="tab-follow">
     <div class="block">
+      <div class="block-head">
+        <h2>맞팔 관리 <span class="count" id="followCount">—</span></h2>
+        <p>계정을 눌러 프로필을 열고, 상태·최근 맞팔로 걸러 볼 수 있어요.</p>
+      </div>
       <div class="toolbar">
         <div class="filters" id="filters" role="group" aria-label="상태 필터">
           <button class="fbtn" data-filter="all" aria-pressed="true">전체 <span class="n" id="f-all">—</span></button>
@@ -720,23 +977,44 @@
     <div id="tipsBody"></div>
   </section>
 
-  <!-- ============ 7. 쇼츠·릴스 스튜디오 ============ -->
+  <!-- ============ 2. 쇼츠·릴스 스튜디오 ============ -->
   <section class="panel" id="panel-shorts" role="tabpanel" aria-labelledby="tab-shorts" hidden>
-    <div class="block">
-      <div class="block-head">
-        <h2>🎬 오늘의 몽글노트 쇼츠·릴스 아이디어 <span class="count" id="shortsCount">0개</span></h2>
-        <p>오늘 실제로 확인한 유튜브 구독 영상·인스타·스레드 소통에서 이어지는 아이디어입니다. 아이디어 갱신 <b id="shortsUpdated">—</b> · 카드의 <b>전체 대본 복사</b>로 3초 훅·4컷 구성·나레이션·해시태그를 한 번에 가져가세요.</p>
-      </div>
-      <div class="block-body">
+    <div class="studio">
+      <div class="studio-head">
+        <p class="eyebrow">Shorts studio</p>
+        <h2>오늘의 쇼츠·릴스 <span class="count" id="shortsCount">0개</span></h2>
+        <p class="muted">오늘 확인한 〈유튜브·인스타·스레드 소통〉에서 이어지는 아이디어 · 갱신 <b id="shortsUpdated">—</b></p>
         <div class="short-context" id="shortsContext"></div>
-        <div class="idea-list" id="ideaList"></div>
+      </div>
+
+      <div class="studio-grid">
+        <div id="ideaHero"></div>
+
+        <div class="block" id="shortsThumbBlock">
+          <div class="block-head">
+            <h2>9:16 첫 컷 미리보기 <span class="count">9:16</span></h2>
+            <p>0~3초 훅을 세로 카드로 그립니다. 외부 이미지·폰트 요청 없이 이 화면의 Canvas로만 그려 <b>PNG로 저장</b>됩니다.</p>
+          </div>
+          <div class="block-body shorts-thumb">
+            <div class="thumb-side">
+              <label>미리보기 선택
+                <select id="thumbPick"></select>
+              </label>
+              <button class="btn primary" id="thumbSave" type="button">PNG로 저장 (1080×1920)</button>
+              <p class="thumb-note" id="thumbNote">0~3초 훅을 세로 카드로 그립니다.</p>
+            </div>
+            <div class="thumb-frame">
+              <canvas id="thumbCanvas" width="1080" height="1920" aria-label="9:16 첫 컷 미리보기"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="block">
       <div class="block-head">
-        <h2>내 아이디어 → 쇼츠·릴스 대본</h2>
-        <p>오늘 겪은 일을 한 줄로 적고 톤·길이만 고르면 0~3초 훅과 4컷 대본이 바로 나옵니다. 외부 AI를 부르지 않고 이 화면 안의 문장 틀로만 만들고, 만든 대본은 <b>제작 대기 / 완료</b> 상태로 이 기기에 저장됩니다.</p>
+        <h2>내 아이디어 → 대본 <span class="count" id="genSavedCount">0개 저장</span></h2>
+        <p>오늘 겪은 일을 한 줄로 적고 톤·길이만 고르면 0~3초 훅과 4컷 대본이 바로 나옵니다. 외부 AI 없이 이 화면 안에서만 만들고, 만든 대본은 이 기기에 저장됩니다.</p>
       </div>
       <div class="block-body">
         <div class="gen-form">
@@ -759,33 +1037,25 @@
           <button class="btn primary" id="genBtn" type="button">대본 만들기</button>
         </div>
         <div class="gen-out" id="genOut"></div>
-        <h3 class="group-label" style="margin:20px 2px 8px">저장한 내 대본 <span class="count" id="genSavedCount">0개</span></h3>
+        <h3 class="group-label" style="margin:20px 2px 8px">저장한 내 대본</h3>
         <div id="genSaved"></div>
       </div>
     </div>
 
-    <div class="block" id="shortsThumbBlock">
+    <div class="block">
       <div class="block-head">
-        <h2>세로형 첫 컷 미리보기 <span class="count">9:16</span></h2>
-        <p>선택한 아이디어의 0~3초 훅을 세로 카드로 그립니다. 외부 이미지·폰트 요청 없이 이 화면의 Canvas로만 그려 <b>PNG로 저장</b>됩니다.</p>
+        <h2>오늘의 아이디어 더 보기</h2>
+        <p>카드를 누르면 4컷 대본이 펼쳐집니다. 대본 복사·9:16 첫 컷도 카드 안에서 바로.</p>
       </div>
-      <div class="block-body shorts-thumb">
-        <div class="thumb-side">
-          <label>미리보기 선택
-            <select id="thumbPick"></select>
-          </label>
-          <button class="btn primary" id="thumbSave" type="button">PNG로 저장 (1080×1920)</button>
-          <p class="thumb-note" id="thumbNote">0~3초 훅을 세로 카드로 그립니다.</p>
-        </div>
-        <div class="thumb-frame">
-          <canvas id="thumbCanvas" width="1080" height="1920" aria-label="9:16 첫 컷 미리보기"></canvas>
-        </div>
+      <div class="block-body">
+        <div class="slim-grid" id="ideaList"></div>
       </div>
     </div>
   </section>
 
+
   <!-- ============ 8. 데이터 관리 ============ -->
-  <section class="panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+  <section class="panel" id="panel-manage" role="tabpanel" aria-labelledby="tab-manage" hidden>
     <div id="importedBannerWrap"></div>
 
     <div class="block">
@@ -1460,17 +1730,19 @@
 
     $("talkDate").textContent = s.todayTalkDate ? fmtDate(s.todayTalkDate) + " 기준" : "기록 없음";
     $("cardsTalk").innerHTML = [
-      { k:"오늘 소통", v:num(s.todayTalk) + "<small>건</small>", h:"선댓글 + 대댓글", tone:"", goto:"insta" },
-      { k:"선댓글", v:num(s.first) + "<small>건</small>", h:"내가 먼저 남긴 댓글", tone:"first", goto:"insta" },
-      { k:"대댓글", v:num(s.reply) + "<small>건</small>", h:"내가 " + num(s.replyMe) + " · 상대 " + num(s.replyThem), tone:"reply", goto:"insta" },
-      { k:"답글 대기", v:num(s.pending) + "<small>건</small>", h: s.dmAvailable ? "댓글 + DM 포함" : "DM 데이터 없음", tone:"", goto:"insta" }
+      { k:"오늘 소통", v:num(s.todayTalk) + "<small>건</small>", h:"선댓글 + 대댓글", tone:"", goto:"talk", filter:"all" },
+      { k:"선댓글", v:num(s.first) + "<small>건</small>", h:"내가 먼저 남긴 댓글", tone:"first", goto:"talk", filter:"all" },
+      { k:"대댓글", v:num(s.reply) + "<small>건</small>", h:"내가 " + num(s.replyMe) + " · 상대 " + num(s.replyThem), tone:"reply", goto:"talk", filter:"all" },
+      { k:"답글 대기", v:num(s.pending) + "<small>건</small>", h: s.dmAvailable ? "댓글 + DM 포함" : "DM 데이터 없음", tone:"", goto:"talk", filter:"all" }
     ].map(cardHtml).join("");
   }
 
   /* ---------- tabs ---------- */
-  var TABS = ["follow", "insta", "threads", "dm", "growth", "tips", "shorts", "data"];
+  var TABS = ["today", "shorts", "talk", "follow", "tips", "manage"];
+  var TAB_ALIAS = { insta: "talk", threads: "talk", dm: "talk", growth: "today", data: "manage" };
   function setTab(name){
-    if(TABS.indexOf(name) < 0) name = "follow";
+    name = TAB_ALIAS[name] || name;
+    if(TABS.indexOf(name) < 0) name = "today";
     TABS.forEach(function(t){
       var on = (t === name);
       document.getElementById("tab-" + t).setAttribute("aria-selected", on ? "true" : "false");
@@ -1482,7 +1754,8 @@
   }
   function tabFromHash(){
     var h = (location.hash || "").replace("#", "");
-    return TABS.indexOf(h) >= 0 ? h : "follow";
+    h = TAB_ALIAS[h] || h;
+    return TABS.indexOf(h) >= 0 ? h : "today";
   }
 
   /* ---------- account list ---------- */
@@ -1713,13 +1986,179 @@
     renderExcluded();
     renderDm();
     renderSource();
+    renderToday();
     renderGrowth();
     renderTips();
     renderShorts();
   }
 
   /* ---------- interactions ---------- */
+  /* ---------- v1.2 UI: 오늘 요약 · 댓글 세그먼트 ---------- */
+  var talkSeg = "all";
+
+  function initUi(){
+    /* 성장 추이 패널을 오늘 탭의 접이식 영역으로 옮긴다 */
+    var g = document.getElementById("panel-growth"), host = $("growthHost");
+    if(g && host){
+      g.id = "sec-growth";
+      g.removeAttribute("role");
+      g.removeAttribute("aria-labelledby");
+      g.hidden = false;
+      g.classList.add("panel-plain");
+      host.appendChild(g);
+    }
+
+    /* 인스타·스레드·DM 패널을 댓글·DM 한 탭 안으로 모은다 */
+    var body = $("talkBody");
+    if(body){
+      [["panel-insta", "insta"], ["panel-threads", "threads"], ["panel-dm", "dm"]].forEach(function(p){
+        var el = document.getElementById(p[0]);
+        if(!el) return;
+        el.removeAttribute("role");
+        el.removeAttribute("aria-labelledby");
+        el.hidden = false;
+        el.setAttribute("data-sec", p[1]);
+        body.appendChild(el);
+      });
+    }
+
+    var bar = $("talkSeg");
+    if(bar) bar.addEventListener("click", function(e){
+      var b = e.target.closest ? e.target.closest(".seg") : null;
+      if(b) setTalkSeg(b.getAttribute("data-seg"));
+    });
+
+    /* 오늘 탭의 추천 카드·대기 목록에서 다른 탭으로 이동 */
+    document.addEventListener("click", function(e){
+      var t = e.target.closest ? e.target.closest("[data-jump]") : null;
+      if(!t) return;
+      var to = t.getAttribute("data-jump");
+      if(to === "talk") setTalkSeg(t.getAttribute("data-seg") || "all");
+      setTab(to);
+    });
+
+    setTalkSeg("all");
+  }
+
+  function setTalkSeg(seg){
+    talkSeg = seg;
+    var bar = $("talkSeg");
+    if(bar){
+      Array.prototype.forEach.call(bar.querySelectorAll(".seg"), function(b){
+        var on = b.getAttribute("data-seg") === seg;
+        if(on) b.classList.add("on"); else b.classList.remove("on");
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    var body = $("talkBody");
+    if(!body) return;
+    Array.prototype.forEach.call(body.querySelectorAll("[data-sec]"), function(el){
+      el.hidden = !(seg === "all" || el.getAttribute("data-sec") === seg);
+    });
+  }
+
+  function sparkSvg(vals){
+    var W = 320, H = 56, n = vals.length;
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    var span = (hi - lo) || 1;
+    var flat = (hi === lo);
+    var path = vals.map(function(v, i){
+      var x = n === 1 ? W / 2 : (W - 6) * i / (n - 1) + 3;
+      var y = flat ? H / 2 : H - 8 - (H - 20) * (v - lo) / span;
+      return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+    }).join(" ");
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="팔로워 추이 미니 차트">' +
+      '<defs><linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0" stop-color="#FF7A59"/><stop offset="1" stop-color="#6C5CE7"/></linearGradient></defs>' +
+      (flat ? '' : '<path d="' + path + '" fill="none" stroke="url(#sparkGrad)" stroke-width="2.4" ' +
+        'stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>') +
+      '<path d="' + path + '" fill="none" stroke="' + (flat ? "#D9CCBF" : "none") + '" stroke-width="' +
+        (flat ? "2" : "0") + '" stroke-linecap="round" stroke-dasharray="' + (flat ? "4 5" : "none") + '"/>' +
+      '</svg>';
+  }
+
+  function renderToday(){
+    var box = $("todayKpi");
+    if(!box) return;
+    var s = stats(DATA), m = DATA.meta || {};
+    var g = Array.isArray(DATA.growth) ? DATA.growth : [];
+    var last = g.length ? g[g.length - 1] : null;
+    var prev = g.length > 1 ? g[g.length - 2] : null;
+
+    function delta(cur, old){
+      if(typeof cur !== "number" || typeof old !== "number") return "";
+      var d = cur - old;
+      if(!d) return '<span class="d">변화 없음</span>';
+      return '<span class="d ' + (d > 0 ? "up" : "down") + '">' + (d > 0 ? "▲ " : "▼ ") +
+        num(Math.abs(d)) + ' 직전 점검 대바</span>';
+    }
+
+    var kpis = [
+      { k:"팔로워", v:num(s.followers), d:delta(last && last.igFollowers, prev && prev.igFollowers) || '<span class="d">내보내기 기준</span>' },
+      { k:"맞팔", v:num(s.mutual), d:delta(last && last.igMutual, prev && prev.igMutual) || '<span class="d">서로 팔로우</span>' },
+      { k:"답글 대기", v:num(s.pending), d:'<span class="d">' + (s.dmAvailable ? "댓글 + DM" : "DM 데이터 없음") + "</span>" },
+      { k:"누적 소통", v:num(s.first + s.reply), d:'<span class="d">선댓글 ' + num(s.first) + " · 대댓글 " + num(s.reply) + "</span>" }
+    ];
+    box.innerHTML = kpis.map(function(c){
+      return '<div class="kpi"><span class="k">' + esc(c.k) + '</span><span class="v">' + c.v + '</span>' + c.d + '</div>';
+    }).join("");
+
+    var sub = $("todaySub");
+    if(sub) sub.textContent = "기준일 " + (m.snapshotDate || "—") + " · 화면 갱신 " + (m.generatedAt || "—");
+
+    var fc = $("followCount");
+    if(fc) fc.textContent = num(DATA.accounts.length) + "개";
+
+    var sp = $("todaySpark");
+    if(sp){
+      var pts = g.filter(function(x){ return x && typeof x.igFollowers === "number"; });
+      if(pts.length < 2){
+        sp.innerHTML = '<div class="spark-head"><span>팔로워 추이</span><span>기록 ' + num(pts.length) + '회</span></div>' +
+          '<p class="spark-empty">스냅샷이 2회 이상 쌓이면 여기에 미니 차트가 그려집니다.</p>';
+      } else {
+        var vals = pts.map(function(x){ return x.igFollowers; });
+        sp.innerHTML = '<div class="spark-head"><span>팔로워 추이</span><span>' +
+          esc(String(pts[0].date || "").slice(5)) + ' → ' + esc(String(pts[pts.length - 1].date || "").slice(5)) + '</span></div>' +
+          '<div class="spark">' + sparkSvg(vals) + '</div>' +
+          '<div class="spark-foot"><span>' + (Math.min.apply(null, vals) === Math.max.apply(null, vals) ? "변화 없음" : "최소 " + num(Math.min.apply(null, vals)) + " · 최대 " + num(Math.max.apply(null, vals))) + '</span><span>기록 ' + num(pts.length) + '회</span></div>';
+      }
+    }
+
+    var pick = $("todayShorts");
+    if(pick){
+      var ideas = shortsIdeaList(), one = ideas.length ? ideas[0] : null;
+      if(one){
+        pick.innerHTML = '<p class="pick-eyebrow">오늘 만들기 1순위</p>' +
+          '<h3>' + esc(one.title || "") + '</h3>' +
+          '<p class="pick-hook">“' + esc(one.hook || "") + '”</p>' +
+          '<p class="pick-meta">' + esc(one.length || "30초") + ' · ' + esc(one.tone || "") + (one.source ? ' · ' + esc(one.source) : '') + '</p>' +
+          '<button class="pick-btn" type="button" data-jump="shorts">대본 · 9:16 미리보기 열기 →</button>';
+      } else {
+        pick.innerHTML = '<p class="pick-eyebrow">쇼츠 스튜디오</p><h3>아직 아이디어가 없어요</h3>' +
+          '<p class="pick-hook">쇼츠 탭에서 내 아이디어로 바로 대본을 만들 수 있어요.</p>' +
+          '<button class="pick-btn" type="button" data-jump="shorts">쇼츠 스튜디오 열기 →</button>';
+      }
+    }
+
+    var todo = $("todayTodo"), cnt = $("todayTodoCount");
+    if(todo){
+      var pend = DATA.comments.filter(function(c){ return c.state === "pending"; });
+      if(cnt) cnt.textContent = num(pend.length) + "건";
+      var rows = pend.slice(0, 3).map(function(c){
+        return '<div class="todo-row"><span class="todo-tag">' + (c.platform === "threads" ? "스레드" : "인스타") +
+          (c.kind === "reply" ? " 대댓글" : " 댓글") + '</span><div class="todo-main">' +
+          '<a class="todo-who" href="' + profileUrl(c.handle) + '" target="_blank" rel="noopener noreferrer">@' + esc(c.handle) + '</a>' +
+          '<p class="todo-txt">' + esc(c.text || c.post || "확인 필요") + '</p></div></div>';
+      }).join("");
+      var dm = s.dmAvailable ? "" : '<div class="todo-row"><span class="todo-tag">DM</span><div class="todo-main">' +
+        '<p class="todo-txt">이번 내보내기에 DM 폴더가 없어 DM 내역은 아직 표시할 수 없어요. 점검에서 확인되는 대로 쌓입니다.</p></div></div>';
+      todo.innerHTML = (rows || '<div class="todo-row"><span class="todo-tag">완료</span><div class="todo-main">' +
+        '<p class="todo-txt">지금 답할 대댓글·DM이 없습니다. 새 소통이 확인되면 여기에 먼저 표시됩니다.</p></div></div>') + dm;
+    }
+  }
+
   function initTabs(){
+    initUi();
     var tabs = $("tabs");
     tabs.addEventListener("click", function(e){
       var b = e.target.closest(".tab");
@@ -1747,8 +2186,9 @@
       var c = e.target.closest(".card");
       if(!c || !c.getAttribute("data-goto")) return;
       var t = c.getAttribute("data-goto");
-      setTab(t);
       var f = c.getAttribute("data-filter");
+      if(t === "talk" && f) setTalkSeg(f);
+      setTab(t);
       if(t === "follow" && f){
         view.filter = f;
         view.shown = PAGE;
@@ -2172,15 +2612,43 @@
       '</li>';
     }).join("");
     var tags = (i.hashtags || []).map(function(t){ return '<span>' + esc(t) + '</span>'; }).join("");
-    return '<article class="idea" data-idea-card="' + esc(i.id) + '">' +
-      '<div class="idea-top"><span class="idea-no">' + (idx + 1) + '</span><div><h3>' + esc(i.title || "") + '</h3>' +
-        '<div class="idea-meta"><i class="len">' + esc(i.length || "30초") + '</i><i>' + esc(i.tone || "") + '</i>' +
-          '<span>' + esc(i.source || "") + '</span></div></div></div>' +
-      (i.audience ? '<p class="idea-aud"><b>타깃 공감</b>' + esc(i.audience) + '</p>' : '') +
+    return '<article class="idea idea-slim" data-idea-card="' + esc(i.id) + '">' +
+      '<div class="idea-slim-top"><span class="idea-no">' + (idx + 1) + '</span>' +
+        '<div class="idea-slim-main"><h3>' + esc(i.title || "") + '</h3>' +
+          '<p class="idea-slim-meta">' + esc(i.length || "30초") + ' · ' + esc(i.tone || "") +
+            (i.audience ? ' · ' + esc(i.audience) : '') + '</p></div></div>' +
+      '<p class="idea-slim-hook">“' + esc(i.hook || "") + '”</p>' +
+      '<details class="idea-more"><summary>4컷 대본 · 나레이션 보기</summary>' +
+        (cuts ? '<ol class="cuts">' + cuts + '</ol>' : '') +
+        (i.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(i.narration) + '</p>' : '') +
+        (tags ? '<div class="tags">' + tags + '</div>' : '') +
+      '</details>' +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-copy-idea="' + esc(i.id) + '">대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-idea="' + esc(i.id) + '">9:16 첫 컷</button>' +
+      '</div></article>';
+  }
+
+  /* 오늘의 1순위 쇼츠 — 스튜디오 상단 큰 카드 */
+  function ideaHeroCard(i){
+    var cuts = (i.cuts || []).map(function(c){
+      return '<li><div class="cut-head"><b>' + esc(String(c.no) + '컷 · ' + (c.role || "")) + '</b><span>' + esc(c.time || "") + '</span></div>' +
+        (c.screen ? '<p class="cut-screen"><b>화면</b>' + esc(c.screen) + '</p>' : '') +
+        (c.line ? '<p class="cut-line"><b>자막</b>' + esc(c.line) + '</p>' : '') +
+      '</li>';
+    }).join("");
+    var tags = (i.hashtags || []).map(function(t){ return '<span>' + esc(t) + '</span>'; }).join("");
+    return '<article class="idea-hero" data-idea-card="' + esc(i.id) + '">' +
+      '<p class="hero-eyebrow">오늘의 추천 · 1순위</p>' +
+      '<h3>' + esc(i.title || "") + '</h3>' +
+      '<p class="hero-meta">' + esc(i.length || "30초") + ' · ' + esc(i.tone || "") + (i.source ? ' · ' + esc(i.source) : '') + '</p>' +
       '<div class="hook-box"><b>0~3초 훅</b><p>' + esc(i.hook || "") + '</p></div>' +
-      (cuts ? '<ol class="cuts">' + cuts + '</ol>' : '') +
-      (i.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(i.narration) + '</p>' : '') +
-      (tags ? '<div class="tags">' + tags + '</div>' : '') +
+      (i.audience ? '<p class="idea-aud"><b>타깃 공감</b>' + esc(i.audience) + '</p>' : '') +
+      '<details class="idea-more"><summary>4컷 대본 · 나레이션 펼치기</summary>' +
+        (cuts ? '<ol class="cuts">' + cuts + '</ol>' : '') +
+        (i.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(i.narration) + '</p>' : '') +
+        (tags ? '<div class="tags">' + tags + '</div>' : '') +
+      '</details>' +
       '<div class="idea-actions">' +
         '<button class="btn primary" type="button" data-copy-idea="' + esc(i.id) + '">전체 대본 복사</button>' +
         '<button class="btn" type="button" data-thumb-idea="' + esc(i.id) + '">9:16 첫 컷 미리보기</button>' +
@@ -2571,14 +3039,24 @@
     var ctx = $("shortsContext");
     if(ctx){
       var items = (s && Array.isArray(s.context)) ? s.context : [];
-      ctx.innerHTML = items.length ? items.map(function(c){
-        return '<span class="sctx"><b>' + esc(c.label) + '</b><span>' + esc(c.note) + '</span></span>';
-      }).join("") : "";
+      ctx.innerHTML = items.length
+        ? '<details class="ctx-fold"><summary>이번 아이디어를 만든 참고 소스 ' + num(items.length) + '개 보기</summary><div class="ctx-list">' +
+          items.map(function(c){
+            return '<span class="sctx"><b>' + esc(c.label) + '</b><span>' + esc(c.note) + '</span></span>';
+          }).join("") + '</div></details>'
+        : "";
     }
 
-    box.innerHTML = list.length
-      ? list.map(function(i, idx){ return ideaCard(i, idx); }).join("")
-      : '<div class="empty"><span class="big">🎬</span><strong>아직 아이디어가 없습니다</strong><p>데이터의 shortsIdeas 블록에 아이디어를 넣으면 여기에 카드로 표시됩니다.</p></div>';
+    var head = list.length ? list[0] : null;
+    var heroBox = $("ideaHero");
+    if(heroBox){
+      heroBox.innerHTML = head ? ideaHeroCard(head)
+        : '<div class="empty"><span class="big">🎬</span><strong>아직 아이디어가 없습니다</strong><p>데이터의 shortsIdeas 블록에 아이디어를 넣으면 여기에 표시됩니다.</p></div>';
+    }
+    var rest = head ? list.slice(1) : list;
+    box.innerHTML = rest.length
+      ? rest.map(function(i, idx){ return ideaCard(i, idx + (head ? 1 : 0)); }).join("")
+      : (head ? '<p class="slim-empty">1순위 아이디어는 위 스튜디오 카드에 있습니디. 내 아이디어로 만든 대본은 아래 저장 목록에서 볼 수 있어요.</p>' : '');
 
     renderDrafts();
     renderGenOut();
