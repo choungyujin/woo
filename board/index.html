@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>아리아 소셜보드</title>
+<meta name="application-name" content="아리아 소셜보드">
+<meta name="theme-color" content="#171426">
+<meta name="color-scheme" content="light">
+<!-- 홈 화면 설치형 웹앱(PWA) -->
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="아리아 소셜보드">
+<style>
+  :root{
+    --bg:#f4f5f8; --card:#ffffff; --ink:#15161a; --ink-2:#3d4048; --muted:#767c88;
+    --line:#e7e9ee; --line-2:#f0f1f4;
+    --ig1:#f58529; --ig2:#dd2a7b; --ig3:#8134af;
+    --threads:#101010;
+    --ok:#0f8a5f; --ok-bg:#e6f6ee;
+    --warn:#a5640a; --warn-bg:#fdf2e0;
+    --info:#2457c5; --info-bg:#e8eefc;
+    --violet:#6f42c1; --violet-bg:#f1ebfd;
+    --gray:#5b616d; --gray-bg:#eef0f3;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(16,20,32,.04), 0 8px 24px -18px rgba(16,20,32,.35);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI","Malgun Gothic","Noto Sans KR",sans-serif;
+    font-size:15px; line-height:1.5; letter-spacing:-.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  button{font:inherit;color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px 56px}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgba(221,42,123,.55) 0%, rgba(129,52,175,.35) 38%, rgba(0,0,0,0) 68%),
+      linear-gradient(135deg,#221c3a 0%,#171426 55%,#101010 100%);
+    color:#fff; padding:26px 16px 44px;
+  }
+  .hero-inner{max-width:1080px;margin:0 auto}
+  .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .eyebrow{margin:0 0 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:600}
+  .hero h1{margin:0;font-size:clamp(22px,5.4vw,30px);letter-spacing:-.02em;font-weight:800}
+  .hero .sub{margin:6px 0 0;font-size:13.5px;color:rgba(255,255,255,.72)}
+  .prof{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+    color:#fff; padding:9px 14px; border-radius:999px; font-size:13px; font-weight:600;
+    backdrop-filter:blur(6px); white-space:nowrap;
+  }
+  .prof:hover{background:rgba(255,255,255,.2)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .chip{
+    font-size:11.5px;padding:5px 10px;border-radius:999px;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+    color:rgba(255,255,255,.86);white-space:nowrap;
+  }
+  .chip b{font-weight:700;color:#fff}
+
+  /* ---------- summary ---------- */
+  .summary{margin-top:-28px}
+  .group + .group{margin-top:16px}
+  .group-label{
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    font-size:11.5px;font-weight:750;letter-spacing:.02em;color:var(--muted);
+    margin:0 2px 8px;
+  }
+  .group-label .d{font-weight:600;color:#9aa1ad;letter-spacing:0}
+  .group-label .lg{margin-left:auto;display:flex;gap:9px;font-weight:600;letter-spacing:0;color:#9aa1ad}
+  .group-label .lg i{font-style:normal}
+  .summary .group:first-child .group-label{color:rgba(255,255,255,.8)}
+  .summary .group:first-child .group-label .d{color:rgba(255,255,255,.55)}
+  .cards{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(min-width:560px){ .cards{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media(max-width:559px){ .cards.c5 .card:last-child{grid-column:1 / -1} }
+  @media(min-width:860px){ .cards.c5{grid-template-columns:repeat(5,minmax(0,1fr))} .cards.c4{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:13px 13px 12px;box-shadow:var(--shadow);
+    text-align:left;cursor:pointer;position:relative;overflow:hidden;
+    transition:transform .12s ease, border-color .12s ease;
+    min-height:78px;
+  }
+  .card:hover{border-color:#d5d9e2;transform:translateY(-1px)}
+  .card:active{transform:translateY(0)}
+  .card.plain{cursor:default}
+  .card.plain:hover{transform:none;border-color:var(--line)}
+  .card .k{font-size:11.5px;color:var(--muted);font-weight:600;display:block;line-height:1.3}
+  .card .v{font-size:clamp(20px,5vw,25px);font-weight:800;letter-spacing:-.03em;margin-top:4px;display:block;font-variant-numeric:tabular-nums}
+  .card .h{font-size:10.5px;color:var(--muted);margin-top:2px;display:block;line-height:1.35}
+  .card .v small{font-size:12px;font-weight:700;color:var(--muted);margin-left:2px}
+  .card[data-tone="mutual"] .v{color:var(--ok)}
+  .card[data-tone="nfb"] .v{color:var(--warn)}
+  .card[data-tone="nfing"] .v{color:var(--info)}
+  .card[data-tone="first"] .v{color:var(--ok)}
+  .card[data-tone="reply"] .v{color:var(--violet)}
+  .card .arrow{position:absolute;right:11px;top:11px;font-size:11px;color:#c3c8d2}
+  .card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line-2)}
+  .card[data-tone="mutual"]::after{background:#7ed0ab}
+  .card[data-tone="nfb"]::after{background:#f0bd76}
+  .card[data-tone="nfing"]::after{background:#9db6ee}
+  .card[data-tone="first"]::after{background:#7ed0ab}
+  .card[data-tone="reply"]::after{background:#b9a3ea}
+
+  /* ---------- tabs ---------- */
+  .tabs{
+    position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;
+    padding:8px 2px;margin:0 -2px 16px;background:rgba(244,245,248,.92);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;border:1px solid transparent;background:transparent;
+    padding:9px 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--muted);
+    cursor:pointer;white-space:nowrap;transition:all .14s ease;
+  }
+  .tab:hover{color:var(--ink-2)}
+  .tab[aria-selected="true"]{
+    background:var(--threads);color:#fff;border-color:var(--threads);
+    box-shadow:0 6px 16px -10px rgba(0,0,0,.6);
+  }
+
+  /* ---------- panels & blocks ---------- */
+  .panel[hidden]{display:none}
+  .block{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;
+  }
+  .block-head{padding:15px 16px 12px;border-bottom:1px solid var(--line-2)}
+  .block-head h2{margin:0;font-size:15.5px;font-weight:750;letter-spacing:-.015em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .block-head p{margin:5px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .count{
+    font-size:11.5px;font-weight:700;color:var(--muted);background:var(--gray-bg);
+    padding:2px 8px;border-radius:999px;
+  }
+  .block-body{padding:12px 16px 16px}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-2);background:#fbfbfc}
+  @media(min-width:720px){ .toolbar{flex-direction:row;align-items:center;justify-content:space-between} }
+  .filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .filters::-webkit-scrollbar{display:none}
+  .fbtn{
+    flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;
+    padding:7px 12px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;
+    white-space:nowrap;transition:all .12s ease;
+  }
+  .fbtn:hover{border-color:#cdd2db}
+  .fbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .fbtn .n{font-weight:700;opacity:.6;margin-left:5px;font-size:11px}
+  .fbtn[aria-pressed="true"] .n{opacity:.75}
+  .tools{display:flex;gap:7px;align-items:center;flex-shrink:0}
+  .search{position:relative;flex:1 1 auto;min-width:0}
+  .search input{
+    width:100%;padding:9px 12px 9px 32px;border:1px solid var(--line);border-radius:10px;
+    background:#fff;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .12s;
+  }
+  .search input:focus{border-color:#9aa3b5;box-shadow:0 0 0 3px rgba(21,22,26,.06)}
+  .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.45}
+  select.sort{
+    padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;
+    font-size:13px;color:var(--ink-2);outline:none;cursor:pointer;
+  }
+  @media(min-width:720px){ .toolbar .search{max-width:320px} }
+  .listhead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 14px;background:#fff;border-bottom:1px solid var(--line-2)}
+  .listhead p{margin:0;font-size:12px;color:var(--muted)}
+  .listhead p.r{font-size:11.5px;text-align:right}
+
+  /* ---------- account list ---------- */
+  .list{list-style:none;margin:0;padding:0}
+  .row{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid var(--line-2)}
+  .row:last-child{border-bottom:0}
+  .row:hover{background:#fafbfc}
+  .avatar{
+    flex:0 0 34px;width:34px;height:34px;border-radius:50%;
+    display:grid;place-items:center;font-size:13px;font-weight:750;color:#fff;
+    background:linear-gradient(135deg,var(--ig1),var(--ig2) 55%,var(--ig3));
+    text-transform:lowercase;
+  }
+  .row.st-m .avatar{background:linear-gradient(135deg,#38b987,#0f8a5f)}
+  .row.st-o .avatar{background:linear-gradient(135deg,#eab35f,#c98a2b)}
+  .row.st-i .avatar{background:linear-gradient(135deg,#7d9fe8,#3d6ed0)}
+  .row-main{min-width:0;flex:1 1 auto}
+  .handle{display:inline-flex;align-items:center;gap:5px;font-weight:650;font-size:14px;text-decoration:none;letter-spacing:-.005em;word-break:break-all}
+  .handle:hover{text-decoration:underline;text-underline-offset:2px}
+  .handle .ext{font-size:10px;opacity:.4}
+  .row-meta{margin-top:2px;font-size:11.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+  .badge{flex:0 0 auto;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .badge.m{background:var(--ok-bg);color:var(--ok)}
+  .badge.o{background:var(--warn-bg);color:var(--warn)}
+  .badge.i{background:var(--info-bg);color:var(--info)}
+  @media(max-width:420px){ .row{padding:10px 13px;gap:9px} .row .badge{display:none} }
+  .more-wrap{padding:12px 16px;border-top:1px solid var(--line-2);text-align:center}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 16px;
+    font-size:13.5px;font-weight:650;cursor:pointer;text-decoration:none;color:var(--ink);
+    transition:all .12s ease;
+  }
+  .btn:hover{border-color:#cdd2db;background:#fbfbfc}
+  .btn.primary{background:var(--threads);color:#fff;border-color:var(--threads)}
+  .btn.primary:hover{opacity:.9;background:var(--threads)}
+  .btn.ghost{background:transparent}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* ---------- comment cards ---------- */
+  .clist{list-style:none;margin:0;padding:12px;display:grid;gap:9px;background:#fbfbfc}
+  .ccard{
+    position:relative;background:#fff;border:1px solid var(--line);border-radius:13px;
+    padding:12px 13px 11px 15px;overflow:hidden;
+  }
+  .ccard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#dfe3ea}
+  .ccard.k-first::before{background:#5ec49b}
+  .ccard.k-reply.by-me::before{background:#b9a3ea}
+  .ccard.k-reply.by-them::before{background:#8fb0ee}
+  .ccard.is-pending{background:#fffdf8;border-color:#f2e2c6}
+  .ccard.is-pending::before{background:#e8b464}
+  .chead{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .cbadge{font-size:10.5px;font-weight:750;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .cbadge.first{background:var(--ok-bg);color:var(--ok)}
+  .cbadge.reply{background:var(--violet-bg);color:var(--violet)}
+  .cbadge.reply.them{background:var(--info-bg);color:var(--info)}
+  .cbadge.pending{background:var(--warn-bg);color:var(--warn)}
+  .chead .handle{font-size:13.5px}
+  .cd{margin-left:auto;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cpost{margin:7px 0 0;font-size:12.5px;color:var(--ink-2);font-weight:600;line-height:1.45}
+  .cquote{
+    margin:7px 0 0;padding:9px 11px;background:#fafbfc;border-left:2px solid #e2e5ec;border-radius:0 8px 8px 0;
+    font-size:12.5px;color:var(--ink-2);line-height:1.55;white-space:pre-wrap;word-break:break-word;
+  }
+  .cquote.muted{color:var(--muted);background:#fbfbfc;border-left-color:#eceef2}
+  .cbadge.ex{background:var(--gray-bg);color:var(--gray)}
+  .cmeta{margin:7px 0 0;font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;line-height:1.5}
+  .cmeta .sep{opacity:.35}
+  .pchip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#f1f2f5;color:#6b7280}
+  .pchip.th{background:#101010;color:#fff}
+  @media(max-width:420px){ .clist{padding:9px;gap:8px} .ccard{padding:11px 11px 10px 13px} }
+  @media(min-width:880px){ .clist{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start} }
+
+  /* ---------- empty / notice ---------- */
+  .empty{padding:26px 18px;text-align:center;color:var(--muted)}
+  .empty .big{font-size:22px;display:block;margin-bottom:7px;opacity:.5}
+  .empty strong{display:block;color:var(--ink-2);font-size:13.5px;font-weight:650;margin-bottom:4px}
+  .empty p{margin:0;font-size:12.5px;line-height:1.55}
+  .notice{
+    display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:#fff8ea;
+    border:1px solid #f4e3c2;color:#7a5406;font-size:12.5px;line-height:1.55;margin:0 0 14px;
+  }
+  .notice.blue{background:#eef3fd;border-color:#d6e1f8;color:#2b4d93}
+  .notice .ni{flex:0 0 auto;font-size:14px;line-height:1.35}
+  .notice b{font-weight:700}
+
+  /* ---------- data tab ---------- */
+  .kv{display:grid;gap:0;margin:0}
+  .kv div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .kv div:last-child{border-bottom:0}
+  .kv dt{color:var(--muted);flex:0 0 auto}
+  .kv dd{margin:0;text-align:right;font-weight:600;word-break:break-all}
+  .kv dd.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:500;line-height:1.5}
+  .steps{margin:0;padding:0;list-style:none;counter-reset:s}
+  .steps li{position:relative;padding:0 0 14px 30px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  .steps li:last-child{padding-bottom:0}
+  .steps li::before{
+    counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;
+    font-size:11px;font-weight:700;display:grid;place-items:center;
+  }
+  .steps li b{color:var(--ink)}
+  code.inline,pre.code{
+    background:#f1f3f6;border:1px solid var(--line);border-radius:6px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;
+  }
+  code.inline{padding:1px 5px}
+  pre.code{margin:10px 0 0;padding:11px 12px;overflow-x:auto;line-height:1.6;white-space:pre;color:#31343c}
+  .schema{width:100%;border-collapse:collapse;font-size:12px}
+  .schema th,.schema td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-2);vertical-align:top}
+  .schema th{font-size:11px;color:var(--muted);font-weight:700;background:#fbfbfc}
+  .schema td code{background:#f1f3f6;border-radius:4px;padding:1px 4px;font-size:11px}
+  .schema td:first-child{white-space:nowrap;font-weight:650}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .legend span{font-size:11.5px;font-weight:650;padding:3px 9px;border-radius:999px}
+  .imported-banner{
+    display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    background:#eef3fd;border:1px solid #d6e1f8;color:#2b4d93;border-radius:12px;
+    padding:10px 13px;font-size:12.5px;margin-bottom:14px;
+  }
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);
+    background:#15161a;color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;
+    opacity:0;pointer-events:none;transition:all .2s ease;z-index:99;box-shadow:0 12px 30px -12px rgba(0,0,0,.5);
+    max-width:calc(100vw - 32px);text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  footer{padding:22px 16px 0;color:var(--muted);font-size:11.5px;line-height:1.6;max-width:1080px;margin:0 auto}
+  footer .lock{display:inline-flex;align-items:center;gap:5px;font-weight:650;color:var(--ink-2)}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  /* ---------- 앱 셸 (PWA) ---------- */
+  .hero{padding-top:calc(26px + env(safe-area-inset-top,0px))}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  button.prof{cursor:pointer;-webkit-tap-highlight-color:transparent}
+  button.prof .ico{display:inline-block;font-size:15px;line-height:1;transition:transform .2s}
+  button.prof.busy{opacity:.8;pointer-events:none}
+  button.prof.busy .ico{animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #installBtn[hidden],#heroProfile[hidden]{display:none}
+  @media(display-mode:standalone){footer{padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}}
+
+  /* ---------- 잠금 화면 ---------- */
+  body.locked{overflow:hidden}
+  .lock-screen{
+    position:fixed; inset:0; z-index:900; display:flex; align-items:center; justify-content:center;
+    padding:24px 18px calc(24px + env(safe-area-inset-bottom,0px));
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgba(221,42,123,.55) 0%, rgba(129,52,175,.35) 40%, rgba(0,0,0,0) 70%),
+      linear-gradient(160deg,#221c3a 0%,#171426 55%,#101010 100%);
+    color:#fff;
+  }
+  .lock-screen[hidden]{display:none}
+  .lock-box{
+    width:100%; max-width:380px; margin:0; background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14); border-radius:24px;
+    padding:28px 22px 22px; backdrop-filter:blur(14px);
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.8); text-align:center;
+  }
+  .lock-icon{width:64px;height:64px;border-radius:18px;display:block;margin:0 auto 14px;box-shadow:0 10px 24px -12px rgba(0,0,0,.9)}
+  .lock-box h2{margin:0;font-size:19px;letter-spacing:-.01em;font-weight:800}
+  .lock-sub{margin:6px 0 20px;font-size:12.5px;color:rgba(255,255,255,.68);line-height:1.6}
+  .pin-input{
+    width:100%; box-sizing:border-box; padding:14px 12px; text-align:center;
+    font-size:24px; letter-spacing:.42em; font-weight:700;
+    color:#fff; background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.22);
+    border-radius:14px; outline:none;
+  }
+  .pin-input::placeholder{letter-spacing:.42em;color:rgba(255,255,255,.25)}
+  .pin-input:focus{border-color:rgba(255,255,255,.55); box-shadow:0 0 0 4px rgba(221,42,123,.25)}
+  .lock-msg{min-height:18px;margin:10px 0 0;font-size:12px;color:#ffb4c8;font-weight:600}
+  .lock-remember{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 18px;font-size:12.5px;color:rgba(255,255,255,.82)}
+  .lock-remember input{width:16px;height:16px;accent-color:#dd2a7b}
+  .lock-btn{
+    width:100%; padding:14px; border-radius:14px; border:0; cursor:pointer;
+    background:linear-gradient(135deg,#f58529,#dd2a7b 55%,#8134af);
+    color:#fff; font-weight:800; font-size:15px;
+  }
+  .lock-btn:disabled{opacity:.6}
+  .lock-foot{margin:16px 0 0;font-size:11px;color:rgba(255,255,255,.45);line-height:1.6}
+  .lock-box.shake{animation:shake .32s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+  /* ---------- 성장 추이 ---------- */
+  .growth-charts{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+  .chart-block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 6px;box-shadow:var(--shadow)}
+  .chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .chart-head h3{margin:0;font-size:12.5px;font-weight:750;color:var(--ink-2)}
+  .chart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+  .chart-legend span{display:inline-flex;align-items:center}
+  .chart-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+  .chart{width:100%;height:auto;display:block;overflow:visible}
+  .chart .ax{font-size:10px;fill:#9aa1ad}
+  .chart-empty{margin:8px 2px;font-size:12px;color:var(--muted)}
+  .growth-card .delta{font-size:12px;font-weight:800;margin-left:6px;letter-spacing:0}
+  .delta.up{color:var(--ok)} .delta.down{color:#c0392b} .delta.flat{color:var(--muted)}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .growth-table{width:100%;min-width:600px;border-collapse:collapse;font-size:12px}
+  .growth-table th,.growth-table td{padding:8px 6px;border-bottom:1px solid var(--line-2);text-align:right;white-space:nowrap}
+  .growth-table th:first-child,.growth-table td:first-child{text-align:left}
+  .growth-table th{font-size:11px;color:var(--muted);font-weight:650}
+  .growth-table td.memo{text-align:left;white-space:normal;color:var(--ink-2);font-size:11.5px;line-height:1.45;min-width:150px}
+  .growth-table .tv{font-variant-numeric:tabular-nums;font-weight:700}
+  .growth-table .delta{font-size:10.5px;font-weight:700;margin-left:4px}
+
+  /* ---------- 몽글노트 팁 ---------- */
+  .tip-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:7px;background:var(--violet-bg);color:var(--violet);font-size:11px;font-weight:800;margin-right:7px;vertical-align:2px}
+  .tip-quote{margin:12px 0 0;padding:12px 14px;background:var(--gray-bg);border-radius:12px;font-size:12.5px;color:var(--ink-2);line-height:1.7}
+  .tip-quote b{color:var(--muted);font-weight:750;margin-right:6px}
+  .stage-badge{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--info-bg);color:var(--info);font-size:11px;font-weight:800;margin-right:7px;vertical-align:2px}
+  .stage-price{display:inline-block;margin-left:8px;font-size:11px;font-weight:750;color:var(--ok);background:var(--ok-bg);padding:2px 8px;border-radius:999px}
+  .tip-check{margin:10px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink-2);line-height:1.75}
+  .tip-intro{margin:0;font-size:13px;color:var(--ink-2);line-height:1.75}
+  .tip-note{margin:10px 0 0;font-size:11.5px;color:var(--muted);line-height:1.7}
+  .news-list{display:flex;flex-direction:column;gap:10px}
+  .news{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--card)}
+  .news-head{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .news-tag{background:var(--info-bg);color:var(--info);border-radius:999px;padding:1px 8px;font-weight:750;font-size:10.5px}
+  .news h3{margin:6px 0 0;font-size:13px;line-height:1.45;letter-spacing:-.01em}
+  .news p{margin:5px 0 0;font-size:12px;color:var(--ink-2);line-height:1.65}
+  .news-foot{margin-top:8px;font-size:10.5px;color:var(--muted)}
+  .news-src{color:var(--info);text-decoration:none;font-weight:650}
+  .mix-bar{display:flex;height:34px;border-radius:10px;overflow:hidden;font-size:11px;font-weight:750;color:#fff}
+  .mix-bar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:0;overflow:hidden}
+  .mix-real{background:linear-gradient(135deg,#0f8a5f,#39a97a)}
+  .mix-prod{background:linear-gradient(135deg,#dd2a7b,#8134af)}
+  .mix-week{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+  .mix-row{display:grid;grid-template-columns:30px 74px 1fr;gap:8px;align-items:baseline;font-size:12px}
+  .mix-day{font-weight:800;color:var(--ink-2)}
+  .mix-type{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:6px;text-align:center}
+  .mix-type.real{background:var(--ok-bg);color:var(--ok)}
+  .mix-type.prod{background:var(--violet-bg);color:var(--violet)}
+  .mix-idea{color:var(--ink-2);line-height:1.55}
+  .safety-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  .safety-item{background:var(--warn-bg);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:2px}
+  .safety-item b{font-size:14.5px;color:var(--warn);font-variant-numeric:tabular-nums}
+  .safety-item span{font-size:11px;color:var(--ink-2);line-height:1.4}
+  .snap-list{display:flex;flex-direction:column;gap:10px}
+  .snap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+  .snap-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .snap-top b{font-size:12.5px}
+  .snap-tag{font-size:10px;font-weight:750;color:var(--warn);background:var(--warn-bg);border-radius:999px;padding:1px 7px}
+  .snap-note{font-size:10.5px;color:var(--muted);line-height:1.5;flex:1 1 140px;text-align:right}
+  .snap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}
+  .snap-cell{display:flex;align-items:baseline;gap:4px;font-size:10.5px;color:var(--muted);min-width:0}
+  .snap-cell i{font-style:normal;white-space:nowrap}
+  .snap-cell b{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .snap-cell em{font-style:normal;font-size:10px;font-weight:700}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body class="locked">
+
+<div class="lock-screen" id="lockScreen" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <form class="lock-box" id="lockForm" novalidate>
+    <img class="lock-icon" src="./icons/icon-192.png" alt="" width="64" height="64">
+    <h2 id="lockTitle">아리아 소셜보드</h2>
+    <p class="lock-sub">6자리 PIN을 입력하면 대시보드가 열립니다.<br>데이터는 이 기기에서만 복호화됩니다.</p>
+    <label class="sr" for="pinInput">PIN 6자리</label>
+    <input class="pin-input" id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*"
+           maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"
+           placeholder="••••••" aria-describedby="lockMsg">
+    <p class="lock-msg" id="lockMsg" role="alert"></p>
+    <label class="lock-remember"><input type="checkbox" id="rememberChk" checked> 이 기기에서 잠금 기억하기</label>
+    <button class="lock-btn" id="unlockBtn" type="submit">잠금 해제</button>
+    <p class="lock-foot">서버에는 암호문만 있습니다 · 이 기기에서만 복호화</p>
+  </form>
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div>
+        <p class="eyebrow">Social board</p>
+        <h1 id="heroHandle">아리아 소셜보드</h1>
+        <p class="sub">인스타그램 · 스레드 소통 현황 — 나만 보는 화면</p>
+      </div>
+      <div class="hero-actions">
+        <button class="prof" id="refreshBtn" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">
+          <span class="ico" aria-hidden="true">↻</span><span>새로고침</span>
+        </button>
+        <button class="prof" id="lockBtn" type="button" title="지금 잠그기">🔒 잠금</button>
+        <button class="prof" id="installBtn" type="button" hidden>＋ 홈 화면에 추가</button>
+        <a class="prof" id="heroProfile" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" hidden>프로필 열기 ↗</a>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">기준일 <b id="chipSnapshot">2026-11-16</b> 내보내기</span>
+      <span class="chip">화면 갱신 <b id="chipGenerated">—</b></span>
+      <span class="chip">자동 점검 <b>매일 20:30</b></span>
+      <span class="chip" id="chipSource" role="status" aria-live="polite">잠김</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="summary" aria-label="요약">
+    <div class="group">
+      <h2 class="group-label">팔로우 현황</h2>
+      <div class="cards c5" id="cardsFollow"></div>
+    </div>
+    <div class="group">
+      <h2 class="group-label">
+        오늘의 소통 <span class="d" id="talkDate">—</span>
+        <span class="lg"><i>선댓글 = 내가 먼저</i><i>대댓글 = 주고받은 답글</i></span>
+      </h2>
+      <div class="cards c4" id="cardsTalk"></div>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="대시보드 탭" id="tabs">
+    <button class="tab" role="tab" id="tab-follow" aria-controls="panel-follow" aria-selected="true" data-tab="follow">맞팔 현황</button>
+    <button class="tab" role="tab" id="tab-insta" aria-controls="panel-insta" aria-selected="false" data-tab="insta" tabindex="-1">인스타 댓글</button>
+    <button class="tab" role="tab" id="tab-threads" aria-controls="panel-threads" aria-selected="false" data-tab="threads" tabindex="-1">스레드 댓글</button>
+    <button class="tab" role="tab" id="tab-dm" aria-controls="panel-dm" aria-selected="false" data-tab="dm" tabindex="-1">DM 현황</button>
+    <button class="tab" role="tab" id="tab-growth" aria-controls="panel-growth" aria-selected="false" data-tab="growth" tabindex="-1">성장 추이</button>
+    <button class="tab" role="tab" id="tab-tips" aria-controls="panel-tips" aria-selected="false" data-tab="tips" tabindex="-1">홍보·수익화 팁</button>
+    <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data" tabindex="-1">데이터 관리</button>
+  </nav>
+
+  <!-- ============ 1. 맞팔 현황 ============ -->
+  <section class="panel" id="panel-follow" role="tabpanel" aria-labelledby="tab-follow">
+    <div class="block">
+      <div class="toolbar">
+        <div class="filters" id="filters" role="group" aria-label="상태 필터">
+          <button class="fbtn" data-filter="all" aria-pressed="true">전체 <span class="n" id="f-all">—</span></button>
+          <button class="fbtn" data-filter="o" aria-pressed="false">상대 미맞팔 <span class="n" id="f-o">—</span></button>
+          <button class="fbtn" data-filter="i" aria-pressed="false">내 미맞팔 <span class="n" id="f-i">—</span></button>
+          <button class="fbtn" data-filter="m" aria-pressed="false">맞팔 <span class="n" id="f-m">—</span></button>
+          <button class="fbtn" data-filter="recent" aria-pressed="false">최근 맞팔 <span class="n" id="f-recent">—</span></button>
+        </div>
+        <div class="tools">
+          <div class="search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <input type="search" id="search" placeholder="계정 검색 (@ 없이 입력)" autocomplete="off" aria-label="계정 검색">
+          </div>
+          <select class="sort" id="sort" aria-label="정렬">
+            <option value="recent">최신순</option>
+            <option value="old">오래된순</option>
+            <option value="name">이름순</option>
+          </select>
+        </div>
+      </div>
+      <div class="listhead">
+        <p id="listSummary">—</p>
+        <p class="r" id="recentNote"></p>
+      </div>
+      <ul class="list" id="list"></ul>
+      <div class="more-wrap" id="moreWrap" hidden>
+        <button class="btn" id="moreBtn">더 보기</button>
+      </div>
+      <div class="empty" id="listEmpty" hidden>
+        <span class="big">🔍</span>
+        <strong>해당하는 계정이 없어요</strong>
+        <p>검색어나 필터를 바꿔 보세요.</p>
+      </div>
+    </div>
+    <p style="margin:0 4px 16px;font-size:11.5px;color:var(--muted);line-height:1.6">
+      계정 이름을 누르면 인스타그램 프로필이 새 창에서 열립니다. 상태는 2026-11-16 내보내기 시점 기준이며,
+      이후 맞팔이 바뀐 계정은 매일 20:30 점검에서 갱신됩니다.
+    </p>
+  </section>
+
+  <!-- ============ 2. 인스타 댓글 ============ -->
+  <section class="panel" id="panel-insta" role="tabpanel" aria-labelledby="tab-insta" hidden>
+    <div class="notice blue">
+      <span class="ni">ℹ️</span>
+      <div>이번 내보내기(zip)에는 <b>댓글·DM 데이터(<code class="inline">comments/</code>, <code class="inline">messages/</code>)가 포함되어 있지 않았어요.</b>
+      그래서 아래 기록은 점검 기록(notes.md)에 남은 실제 작업만 표시하고, 확인되지 않은 댓글은 지어내지 않고 비워 두었습니다.
+      <b>내 글에 달린 댓글</b>은 매일 20:30 점검에서 확인되는 대로 <b>대댓글(상대)</b> 카드로 쌓입니다.</div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>인스타그램 댓글 <span class="count" id="cntIn">0건</span></h2>
+        <p>내가 먼저 남긴 <b>선댓글</b>과, 주고받은 <b>대댓글</b>(상대가 단 답글 / 내가 답한 대댓글)을 구분해서 보여 줍니다.</p>
+      </div>
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="인스타 댓글 필터">
+          <button class="fbtn" data-cplatform="instagram" data-cfilter="all" aria-pressed="true">전체 <span class="n" id="ci-all">0</span></button>
+          <button class="fbtn" data-cplatform="instagram" data-cfilter="first" aria-pressed="false">선댓글 <span class="n" id="ci-first">0</span></button>
+          <button class="fbtn" data-cplatform="instagram" data-cfilter="reply" aria-pressed="false">대댓글 <span class="n" id="ci-reply">0</span></button>
+          <button class="fbtn" data-cplatform="instagram" data-cfilter="pending" aria-pressed="false">답글 대기 <span class="n" id="ci-pending">0</span></button>
+        </div>
+      </div>
+      <ul class="clist" id="clistIn"></ul>
+      <div class="empty" id="clistInEmpty" hidden>
+        <span class="big">🗒️</span>
+        <strong>해당하는 기록이 없어요</strong>
+        <p>필터를 바꾸거나, 점검에서 댓글 작업이 기록되면 여기에 쌓입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. 스레드 댓글 ============ -->
+  <section class="panel" id="panel-threads" role="tabpanel" aria-labelledby="tab-threads" hidden>
+    <div class="block">
+      <div class="block-head">
+        <h2>스레드 댓글 <span class="count" id="cntTh">0건</span></h2>
+        <p>스레드에서 남긴 <b>선댓글</b>과 주고받은 <b>대댓글</b>, 아직 답하지 않은 <b>답글 대기</b>를 한눈에 봅니다.</p>
+      </div>
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="스레드 댓글 필터">
+          <button class="fbtn" data-cplatform="threads" data-cfilter="all" aria-pressed="true">전체 <span class="n" id="ct-all">0</span></button>
+          <button class="fbtn" data-cplatform="threads" data-cfilter="first" aria-pressed="false">선댓글 <span class="n" id="ct-first">0</span></button>
+          <button class="fbtn" data-cplatform="threads" data-cfilter="reply" aria-pressed="false">대댓글 <span class="n" id="ct-reply">0</span></button>
+          <button class="fbtn" data-cplatform="threads" data-cfilter="pending" aria-pressed="false">답글 대기 <span class="n" id="ct-pending">0</span></button>
+        </div>
+      </div>
+      <ul class="clist" id="clistTh"></ul>
+      <div class="empty" id="clistThEmpty" hidden>
+        <span class="big">🧵</span>
+        <strong>해당하는 기록이 없어요</strong>
+        <p>필터를 바꾸거나, 점검에서 소통이 기록되면 여기에 쌓입니다.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>제외 기록 <span class="count" id="cntExcluded">0건</span></h2>
+        <p>2026-11-17 사용자 지시로 「동종업계(AI·개발자·디자이너) 제외」 규칙이 폐지되어, 아래 계정들은 제외가 해제되어 다시 소통 대상이 되었습니다.</p>
+      </div>
+      <ul class="clist" id="threadsExcluded"></ul>
+      <div class="empty" id="threadsExcludedEmpty" hidden>
+        <strong>제외 기록이 없어요</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. DM 현황 ============ -->
+  <section class="panel" id="panel-dm" role="tabpanel" aria-labelledby="tab-dm" hidden>
+    <div class="block">
+      <div class="block-head">
+        <h2>인스타그램 DM <span class="count" id="cntDm">데이터 없음</span></h2>
+        <p>인스타그램 내보내기의 DM 폴더(<code class="inline">messages/</code>)를 읽어 표시하는 자리입니다.</p>
+      </div>
+      <div class="empty" id="dmEmpty">
+        <span class="big">💬</span>
+        <strong>현재 데이터 없음</strong>
+        <p>2026-11-16 내보내기 zip에는 <code class="inline">messages/</code> 폴더가 없어 DM 내역을 확인할 수 없습니다.<br>
+        <b>실시간 DM은 매일 20:30 점검 시 또는 수동 갱신 시 반영됩니다.</b></p>
+      </div>
+      <ul class="clist" id="dmList"></ul>
+    </div>
+    <div class="notice">
+      <span class="ni">🔐</span>
+      <div>DM은 답장 내용을 자동으로 보내지 않습니다. 새 메시지가 확인되면 누가·무엇을 보냈는지와 답장 후보만 제안하고, 실제 전송은 확인을 받고 진행합니다.</div>
+    </div>
+  </section>
+
+  <!-- ============ 5. 성장 추이 ============ -->
+  <section class="panel" id="panel-growth" role="tabpanel" aria-labelledby="tab-growth" hidden>
+    <div class="block">
+      <div class="block-head">
+        <h2>성장 추이 <span class="count" id="growthCount">0회</span></h2>
+        <p>2026-11-16 인스타 내보내기(팔로워 1,515 · 팔로잉 752 · 맞팔 126)를 기준점으로, 12:30·20:30 점검마다 스냅샷이 한 줄씩 쌓입니다. 기록에 없는 값은 그리지 않습니다.</p>
+      </div>
+      <div class="block-body" style="padding-top:0">
+        <div class="cards c4" id="growthCards"></div>
+        <div class="growth-charts" id="growthCharts"></div>
+        <div class="block-head" style="margin:22px 0 8px">
+          <h2 style="font-size:13px">스냅샷 기록 <span class="count" id="growthTableCount">0건</span></h2>
+          <p>최근 스냅샷이 위에 옵니다. 팔로우 수는 새 내보내기가 있을 때만 바뀌고, 소통 수는 점검 기록에서 누적됩니다.</p>
+        </div>
+        <div class="snap-list" id="growthTable"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. 홍보·수익화 팁 ============ -->
+  <section class="panel" id="panel-tips" role="tabpanel" aria-labelledby="tab-tips" hidden>
+    <div id="tipsBody"></div>
+  </section>
+
+  <!-- ============ 7. 데이터 관리 ============ -->
+  <section class="panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+    <div id="importedBannerWrap"></div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>데이터 출처</h2>
+        <p>이 화면의 숫자는 아래 실제 파일에서만 가져왔습니다.</p>
+      </div>
+      <div class="block-body">
+        <dl class="kv" id="sourceList"></dl>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>댓글 기록 형식</h2>
+        <p>앞으로 추가되는 건도 모두 이 한 가지 형식으로만 쌓입니다. 선댓글·대댓글·답글 대기가 이 값들로 구분됩니다.</p>
+      </div>
+      <div class="block-body">
+        <table class="schema">
+          <thead><tr><th>필드</th><th>값</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>platform</td><td><code>instagram</code> / <code>threads</code></td><td>어느 탭에 쌓일지</td></tr>
+            <tr><td>handle</td><td>계정명 (@ 제외)</td><td>프로필 링크로 연결</td></tr>
+            <tr><td>date</td><td><code>YYYY-MM-DD</code></td><td>작업·확인 날짜</td></tr>
+            <tr><td>kind</td><td><code>first</code> / <code>reply</code></td><td><b>first</b> = 내가 먼저 남긴 <b>선댓글</b>, <b>reply</b> = 주고받은 <b>대댓글</b></td></tr>
+            <tr><td>by</td><td><code>me</code> / <code>them</code></td><td>대댓글을 누가 남겼는지 (내가 답한 대댓글 / 상대가 단 답글)</td></tr>
+            <tr><td>state</td><td><code>done</code> / <code>pending</code></td><td><b>pending</b>이면 “답글 대기”로 표시</td></tr>
+            <tr><td>post</td><td>글·릴스 이름</td><td>어떤 글에 남긴 댓글인지</td></tr>
+            <tr><td>text</td><td>댓글 본문 또는 <code>null</code></td><td>본문을 모르면 <code>null</code> — 지어내지 않음</td></tr>
+            <tr><td>follow</td><td>예: <code>맞팔 완료</code></td><td>같이 한 맞팔 상태</td></tr>
+            <tr><td>note</td><td>짧은 메모</td><td>점검 기록의 부가 설명</td></tr>
+          </tbody>
+        </table>
+        <pre class="code">{
+  "platform": "threads",
+  "handle": "example_user",
+  "date": "YYYY-MM-DD",
+  "kind": "reply",
+  "by": "me",
+  "state": "done",
+  "post": "글 이름",
+  "text": "예시 댓글 본문",
+  "follow": "맞팔 완료",
+  "note": "짧은 메모"
+}</pre>
+        <p style="margin:10px 0 0;font-size:11.5px;color:var(--muted);line-height:1.6">
+          점검 기록(notes.md)에 남길 때도 <b>[Instagram]/[Threads] · 계정 · 날짜 · 선댓글/대댓글 · 본문</b> 순서로 적으면
+          그대로 이 형식으로 옮겨집니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>JSON 내보내기 / 가져오기</h2>
+        <p>지금 화면의 데이터를 파일로 저장하거나, 저장해 둔 파일로 되돌릴 수 있습니다.</p>
+      </div>
+      <div class="block-body">
+        <div class="btn-row">
+          <button class="btn primary" id="exportBtn">JSON 내보내기 ↓</button>
+          <button class="btn" id="importBtn">JSON 가져오기 ↑</button>
+          <button class="btn ghost" id="resetBtn">원본 데이터로 되돌리기</button>
+          <button class="btn ghost" id="forgetBtn">이 기기 잠금 기억 지우기</button>
+        </div>
+        <input type="file" id="fileInput" accept="application/json,.json" class="sr" aria-label="JSON 파일 선택">
+        <p style="margin:12px 0 0;font-size:11.5px;color:var(--muted);line-height:1.6">
+          내보낸 JSON은 <b>암호화되지 않은 평문</b>이니 다른 사람에게 보내지 마세요. 가져온 데이터는 이 화면에서만 쓰입니다(외부 전송 없음).
+          “원본 데이터로 되돌리기”를 누르면 서버에서 받은 최신 데이터로 돌아갑니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>갱신 방법</h2>
+        <p>매일 20:30 자동 점검과 연결된 흐름입니다.</p>
+      </div>
+      <div class="block-body">
+        <ol class="steps">
+          <li><b>매일 20:30 자동 점검</b> — 인스타·스레드에서 새 댓글·대댓글·DM을 확인하고, 맞팔·댓글 소통은 플랫폼당 하루 3~5명 이내로 진행합니다.</li>
+          <li><b>점검 기록</b>은 <code>scheduled-actions/💬-인스타·스레드-소통-및-대댓글-알림/notes.md</code>에 쌓입니다.</li>
+          <li><b>대시보드 갱신</b> — 점검이 끝나면 평문 JSON(<code>data.plain.json</code>)에 기록을 더하고, 같은 PIN으로 다시 암호화해 <code>data.enc.json</code>을 저장소에 올립니다. 앱을 열거나 상단 <b>새로고침</b>을 누르면 새 암호문을 받아 이 기기에서 복호화합니다.</li>
+          <li><b>성장 스냅샷</b> — 12:30·20:30 점검마다 <code>growth</code> 배열에 <code>{date, igFollowers, igFollowing, igMutual, thFollowers, commentsDone, repliesDone}</code> 한 줄을 추가합니다. 새 내보내기가 없으면 팔로우 수는 직전 값을 그대로 두고 <code>source: "carry_forward"</code>로 표시합니다.</li>
+          <li><b>암호화</b> — AES-256-GCM · PBKDF2-SHA256(60만 회) · PIN 6자리. 저장소에는 암호문만 있어 평문 개인정보가 노출되지 않습니다.</li>
+          <li><b>수동 갱신</b> — 인스타그램에서 “정보 다운로드”로 새 zip을 받아 <code>attachments/</code>에 두고 말씀해 주시면, 팔로워·맞팔 숫자를 다시 계산합니다.</li>
+          <li><b>PIN을 바꾸려면</b> — 평문 JSON을 새 PIN으로 다시 암호화해 푸시하면 됩니다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head">
+        <h2>이 파일에 대해</h2>
+      </div>
+      <div class="block-body">
+        <dl class="kv">
+          <div><dt>형식</dt><dd>홈 화면 설치형 웹앱(PWA) · PIN 암호화 · 추적 없음</dd></div>
+          <div><dt>배포 주소</dt><dd class="mono">choungyujin.github.io/woo/board/</dd></div>
+          <div><dt>데이터</dt><dd><code>data.enc.json</code> — PIN 기반 AES-256-GCM 암호문 (이 기기에서만 복호화)</dd></div>
+          <div><dt>계정 정보</dt><dd>비밀번호·로그인 정보 없음</dd></div>
+          <div><dt>공유</dt><dd>주소를 알아도 PIN 없이는 열 수 없음 · 검색 노출 차단</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p><span class="lock">🔒 PIN 암호화 · 검색 비노출</span> · 인스타그램 내보내기 + 점검 기록 기반 · 댓글·DM은 지어내지 않고, 확인된 것만 표시합니다.</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "arisia949_dashboard_data_v2";
+  var PAGE = 60;
+
+  var STATUS = {
+    m: { label: "맞팔",      cls: "m" },
+    o: { label: "상대 미맞팔", cls: "o" },
+    i: { label: "내 미맞팔",   cls: "i" }
+  };
+
+  var BASE = null, DATA = null, usingImported = false;
+
+  /* ---------- data ---------- */
+  function parseBase(){ return null; }  /* 평문 내장 데이터 없음 — data.enc.json 을 복호화해 쓴다 */
+
+  function normComment(c, platform){
+    var o = c || {};
+    return {
+      id: o.id || [ (o.platform || platform || "instagram"), o.date || "", o.handle || "" ].join("-"),
+      platform: o.platform || platform || "instagram",
+      handle: String(o.handle || ""),
+      date: o.date || "",
+      kind: (o.kind === "reply" || o.kind === "first") ? o.kind : (o.type === "reply" ? "reply" : "first"),
+      by: (o.by === "them") ? "them" : "me",
+      state: (o.state === "pending") ? "pending" : "done",
+      post: o.post || "",
+      text: (typeof o.text === "string" && o.text.length) ? o.text : null,
+      follow: o.follow || "",
+      note: o.note || ""
+    };
+  }
+
+  function normalize(d){
+    if(!d || typeof d !== "object") throw new Error("데이터 형식이 올바르지 않습니다.");
+    if(!Array.isArray(d.accounts)) throw new Error("accounts 배열이 없습니다.");
+
+    var acc = d.accounts.map(function(a){
+      if(Array.isArray(a)) return { u:String(a[0]||""), st:String(a[1]||"o"), fAt:a[2]||null, sAt:a[3]||null };
+      return { u:String(a.u||""), st:String(a.st||"o"), fAt:a.fAt||null, sAt:a.sAt||null };
+    }).filter(function(a){ return a.u; });
+
+    var comments = d.comments;
+    if(!Array.isArray(comments)){
+      /* 예전 형식(instagram/threads 블록) 자동 변환 */
+      comments = [];
+      var ig = d.instagram || {}, th = d.threads || {};
+      (ig.myComments || []).forEach(function(c){
+        comments.push(normComment({ handle:c.handle, date:c.date, kind:"first", by:"me", state:"done", post:c.post, text:c.text, follow:c.follow, note:c.note }, "instagram"));
+      });
+      (ig.pending || []).forEach(function(c){
+        comments.push(normComment({ handle:c.handle, date:c.date, kind:"first", by:"them", state:"pending", post:c.post, text:c.text, note:c.options ? "답글 후보: " + c.options.join(" / ") : "" }, "instagram"));
+      });
+      (th.activity || []).forEach(function(c){
+        comments.push(normComment({ handle:c.handle, date:c.date, kind:"reply", by:"me", state:"done", post:c.post, text:c.text, note:c.note }, "threads"));
+      });
+      (th.pending || []).forEach(function(c){
+        comments.push(normComment({ handle:c.handle, date:c.date, kind:"reply", by:"them", state:"pending", post:c.post, text:c.text, note:c.options ? "답글 후보: " + c.options.join(" / ") : "" }, "threads"));
+      });
+    }
+
+    var excluded = Array.isArray(d.excluded) ? d.excluded : ((d.threads && d.threads.excluded) || []);
+
+    return {
+      meta: d.meta || {},
+      accounts: acc,
+      comments: comments.map(function(c){ return normComment(c); }).filter(function(c){ return c.handle; }),
+      excluded: excluded,
+      dm: d.dm || {},
+      growth: Array.isArray(d.growth) ? d.growth : [],
+      dailyNews: Array.isArray(d.dailyNews) ? d.dailyNews : [],
+      tips: (d.tips && typeof d.tips === "object") ? d.tips : null
+    };
+  }
+
+  function saveData(d){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        v: 2,
+        forGen: (BASE && BASE.meta ? BASE.meta.generatedAt : "") + "|" + (BASE ? BASE.accounts.length : 0),
+        data: d
+      }));
+    } catch(e){}
+  }
+
+  function loadSaved(){
+    try {
+      var s = localStorage.getItem(STORAGE_KEY);
+      if(!s) return null;
+      var wrap = JSON.parse(s);
+      var cur = (BASE && BASE.meta ? BASE.meta.generatedAt : "") + "|" + (BASE ? BASE.accounts.length : 0);
+      if(!wrap || wrap.v !== 2 || wrap.forGen !== cur){
+        /* 파일이 새로 갱신되었으면 저장된 사본을 버리고 파일 데이터를 쓴다 */
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return normalize(wrap.data);
+    } catch(e){ return null; }
+  }
+
+  /* ---------- 잠금(PIN) · 암호화 데이터 ---------- */
+  var ENC_URL = "./data.enc.json";              /* 공개 저장소에는 암호문만 둔다 */
+  var REMEMBER_KEY = "arisia949_unlock_v1";
+  var DATA_TTL = 5 * 60 * 1000;                 /* 앱 복귀 시 재확인 간격 */
+  var KDF_FALLBACK_ITER = 600000;
+
+  var sessionKey = null;      /* AES-GCM CryptoKey (메모리에만) */
+  var envelope = null;        /* 마지막으로 받은 암호문 */
+  var appStarted = false;
+  var lastSyncAt = 0;
+  var remoteState = "loading";
+  var deferredPrompt = null;
+
+  var SOURCE_LABEL = {
+    loading:  "데이터 확인 중…",
+    remote:   "잠금 해제 · 최신",
+    fallback: "오프라인 · 마지막 화면",
+    locked:   "잠김"
+  };
+
+  function setSourceChip(){
+    var el = $("chipSource");
+    if(el) el.textContent = SOURCE_LABEL[remoteState] || "—";
+  }
+
+  function hasCrypto(){ return !!(window.crypto && window.crypto.subtle && window.isSecureContext); }
+
+  function b64ToBytes(b64){
+    var s = atob(String(b64 || ""));
+    var a = new Uint8Array(s.length);
+    for(var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    return a;
+  }
+  function bytesToB64(buf){
+    var a = new Uint8Array(buf), s = "";
+    for(var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+    return btoa(s);
+  }
+
+  function deriveKey(pin, saltB64, iter){
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey("raw", enc.encode(pin), { name: "PBKDF2" }, false, ["deriveKey"])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: b64ToBytes(saltB64), iterations: iter || KDF_FALLBACK_ITER, hash: "SHA-256" },
+          base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]
+        );
+      });
+  }
+
+  function decryptEnvelope(env, key){
+    return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64ToBytes(env.iv) }, key, b64ToBytes(env.ct))
+      .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
+  }
+
+  function fetchEnvelope(force){
+    if(envelope && !force) return Promise.resolve(envelope);
+    return fetch(ENC_URL + "?v=" + Date.now(), { cache: "no-store" })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(j){ envelope = j; return j; });
+  }
+
+  /* 이 기기 기억: 파생 키(raw)만 저장하고 PIN은 저장하지 않는다. */
+  function readRemember(){
+    try {
+      var s = localStorage.getItem(REMEMBER_KEY);
+      if(!s) return null;
+      var o = JSON.parse(s);
+      return (o && o.k && o.s) ? o : null;
+    } catch(e){ return null; }
+  }
+  function rememberKey(key, saltB64){
+    if(!key.extractable) return Promise.resolve();
+    return crypto.subtle.exportKey("raw", key).then(function(raw){
+      try {
+        localStorage.setItem(REMEMBER_KEY, JSON.stringify({ v: 1, s: saltB64, k: bytesToB64(raw), at: Date.now() }));
+      } catch(e){}
+    }).catch(function(){});
+  }
+  function forgetKey(){ try { localStorage.removeItem(REMEMBER_KEY); } catch(e){} }
+  function importRawKey(b64){
+    return crypto.subtle.importKey("raw", b64ToBytes(b64), { name: "AES-GCM" }, true, ["decrypt"]);
+  }
+
+  function setLockMsg(msg){ var el = $("lockMsg"); if(el) el.textContent = msg || ""; }
+
+  function setLockBusy(on){
+    var b = $("unlockBtn"), p = $("pinInput");
+    if(b){ b.disabled = !!on; b.textContent = on ? "확인 중…" : "잠금 해제"; }
+    if(p) p.disabled = !!on;
+  }
+
+  function shakeLock(){
+    var box = document.querySelector(".lock-box");
+    if(!box) return;
+    box.classList.remove("shake");
+    void box.offsetWidth;
+    box.classList.add("shake");
+  }
+
+  function showLock(msg){
+    var el = $("lockScreen");
+    if(el) el.hidden = false;
+    document.body.classList.add("locked");
+    remoteState = "locked"; setSourceChip();
+    setLockBusy(false);
+    if(msg) setLockMsg(msg);
+    var p = $("pinInput");
+    if(p) setTimeout(function(){ try { p.focus(); } catch(e){} }, 80);
+  }
+
+  function hideLock(){
+    var el = $("lockScreen");
+    if(el) el.hidden = true;
+    document.body.classList.remove("locked");
+  }
+
+  function applyOwner(meta){
+    var owner = (meta && meta.owner) ? String(meta.owner) : "";
+    var h = $("heroHandle");
+    if(h) h.textContent = owner ? "@" + owner : "아리아 소셜보드";
+    var a = $("heroProfile");
+    if(a && owner){
+      a.href = "https://www.instagram.com/" + encodeURIComponent(owner) + "/";
+      a.hidden = false;
+    }
+  }
+
+  function startApp(json, how){
+    var next;
+    try { next = normalize(json); }
+    catch(e){ showLock("데이터 형식이 올바르지 않습니다."); console.error(e); return; }
+
+    BASE = next; DATA = next; usingImported = false;
+    applyOwner(next.meta);
+    hideLock();
+    setLockBusy(false);
+    setLockMsg("");
+
+    if(!appStarted){
+      appStarted = true;
+      renderAll();
+      initTabs();
+      initCards();
+      initFilters();
+      initCommentFilters();
+      initDataTab();
+      setTab(tabFromHash());
+      window.addEventListener("hashchange", function(){ setTab(tabFromHash()); });
+    } else {
+      renderAll();
+    }
+
+    remoteState = "remote"; lastSyncAt = Date.now(); setSourceChip();
+    if(how === "unlock" || how === "remembered") toast("잠금을 해제했습니다");
+  }
+
+  function unlock(pin){
+    if(!/^\d{6}$/.test(pin)){ setLockMsg("PIN 6자리를 입력해 주세요."); return; }
+    setLockBusy(true); setLockMsg("");
+    fetchEnvelope(true)
+      .then(function(env){
+        return deriveKey(pin, env.salt, env.iter).then(function(key){
+          return decryptEnvelope(env, key).then(function(json){
+            sessionKey = key;
+            var chk = $("rememberChk");
+            if(chk && chk.checked) rememberKey(key, env.salt); else forgetKey();
+            var p = $("pinInput"); if(p) p.value = "";
+            startApp(json, "unlock");
+          });
+        });
+      })
+      .catch(function(err){
+        setLockBusy(false);
+        console.warn("잠금 해제 실패:", err);
+        if(err && err.name === "OperationError"){
+          setLockMsg("PIN이 맞지 않습니다. 다시 입력해 주세요.");
+          shakeLock();
+        } else if(err && err.name === "SyntaxError"){
+          setLockMsg("복호화된 데이터 형식이 올바르지 않습니다.");
+        } else {
+          setLockMsg("데이터를 불러오지 못했습니다. 연결을 확인해 주세요.");
+        }
+        var p = $("pinInput");
+        if(p){ p.value = ""; try { p.focus(); } catch(e){} }
+      });
+  }
+
+  function tryRemembered(){
+    var rec = readRemember();
+    if(!rec) return false;
+    setLockMsg("잠금을 해제하는 중…");
+    fetchEnvelope(true)
+      .then(function(env){
+        if(rec.s && env.salt && rec.s !== env.salt){ forgetKey(); setLockMsg("PIN을 다시 입력해 주세요."); return; }
+        return importRawKey(rec.k)
+          .then(function(key){
+            return decryptEnvelope(env, key).then(function(json){
+              sessionKey = key;
+              startApp(json, "remembered");
+            });
+          })
+          .catch(function(err){
+            console.warn("기억된 잠금 해제 실패:", err);
+            forgetKey();
+            setLockMsg("PIN을 다시 입력해 주세요.");
+          });
+      })
+      .catch(function(err){
+        console.warn("암호문을 불러오지 못했습니다:", err);
+        setLockMsg("데이터를 불러오지 못했습니다. 연결을 확인해 주세요.");
+      });
+    return true;
+  }
+
+  function lockNow(){
+    sessionKey = null;
+    DATA = { meta: {}, accounts: [], comments: [], excluded: [], dm: {}, growth: [], dailyNews: [], tips: null };
+    BASE = DATA;
+    if(appStarted) renderAll();
+    var p = $("pinInput"); if(p) p.value = "";
+    showLock();
+  }
+
+  function refreshData(silent){
+    if(!sessionKey){
+      if(!silent) showLock("PIN을 입력해 주세요.");
+      return Promise.resolve(false);
+    }
+    var btn = $("refreshBtn"); if(btn) btn.classList.add("busy");
+    remoteState = "loading"; setSourceChip();
+    return fetchEnvelope(true)
+      .then(function(env){
+        return decryptEnvelope(env, sessionKey).then(function(json){
+          startApp(json, "refresh");
+          if(!silent) toast("최신 데이터를 불러왔습니다 · 기준일 " + ((json.meta && json.meta.snapshotDate) || "—"));
+          return true;
+        });
+      })
+      .catch(function(err){
+        console.warn("데이터 갱신 실패:", err);
+        remoteState = "fallback"; setSourceChip();
+        if(err && err.name === "OperationError"){
+          forgetKey();
+          sessionKey = null;
+          showLock("데이터가 새로 암호화되었습니다. PIN을 다시 입력해 주세요.");
+        } else if(!silent){
+          toast("최신 데이터를 못 불러왔습니다");
+        }
+        return false;
+      })
+      .then(function(ok){ if(btn) btn.classList.remove("busy"); return ok; });
+  }
+
+  function initLock(){
+    var form = $("lockForm"), input = $("pinInput");
+    if(form) form.addEventListener("submit", function(e){
+      e.preventDefault();
+      unlock(String(($("pinInput") || {}).value || "").replace(/\D/g, ""));
+    });
+    if(input){
+      input.addEventListener("input", function(){
+        var v = input.value.replace(/\D/g, "").slice(0, 6);
+        if(v !== input.value) input.value = v;
+        if(v.length < 6) setLockMsg("");
+        if(v.length === 6){
+          clearTimeout(input._t);
+          input._t = setTimeout(function(){
+            if(form && form.requestSubmit) form.requestSubmit();
+            else if(form) form.dispatchEvent(new Event("submit", { cancelable: true }));
+          }, 150);
+        }
+      });
+    }
+    var chk = $("rememberChk");
+    if(chk) chk.addEventListener("change", function(){ if(!chk.checked) forgetKey(); });
+  }
+
+  function bindShell(){
+    var rb = $("refreshBtn");
+    if(rb) rb.addEventListener("click", function(){ if(remoteState !== "loading") refreshData(false); });
+
+    var lb = $("lockBtn");
+    if(lb) lb.addEventListener("click", lockNow);
+
+    var fb = $("forgetBtn");
+    if(fb) fb.addEventListener("click", function(){
+      forgetKey();
+      toast("이 기기의 잠금 해제 기억을 지웠습니다");
+    });
+
+    var ib = $("installBtn");
+    if(ib) ib.addEventListener("click", function(){
+      if(!deferredPrompt){ toast("브라우저 메뉴의 ‘홈 화면에 추가’를 이용해 주세요"); return; }
+      deferredPrompt.prompt();
+      var pr = deferredPrompt;
+      deferredPrompt = null;
+      ib.hidden = true;
+      if(pr.userChoice && pr.userChoice.then) pr.userChoice.then(function(){});
+    });
+    window.addEventListener("beforeinstallprompt", function(e){
+      e.preventDefault();
+      deferredPrompt = e;
+      if(ib) ib.hidden = false;
+    });
+    window.addEventListener("appinstalled", function(){
+      if(ib) ib.hidden = true;
+      toast("홈 화면에 추가되었습니다");
+    });
+
+    document.addEventListener("visibilitychange", function(){
+      if(document.visibilityState !== "visible") return;
+      if(!sessionKey) return;
+      if(Date.now() - lastSyncAt < DATA_TTL) return;
+      refreshData(true);
+    });
+
+    if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+      navigator.serviceWorker.register("./sw.js").catch(function(err){
+        console.warn("서비스워커 등록 실패:", err);
+      });
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+  function num(n){ return (n == null ? 0 : n).toLocaleString("ko-KR"); }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    var p = String(iso).split("-");
+    return p.length < 3 ? String(iso) : p[0] + "." + p[1] + "." + p[2];
+  }
+  function laterOf(a, b){ if(!a) return b; if(!b) return a; return a > b ? a : b; }
+  function uniq(arr){ var o = {}; return arr.filter(function(v){ if(o[v]) return false; o[v] = 1; return true; }); }
+  function profileUrl(h){ return "https://www.instagram.com/" + encodeURIComponent(h) + "/"; }
+
+  var toastTimer = null;
+  function toast(msg){
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
+
+  /* ---------- stats ---------- */
+  function stats(d){
+    var m = 0, o = 0, i = 0;
+    for(var k = 0; k < d.accounts.length; k++){
+      var st = d.accounts[k].st;
+      if(st === "m") m++; else if(st === "i") i++; else o++;
+    }
+    var snap = d.meta.snapshotDate || null, recentCut = null;
+    if(snap){
+      var dt = new Date(snap + "T00:00:00");
+      dt.setDate(dt.getDate() - 30);
+      recentCut = dt.toISOString().slice(0, 10);
+    }
+    var recentMutual = 0;
+    if(recentCut){
+      d.accounts.forEach(function(a){
+        if(a.st === "m" && laterOf(a.fAt, a.sAt) >= recentCut) recentMutual++;
+      });
+    }
+
+    var dates = d.comments.map(function(c){ return c.date; }).filter(Boolean).sort();
+    var lastDate = dates.length ? dates[dates.length - 1] : null;
+    var todayTalk = lastDate ? d.comments.filter(function(c){ return c.date === lastDate; }).length : 0;
+
+    var first = d.comments.filter(function(c){ return c.kind === "first"; }).length;
+    var reply = d.comments.filter(function(c){ return c.kind === "reply"; }).length;
+    var replyMe = d.comments.filter(function(c){ return c.kind === "reply" && c.by === "me"; }).length;
+    var replyThem = d.comments.filter(function(c){ return c.kind === "reply" && c.by === "them"; }).length;
+    var pending = d.comments.filter(function(c){ return c.state === "pending"; }).length;
+
+    return {
+      followers: m + i, following: m + o, mutual: m, notFollowingBack: o, notFollowing: i,
+      recentMutual: recentMutual,
+      todayTalk: todayTalk, todayTalkDate: lastDate,
+      first: first, reply: reply, replyMe: replyMe, replyThem: replyThem, pending: pending,
+      followRate: (m + o) ? Math.round(o / (m + o) * 1000) / 10 : 0,
+      dmAvailable: !!d.dm.available
+    };
+  }
+
+  /* ---------- hero ---------- */
+  function renderChips(){
+    var meta = DATA.meta || {};
+    $("chipSnapshot").textContent = meta.snapshotDate || "—";
+    $("chipGenerated").textContent = meta.generatedAt || "—";
+    document.title = "인스타·스레드 현황 대시보드 · @" + (meta.owner || "arisia949");
+  }
+
+  /* ---------- summary cards ---------- */
+  function cardHtml(c){
+    var clickable = !!c.goto;
+    return '<button class="card' + (clickable ? "" : " plain") + '" data-tone="' + (c.tone || "") + '"' +
+      (clickable ? ' data-goto="' + c.goto + '" data-filter="' + c.filter + '"' : "") +
+      ' type="button" aria-label="' + esc(c.k) + ' ' + esc(String(c.v).replace(/<[^>]*>/g, "")) + '">' +
+      (clickable ? '<span class="arrow" aria-hidden="true">↗</span>' : '') +
+      '<span class="k">' + esc(c.k) + '</span>' +
+      '<span class="v">' + c.v + '</span>' +
+      '<span class="h">' + esc(c.h) + '</span>' +
+      '</button>';
+  }
+
+  function renderCards(){
+    var s = stats(DATA);
+    $("cardsFollow").innerHTML = [
+      { k:"팔로워", v:num(s.followers), h:"내 계정을 팔로우", tone:"", filter:"" },
+      { k:"팔로잉", v:num(s.following), h:"내가 팔로우", tone:"", filter:"" },
+      { k:"맞팔", v:num(s.mutual), h:"서로 팔로우", tone:"mutual", filter:"m" },
+      { k:"나만 팔로우", v:num(s.notFollowingBack), h:"상대는 미맞팔", tone:"nfb", filter:"o" },
+      { k:"내 미맞팔", v:num(s.notFollowing), h:"나를 팔로우만", tone:"nfing", filter:"i" }
+    ].map(function(c){
+      c.goto = "follow"; return cardHtml(c);
+    }).join("");
+
+    $("talkDate").textContent = s.todayTalkDate ? fmtDate(s.todayTalkDate) + " 기준" : "기록 없음";
+    $("cardsTalk").innerHTML = [
+      { k:"오늘 소통", v:num(s.todayTalk) + "<small>건</small>", h:"선댓글 + 대댓글", tone:"", goto:"insta" },
+      { k:"선댓글", v:num(s.first) + "<small>건</small>", h:"내가 먼저 남긴 댓글", tone:"first", goto:"insta" },
+      { k:"대댓글", v:num(s.reply) + "<small>건</small>", h:"내가 " + num(s.replyMe) + " · 상대 " + num(s.replyThem), tone:"reply", goto:"insta" },
+      { k:"답글 대기", v:num(s.pending) + "<small>건</small>", h: s.dmAvailable ? "댓글 + DM 포함" : "DM 데이터 없음", tone:"", goto:"insta" }
+    ].map(cardHtml).join("");
+  }
+
+  /* ---------- tabs ---------- */
+  var TABS = ["follow", "insta", "threads", "dm", "growth", "tips", "data"];
+  function setTab(name){
+    if(TABS.indexOf(name) < 0) name = "follow";
+    TABS.forEach(function(t){
+      var on = (t === name);
+      document.getElementById("tab-" + t).setAttribute("aria-selected", on ? "true" : "false");
+      document.getElementById("tab-" + t).tabIndex = on ? 0 : -1;
+      document.getElementById("panel-" + t).hidden = !on;
+    });
+    window.scrollTo({ top: 0, behavior: "auto" });
+    try { history.replaceState(null, "", "#" + name); } catch(e){}
+  }
+  function tabFromHash(){
+    var h = (location.hash || "").replace("#", "");
+    return TABS.indexOf(h) >= 0 ? h : "follow";
+  }
+
+  /* ---------- account list ---------- */
+  var view = { filter: "all", q: "", sort: "recent", shown: PAGE };
+
+  function filteredAccounts(){
+    var q = view.q.trim().toLowerCase().replace(/^@/, "");
+    var rows = DATA.accounts;
+
+    if(view.filter === "recent"){
+      rows = rows.filter(function(a){ return a.st === "m"; })
+        .map(function(a){ return { u:a.u, st:a.st, fAt:a.fAt, sAt:a.sAt, r:laterOf(a.fAt, a.sAt) }; })
+        .sort(function(a, b){ return a.r < b.r ? 1 : a.r > b.r ? -1 : 0; })
+        .slice(0, 30);
+      if(q) rows = rows.filter(function(a){ return a.u.toLowerCase().indexOf(q) >= 0; });
+      return rows;
+    }
+
+    if(view.filter !== "all") rows = rows.filter(function(a){ return a.st === view.filter; });
+    if(q) rows = rows.filter(function(a){ return a.u.toLowerCase().indexOf(q) >= 0; });
+    return rows.slice().sort(function(a, b){
+      if(view.sort === "name") return a.u.localeCompare(b.u);
+      var ra = laterOf(a.fAt, a.sAt) || "", rb = laterOf(b.fAt, b.sAt) || "";
+      if(view.sort === "old") return ra < rb ? -1 : ra > rb ? 1 : 0;
+      return ra > rb ? -1 : ra < rb ? 1 : 0;
+    });
+  }
+
+  function rowHtml(a){
+    var s = STATUS[a.st] || STATUS.o;
+    var initial = a.u.replace(/^__deleted__.*/, "?").charAt(0) || "?";
+    var parts = [];
+    if(a.fAt) parts.push("내가 팔로우 " + fmtDate(a.fAt));
+    if(a.sAt) parts.push("상대 팔로우 " + fmtDate(a.sAt));
+    if(!parts.length) parts.push("날짜 정보 없음");
+    var deleted = /^__deleted__/.test(a.u);
+    var inner = deleted
+      ? '<span class="handle" style="opacity:.6">탈퇴·삭제된 계정</span>'
+      : '<a class="handle" href="' + profileUrl(a.u) + '" target="_blank" rel="noopener noreferrer">@' + esc(a.u) +
+        '<span class="ext" aria-hidden="true">↗</span></a>';
+    return '<li class="row st-' + s.cls + '">' +
+      '<span class="avatar" aria-hidden="true">' + esc(initial) + '</span>' +
+      '<div class="row-main">' + inner + '<div class="row-meta"><span>' + esc(uniq(parts).join(" · ")) + '</span></div></div>' +
+      '<span class="badge ' + s.cls + '">' + s.label + '</span>' +
+      '</li>';
+  }
+
+  function renderList(){
+    var rows = filteredAccounts();
+    var slice = rows.slice(0, view.shown);
+    $("list").innerHTML = slice.map(rowHtml).join("");
+
+    var s = stats(DATA);
+    $("f-all").textContent = num(DATA.accounts.length);
+    $("f-o").textContent = num(s.notFollowingBack);
+    $("f-i").textContent = num(s.notFollowing);
+    $("f-m").textContent = num(s.mutual);
+    $("f-recent").textContent = "30";
+
+    var label = { all:"전체 계정", o:"상대 미맞팔", i:"내 미맞팔", m:"맞팔", recent:"최근 맞팔" }[view.filter];
+    var shownTxt = rows.length > slice.length ? (num(slice.length) + " / " + num(rows.length) + "명 표시") : (num(rows.length) + "명");
+    $("listSummary").textContent = label + " · " + shownTxt + (view.q ? " · “" + view.q + "” 검색" : "");
+
+    if(view.filter === "recent"){
+      $("recentNote").textContent = "최근 성립 순 상위 30명 · 최근 30일 신규 맞팔 " + num(s.recentMutual) + "명";
+    } else if(view.filter === "o"){
+      $("recentNote").textContent = "팔로잉 " + num(s.following) + "명 중 " + s.followRate + "%가 미맞팔";
+    } else {
+      $("recentNote").textContent = "";
+    }
+
+    $("listEmpty").hidden = rows.length > 0;
+    $("moreWrap").hidden = rows.length <= slice.length;
+    $("moreBtn").textContent = "더 보기 (" + num(Math.max(0, rows.length - slice.length)) + "명 남음)";
+
+    document.querySelectorAll("#filters .fbtn").forEach(function(b){
+      b.setAttribute("aria-pressed", b.getAttribute("data-filter") === view.filter ? "true" : "false");
+    });
+  }
+
+  /* ---------- comment cards ---------- */
+  var cview = { instagram: "all", threads: "all" };
+
+  var KIND_LABEL = {
+    "first": "선댓글",
+    "reply": "대댓글"
+  };
+
+  function commentCard(c){
+    var isReply = c.kind === "reply";
+    var byThem = isReply && c.by === "them";
+    var badge = isReply ? (byThem ? "대댓글 · 상대" : "대댓글 · 내가") : "선댓글";
+    var badgeCls = isReply ? ("reply" + (byThem ? " them" : "")) : "first";
+
+    var meta = [];
+    if(c.follow) meta.push(esc(c.follow));
+    if(c.note) meta.push(esc(c.note));
+
+    var body;
+    if(c.text){
+      body = '<blockquote class="cquote">' + esc(c.text) + '</blockquote>';
+    } else if(c.state === "done"){
+      body = '<div class="cquote muted">댓글 본문은 점검 기록에 남아 있지 않아 표시하지 않았습니다.</div>';
+    } else {
+      body = '<div class="cquote muted">아직 답글을 남기지 않았습니다.</div>';
+    }
+
+    var pendingChip = c.state === "pending"
+      ? '<span class="cbadge pending">답글 대기</span>'
+      : '<span class="pchip">완료</span>';
+
+    return '<li class="ccard k-' + (isReply ? "reply" : "first") + ' by-' + c.by + (c.state === "pending" ? " is-pending" : "") + '">' +
+      '<div class="chead">' +
+        '<span class="cbadge ' + badgeCls + '">' + badge + '</span>' +
+        pendingChip +
+        '<a class="handle" href="' + profileUrl(c.handle) + '" target="_blank" rel="noopener noreferrer">@' + esc(c.handle) + '</a>' +
+        '<span class="cd">' + esc(fmtDate(c.date)) + '</span>' +
+      '</div>' +
+      (c.post ? '<p class="cpost">' + esc(c.post) + '</p>' : '') +
+      body +
+      (meta.length ? '<p class="cmeta">' + meta.join('<span class="sep">·</span>') + '</p>' : '') +
+      '</li>';
+  }
+
+  function commentCounts(platform){
+    var rows = DATA.comments.filter(function(c){ return c.platform === platform; });
+    return {
+      all: rows.length,
+      first: rows.filter(function(c){ return c.kind === "first"; }).length,
+      reply: rows.filter(function(c){ return c.kind === "reply"; }).length,
+      pending: rows.filter(function(c){ return c.state === "pending"; }).length
+    };
+  }
+
+  function renderComments(platform, listId, countId, emptyId, prefix){
+    var all = DATA.comments.filter(function(c){ return c.platform === platform; });
+    var counts = commentCounts(platform);
+    var f = cview[platform];
+
+    if(countId) $(countId).textContent = num(counts.all) + "건";
+
+    [["all", counts.all], ["first", counts.first], ["reply", counts.reply], ["pending", counts.pending]].forEach(function(p){
+      var el = $(prefix + "-" + p[0]);
+      if(el) el.textContent = num(p[1]);
+    });
+
+    var rows = all.filter(function(c){
+      if(f === "pending") return c.state === "pending";
+      if(f === "first" || f === "reply") return c.kind === f;
+      return true;
+    }).sort(function(a, b){
+      if(a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+    });
+
+    $(listId).innerHTML = rows.map(commentCard).join("");
+    $(emptyId).hidden = rows.length > 0;
+
+    document.querySelectorAll('[data-cplatform="' + platform + '"]').forEach(function(b){
+      b.setAttribute("aria-pressed", b.getAttribute("data-cfilter") === f ? "true" : "false");
+    });
+  }
+
+  function renderExcluded(){
+    var ex = DATA.excluded || [];
+    $("cntExcluded").textContent = num(ex.length) + "건";
+    $("threadsExcluded").innerHTML = ex.map(function(c){
+      return '<li class="ccard k-reply by-them">' +
+        '<div class="chead"><span class="cbadge ex">제외</span>' +
+        '<a class="handle" href="' + profileUrl(c.handle) + '" target="_blank" rel="noopener noreferrer">@' + esc(c.handle) + '</a>' +
+        '<span class="cd">' + esc(fmtDate(c.date)) + '</span></div>' +
+        (c.reason ? '<p class="cmeta">' + esc(c.reason) + '</p>' : '') +
+        '</li>';
+    }).join("");
+    $("threadsExcludedEmpty").hidden = ex.length > 0;
+  }
+
+  function renderDm(){
+    var dm = DATA.dm || {}, dms = dm.threads || [];
+    if(dm.available && dms.length){
+      $("cntDm").textContent = num(dms.length) + "건";
+      $("dmEmpty").hidden = true;
+      $("dmList").innerHTML = dms.map(function(m){
+        return '<li class="ccard k-first"><div class="chead"><span class="cbadge first">DM</span>' +
+          '<a class="handle" href="' + profileUrl(m.handle) + '" target="_blank" rel="noopener noreferrer">@' + esc(m.handle) + '</a>' +
+          '<span class="cd">' + esc(fmtDate(m.date)) + '</span></div>' +
+          (m.text ? '<blockquote class="cquote">' + esc(m.text) + '</blockquote>' : '') +
+          (m.state ? '<p class="cmeta">' + esc(m.state) + '</p>' : '') + '</li>';
+      }).join("");
+    } else {
+      $("cntDm").textContent = "데이터 없음";
+      $("dmEmpty").hidden = false;
+      $("dmList").innerHTML = "";
+    }
+  }
+
+  /* ---------- data tab ---------- */
+  function renderSource(){
+    var m = DATA.meta || {}, s = stats(DATA);
+    var rows = [
+      ["계정", "@" + (m.owner || "arisia949")],
+      ["내보내기 기준일", m.snapshotDate || "—"],
+      ["팔로워 / 팔로잉", num(s.followers) + " / " + num(s.following)],
+      ["맞팔 / 상대 미맞팔 / 내 미맞팔", num(s.mutual) + " / " + num(s.notFollowingBack) + " / " + num(s.notFollowing)],
+      ["댓글 기록 (선댓글 / 대댓글 / 대기)", num(s.first) + " / " + num(s.reply) + " / " + num(s.pending)],
+      ["원본 파일", m.sourceZip || "—", "mono"],
+      ["점검 기록", m.notesPath || "—", "mono"],
+      ["점검 기록 갱신", m.notesUpdated || "—"],
+      ["화면 데이터 생성", m.generatedAt || "—"]
+    ];
+    $("sourceList").innerHTML = rows.map(function(r){
+      return "<div><dt>" + esc(r[0]) + "</dt><dd" + (r[2] ? ' class="mono"' : "") + ">" + esc(r[1]) + "</dd></div>";
+    }).join("");
+
+    $("importedBannerWrap").innerHTML = usingImported
+      ? '<div class="imported-banner"><span>📥 가져온 JSON으로 표시 중입니다 (이 브라우저에만 저장됨).</span><button class="btn ghost" type="button" id="bannerReset" style="padding:6px 12px;font-size:12px">원본으로</button></div>'
+      : "";
+    var br = $("bannerReset");
+    if(br) br.addEventListener("click", resetData);
+  }
+
+  function renderAll(){
+    renderChips();
+    renderCards();
+    renderList();
+    renderComments("instagram", "clistIn", "cntIn", "clistInEmpty", "ci");
+    renderComments("threads", "clistTh", "cntTh", "clistThEmpty", "ct");
+    renderExcluded();
+    renderDm();
+    renderSource();
+    renderGrowth();
+    renderTips();
+  }
+
+  /* ---------- interactions ---------- */
+  function initTabs(){
+    var tabs = $("tabs");
+    tabs.addEventListener("click", function(e){
+      var b = e.target.closest(".tab");
+      if(b) setTab(b.getAttribute("data-tab"));
+    });
+    tabs.addEventListener("keydown", function(e){
+      var cur = document.activeElement && document.activeElement.getAttribute("data-tab");
+      var idx = TABS.indexOf(cur);
+      if(idx < 0) return;
+      var next = null;
+      if(e.key === "ArrowRight") next = (idx + 1) % TABS.length;
+      else if(e.key === "ArrowLeft") next = (idx - 1 + TABS.length) % TABS.length;
+      else if(e.key === "Home") next = 0;
+      else if(e.key === "End") next = TABS.length - 1;
+      if(next !== null){
+        e.preventDefault();
+        document.getElementById("tab-" + TABS[next]).focus();
+        setTab(TABS[next]);
+      }
+    });
+  }
+
+  function initCards(){
+    document.querySelector(".summary").addEventListener("click", function(e){
+      var c = e.target.closest(".card");
+      if(!c || !c.getAttribute("data-goto")) return;
+      var t = c.getAttribute("data-goto");
+      setTab(t);
+      var f = c.getAttribute("data-filter");
+      if(t === "follow" && f){
+        view.filter = f;
+        view.shown = PAGE;
+        renderList();
+      }
+    });
+  }
+
+  function initFilters(){
+    $("filters").addEventListener("click", function(e){
+      var b = e.target.closest(".fbtn");
+      if(!b) return;
+      view.filter = b.getAttribute("data-filter");
+      view.shown = PAGE;
+      renderList();
+    });
+
+    var timer = null, searchEl = $("search");
+    searchEl.addEventListener("input", function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        view.q = searchEl.value;
+        view.shown = PAGE;
+        renderList();
+      }, 90);
+    });
+
+    $("sort").addEventListener("change", function(){
+      view.sort = $("sort").value;
+      view.shown = PAGE;
+      renderList();
+    });
+
+    $("moreBtn").addEventListener("click", function(){
+      view.shown += PAGE;
+      renderList();
+    });
+  }
+
+  function initCommentFilters(){
+    document.querySelectorAll("[data-cplatform]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var p = b.getAttribute("data-cplatform");
+        cview[p] = b.getAttribute("data-cfilter");
+        if(p === "instagram") renderComments("instagram", "clistIn", "cntIn", "clistInEmpty", "ci");
+        else renderComments("threads", "clistTh", "cntTh", "clistThEmpty", "ct");
+      });
+    });
+  }
+
+  /* ---------- 성장 추이 ---------- */
+  var GROWTH_COLORS = {
+    igFollowers: "#dd2a7b", igFollowing: "#8134af", igMutual: "#f58529",
+    commentsDone: "#2457c5", repliesDone: "#0f8a5f"
+  };
+
+  function growthRows(){
+    var g = Array.isArray(DATA.growth) ? DATA.growth : [];
+    return g.filter(function(r){ return r && r.date; }).slice().sort(function(a, b){
+      return String(a.date) < String(b.date) ? -1 : String(a.date) > String(b.date) ? 1 : 0;
+    });
+  }
+
+  function shortDate(iso){
+    var p = String(iso || "").split("-");
+    return p.length >= 3 ? p[1] + "." + p[2] : String(iso || "");
+  }
+
+  function numOrNull(v){ return (typeof v === "number" && isFinite(v)) ? v : null; }
+
+  function deltaText(v){
+    if(v == null) return "—";
+    return (v > 0 ? "+" : v < 0 ? "−" : "±") + num(Math.abs(v));
+  }
+  function deltaTone(v){
+    if(v == null) return "flat";
+    return v > 0 ? "up" : v < 0 ? "down" : "flat";
+  }
+
+  function chartSvg(labels, series){
+    var W = 660, H = 200, L = 58, R = 26, T = 22, B = 30;
+    var vals = [];
+    series.forEach(function(s){
+      s.points.forEach(function(v){ if(v != null) vals.push(v); });
+    });
+    if(!vals.length) return '<p class="chart-empty">아직 그릴 값이 없습니다.</p>';
+
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if(min === max){ min = Math.max(0, min - 1); max = max + 1; }
+    var pad = (max - min) * 0.15;
+    min = Math.max(0, min - pad);
+    max = max + pad;
+    var n = labels.length;
+
+    function X(i){ return n <= 1 ? (L + (W - L - R) / 2) : L + i * (W - L - R) / (n - 1); }
+    function Y(v){ return T + (1 - (v - min) / (max - min)) * (H - T - B); }
+
+    var out = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="추이 차트">';
+    for(var g = 0; g <= 3; g++){
+      var gv = min + (max - min) * g / 3;
+      var gy = Y(gv);
+      out += '<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + gy.toFixed(1) + '" stroke="#eceef3" stroke-width="1"/>';
+      out += '<text x="' + (L - 8) + '" y="' + (gy + 3.5).toFixed(1) + '" text-anchor="end" class="ax">' + num(Math.round(gv)) + '</text>';
+    }
+    labels.forEach(function(lb, i){
+      if(n > 6 && i !== 0 && i !== n - 1 && i % Math.ceil(n / 5) !== 0) return;
+      out += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" class="ax">' + esc(shortDate(lb)) + '</text>';
+    });
+    series.forEach(function(s){
+      var d = "", pen = false;
+      s.points.forEach(function(v, i){
+        if(v == null){ pen = false; return; }
+        d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " ";
+        pen = true;
+      });
+      if(d) out += '<path d="' + d.trim() + '" fill="none" stroke="' + s.color + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+      s.points.forEach(function(v, i){
+        if(v == null) return;
+        out += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + (i === n - 1 ? 4.6 : 3.2) + '" fill="#fff" stroke="' + s.color + '" stroke-width="2.2"/>';
+      });
+    });
+    out += '</svg>';
+    return out;
+  }
+
+  function renderGrowth(){
+    var box = $("growthCards"), charts = $("growthCharts"), table = $("growthTable");
+    if(!box || !charts || !table) return;
+
+    var rows = growthRows();
+    var cnt = $("growthCount"); if(cnt) cnt.textContent = num(rows.length) + "회";
+    var tcnt = $("growthTableCount"); if(tcnt) tcnt.textContent = num(rows.length) + "건";
+
+    if(!rows.length){
+      box.innerHTML = "";
+      charts.innerHTML = '<div class="chart-block"><p class="chart-empty">성장 스냅샷이 아직 없습니다. 12:30·20:30 점검이 기록을 남기면 여기에 그려집니다.</p></div>';
+      table.innerHTML = "";
+      return;
+    }
+
+    var last = rows[rows.length - 1];
+    var prev = rows.length > 1 ? rows[rows.length - 2] : null;
+
+    function diff(key){
+      if(!prev) return null;
+      var a = last[key], b = prev[key];
+      return (typeof a === "number" && typeof b === "number") ? a - b : null;
+    }
+    function talk(r){ return (typeof r.commentsDone === "number" ? r.commentsDone : 0) + (typeof r.repliesDone === "number" ? r.repliesDone : 0); }
+
+    var talkDiff = prev ? (talk(last) - talk(prev)) : null;
+
+    var cards = [
+      { k:"팔로워", v:last.igFollowers, d:diff("igFollowers"), h:"기준 " + shortDate(last.date) },
+      { k:"팔로잉", v:last.igFollowing, d:diff("igFollowing"), h:"내가 팔로우" },
+      { k:"맞팔", v:last.igMutual, d:diff("igMutual"), h:"서로 팔로우" },
+      { k:"소통 누적", v:talk(last), d:talkDiff, h:"선댓글 " + num(last.commentsDone || 0) + " · 대댓글 " + num(last.repliesDone || 0) }
+    ];
+
+    box.innerHTML = cards.map(function(c){
+      return '<div class="card plain growth-card">' +
+        '<span class="k">' + esc(c.k) + '</span>' +
+        '<span class="v">' + (c.v == null ? "—" : num(c.v)) +
+          (c.d == null ? "" : ' <span class="delta ' + deltaTone(c.d) + '">' + deltaText(c.d) + '</span>') +
+        '</span>' +
+        '<span class="h">' + esc(c.h) + '</span>' +
+      '</div>';
+    }).join("");
+
+    var labels = rows.map(function(r){ return r.date; });
+    var chartDefs = [
+      { title:"팔로워 · 팔로잉", series:[
+        { name:"팔로워", color:GROWTH_COLORS.igFollowers, key:"igFollowers" },
+        { name:"팔로잉", color:GROWTH_COLORS.igFollowing, key:"igFollowing" }
+      ]},
+      { title:"맞팔", series:[
+        { name:"맞팔", color:GROWTH_COLORS.igMutual, key:"igMutual" }
+      ]},
+      { title:"소통 누적", series:[
+        { name:"선댓글", color:GROWTH_COLORS.commentsDone, key:"commentsDone" },
+        { name:"대댓글", color:GROWTH_COLORS.repliesDone, key:"repliesDone" }
+      ]}
+    ];
+
+    charts.innerHTML = chartDefs.map(function(cd){
+      var series = cd.series.map(function(s){
+        return { name:s.name, color:s.color, points:rows.map(function(r){ return numOrNull(r[s.key]); }) };
+      });
+      var legend = series.map(function(s){
+        var lastVal = null;
+        for(var i = s.points.length - 1; i >= 0; i--){ if(s.points[i] != null){ lastVal = s.points[i]; break; } }
+        return '<span><i style="background:' + s.color + '"></i>' + esc(s.name) + ' ' + (lastVal == null ? "—" : num(lastVal)) + '</span>';
+      }).join("");
+      return '<div class="chart-block"><div class="chart-head"><h3>' + esc(cd.title) + '</h3>' +
+        '<div class="chart-legend">' + legend + '</div></div>' + chartSvg(labels, series) + '</div>';
+    }).join("");
+
+    var snapRows = rows.slice().reverse().map(function(r, idx){
+      var i = rows.length - 1 - idx;
+      var p = i > 0 ? rows[i - 1] : null;
+      function cell(label, key){
+        var v = numOrNull(r[key]);
+        var d = (p && typeof r[key] === "number" && typeof p[key] === "number") ? r[key] - p[key] : null;
+        return '<span class="snap-cell"><i>' + esc(label) + '</i><b>' + (v == null ? "—" : num(v)) + '</b>' +
+          (d == null ? "" : '<em class="delta ' + deltaTone(d) + '">' + deltaText(d) + '</em>') + '</span>';
+      }
+      return '<div class="snap"><div class="snap-top"><b>' + esc(fmtDate(r.date)) + '</b>' +
+        (r.source === "carry_forward" ? '<span class="snap-tag">팔로우 수 유지</span>' : '') +
+        '<span class="snap-note">' + esc(r.note || "") + '</span></div>' +
+        '<div class="snap-grid">' +
+          cell("팔로워", "igFollowers") + cell("팔로잉", "igFollowing") + cell("맞팔", "igMutual") +
+          cell("선댓글", "commentsDone") + cell("대댓글", "repliesDone") + cell("스레드 팔로워", "thFollowers") +
+        '</div></div>';
+    }).join("");
+
+    table.innerHTML = snapRows;
+  }
+
+  /* ---------- 몽글노트 홍보·수익화 팁 ---------- */
+  function tipBlock(title, body, inner, badge){
+    return '<article class="block"><div class="block-head"><h2>' + (badge || "") + esc(title) + '</h2>' +
+      (body ? '<p>' + esc(body) + '</p>' : '') + '</div>' +
+      (inner ? '<div class="block-body">' + inner + '</div>' : '') + '</article>';
+  }
+
+  function renderDailyNews(list){
+    if(!Array.isArray(list) || !list.length) return '';
+    var items = list.slice().sort(function(a, b){
+      return String(b.date || "").localeCompare(String(a.date || ""));
+    });
+    var cards = items.map(function(n){
+      var tag = n.tag ? '<span class="news-tag">' + esc(n.tag) + '</span>' : '';
+      var src = n.url
+        ? '<a class="news-src" href="' + esc(n.url) + '" target="_blank" rel="noopener noreferrer">' + esc(n.source || "출처") + '</a>'
+        : '<span class="news-src">' + esc(n.source || "") + '</span>';
+      return '<article class="news"><div class="news-head"><span>' + esc(fmtDate(n.date)) + '</span>' + tag + '</div>' +
+        '<h3>' + esc(n.title || "") + '</h3>' +
+        (n.body ? '<p>' + esc(n.body) + '</p>' : '') +
+        '<div class="news-foot">' + src + (n.checkedAt ? ' · 확인 ' + esc(n.checkedAt) : '') + '</div></article>';
+    }).join("");
+    return '<div class="block"><div class="block-head"><h2>새 소식 <span class="count">' + num(items.length) + '건</span></h2>' +
+      '<p>12:30·20:30 점검에서 확인된 것만 쌓입니다. 출처와 확인 날짜가 없는 소문은 넣지 않습니다.</p></div>' +
+      '<div class="block-body news-list">' + cards + '</div></div>';
+  }
+
+  function renderMix(mix){
+    if(!mix || typeof mix !== "object") return '';
+    var r = typeof mix.realLife === "number" ? mix.realLife : 70;
+    var p = typeof mix.product === "number" ? mix.product : 30;
+    var bar = '<div class="mix-bar">' +
+      '<span class="mix-real" style="width:' + r + '%">실생활 ' + r + '%</span>' +
+      '<span class="mix-prod" style="width:' + p + '%">몽글노트 ' + p + '%</span></div>';
+    var week = (mix.weekly || []).map(function(w){
+      return '<div class="mix-row"><span class="mix-day">' + esc(w.day || "") + '</span>' +
+        '<span class="mix-type ' + (w.product ? "prod" : "real") + '">' + esc(w.type || "") + '</span>' +
+        '<span class="mix-idea">' + esc(w.idea || "") + '</span></div>';
+    }).join("");
+    return tipBlock(mix.title || "실생활 70 : 몽글노트 30", mix.why, bar + (week ? '<div class="mix-week">' + week + '</div>' : ""));
+  }
+
+  function renderChannels(list){
+    if(!Array.isArray(list) || !list.length) return '';
+    var blocks = list.map(function(c){
+      var pts = (c.points || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("");
+      return tipBlock(c.name || "", c.goal || "", pts ? '<ul class="tip-check">' + pts + '</ul>' : "");
+    }).join("");
+    return '<h2 class="group-label" style="margin:24px 2px 10px">채널별 노출 전략</h2>' + blocks;
+  }
+
+  function renderSafety(sf){
+    if(!sf || typeof sf !== "object") return '';
+    var nums = (sf.numbers || []).map(function(n){
+      return '<div class="safety-item"><b>' + esc(n.value || "") + '</b><span>' + esc(n.label || "") + '</span></div>';
+    }).join("");
+    var rules = (sf.rules || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join("");
+    var inner = (nums ? '<div class="safety-grid">' + nums + '</div>' : "") +
+      (rules ? '<ul class="tip-check">' + rules + '</ul>' : "");
+    return tipBlock(sf.title || "봇·정지 방지 안전 가이드", sf.why, inner);
+  }
+
+  function renderTips(){
+    var box = $("tipsBody");
+    if(!box) return;
+    var t = DATA.tips;
+    if(!t || typeof t !== "object"){
+      box.innerHTML = '<div class="block"><div class="empty"><strong>아직 팁이 없습니다</strong><p>암호화 데이터의 tips 블록에 내용이 들어오면 여기에 표시됩니다.</p></div></div>';
+      return;
+    }
+
+    var h = '';
+    h += '<div class="block"><div class="block-head"><h2>' + esc(t.product || "몽글노트") + '</h2>' +
+      '<p>' + esc(t.audience || "") + ' · 팁 갱신 ' + esc(t.updated || "—") + '</p></div>' +
+      (t.intro ? '<div class="block-body"><p class="tip-intro">' + esc(t.intro) + '</p></div>' : '') + '</div>';
+
+    h += renderDailyNews(DATA.dailyNews);
+    h += renderMix(t.mix);
+    h += renderChannels(t.channels);
+    h += renderSafety(t.safety);
+
+    if(t.promo && t.promo.length){
+      h += '<h2 class="group-label" style="margin:24px 2px 10px">광고 티 없이 알리는 법</h2>';
+      t.promo.forEach(function(p, i){
+        var steps = (p.steps || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("");
+        var quote = p.quote ? '<p class="tip-quote"><b>예시</b>' + esc(p.quote) + '</p>' : "";
+        h += tipBlock(p.title || "", p.why || "",
+          (steps ? '<ol class="steps">' + steps + '</ol>' : "") + quote,
+          '<span class="tip-num">' + (i + 1) + '</span>');
+      });
+    }
+
+    if(t.monetization && t.monetization.length){
+      h += '<h2 class="group-label" style="margin:26px 2px 10px">수익화 단계</h2>';
+      t.monetization.forEach(function(m){
+        var checks = (m.check || []).map(function(c){ return '<li>' + esc(c) + '</li>'; }).join("");
+        h += '<article class="block"><div class="block-head"><h2><span class="stage-badge">' + esc(m.stage || "") + '</span>' +
+          esc(m.title || "") + (m.price ? '<span class="stage-price">' + esc(m.price) + '</span>' : '') + '</h2>' +
+          (m.body ? '<p>' + esc(m.body) + '</p>' : '') + '</div>' +
+          (checks ? '<div class="block-body"><ul class="tip-check">' + checks + '</ul></div>' : '') + '</article>';
+      });
+    }
+
+    if(t.notes && t.notes.length){
+      h += '<div class="block"><div class="block-head"><h2>주의</h2></div><div class="block-body">' +
+        t.notes.map(function(n){ return '<p class="tip-note">· ' + esc(n) + '</p>'; }).join("") + '</div></div>';
+    }
+
+    box.innerHTML = h;
+  }
+  /* ---------- export / import ---------- */
+  function exportData(){
+    var payload = JSON.parse(JSON.stringify(DATA));
+    payload.meta = payload.meta || {};
+    payload.meta.exportedAt = new Date().toISOString();
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var d = new Date();
+    var stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+    a.href = url;
+    a.download = "인스타_스레드_현황_데이터_arisia949_" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    toast("JSON 파일로 내보냈습니다");
+  }
+
+  function importData(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var next = normalize(JSON.parse(String(reader.result)));
+        DATA = next;
+        usingImported = true;
+        saveData(next);
+        renderAll();
+        toast("데이터를 가져왔습니다 (" + num(next.accounts.length) + "개 계정 · " + num(next.comments.length) + "건 댓글)");
+      } catch(err){
+        toast("가져오기 실패: " + (err && err.message ? err.message : "형식 오류"));
+        console.error(err);
+      }
+    };
+    reader.onerror = function(){ toast("파일을 읽지 못했습니다"); };
+    reader.readAsText(file, "utf-8");
+  }
+
+  function resetData(){
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    DATA = BASE;
+    usingImported = false;
+    renderAll();
+    toast("원본 데이터로 되돌렸습니다");
+  }
+
+  function initDataTab(){
+    $("exportBtn").addEventListener("click", exportData);
+    $("importBtn").addEventListener("click", function(){ $("fileInput").click(); });
+    $("fileInput").addEventListener("change", function(e){
+      var f = e.target.files && e.target.files[0];
+      if(f) importData(f);
+      e.target.value = "";
+    });
+    $("resetBtn").addEventListener("click", function(){
+      if(!usingImported){ toast("이미 원본 데이터입니다"); return; }
+      resetData();
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    document.body.classList.add("locked");
+    showLock();
+    bindShell();
+    initLock();
+
+    if(!hasCrypto()){
+      setLockMsg("이 브라우저에서는 잠금 해제(AES-GCM)를 지원하지 않습니다. Chrome·Safari 최신 버전으로 열어 주세요.");
+      setLockBusy(true);
+      return;
+    }
+    if(!tryRemembered()){
+      setLockMsg("");
+      var p = $("pinInput");
+      if(p) setTimeout(function(){ try { p.focus(); } catch(e){} }, 120);
+    }
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
