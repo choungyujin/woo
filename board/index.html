@@ -4696,6 +4696,13 @@
 
   /* ---------- 바로 올리기 ---------- */
   function openOut(url){
+    var inApp = false;
+    try { inApp = !!(window.AiriaSave || window.AiriaSync); } catch(e){ inApp = false; }
+    /* 앱(WebView) 안에서는 location 이동이 MainActivity.route() 를 타고 기본 앱으로 바로 나간다 */
+    if(inApp){
+      setTimeout(function(){ try { location.href = url; } catch(e){} }, 260);
+      return;
+    }
     var w = null;
     try { w = window.open(url, "_blank"); } catch(e){ w = null; }
     if(!w){ try { location.href = url; } catch(e){} }
@@ -4707,7 +4714,7 @@
     var plan = uploadPlan(v);
     if(!plan) return;
     copyText(plan.text, plan.msg);
-    setTimeout(function(){ openOut(plan.url); }, 420);
+    openOut(plan.url);
   }
 
   /* ============================ 대본 생성기 ============================ */
