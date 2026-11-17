@@ -435,7 +435,7 @@
     padding:11px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;
     cursor:pointer;text-align:left;line-height:1.25;transition:transform .12s ease, box-shadow .12s ease;
   }
-  .pseg-main{font-size:13px;font-weight:800;letter-spacing:-.02em;color:var(--ink-2)}
+  .pseg-main{font-size:13px;font-weight:800;letter-spacing:-.02em;color:var(--ink-2);word-break:keep-all}
   .pseg-sub{font-size:10.5px;font-weight:650;color:var(--muted)}
   .pseg:hover{transform:translateY(-1px)}
   .pseg[aria-selected="true"]{border-color:transparent;box-shadow:0 12px 26px -20px rgba(75,58,130,.9)}
@@ -446,7 +446,7 @@
   .pseg[data-plat="shorts"][aria-selected="true"] .pseg-sub{color:rgba(255,255,255,.62)}
   .pseg:disabled{opacity:.55;cursor:default;transform:none}
   .plat-line{display:flex;flex-direction:column;gap:4px;margin-top:8px}
-  .pl-item{font-size:11px;line-height:1.55;color:var(--muted)}
+  .pl-item{font-size:11px;line-height:1.55;color:var(--muted);word-break:keep-all}
   .pl-item b{display:inline-block;min-width:30px;font-size:9.5px;letter-spacing:.08em;color:#B8432E;font-weight:800;margin-right:5px}
 
   /* ---------- 플랫폼 칩 ---------- */
@@ -481,8 +481,8 @@
   .v-side{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:8px}
   .v-meta{margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-2);font-weight:650}
   .v-actions{display:flex;gap:6px;flex-wrap:wrap}
-  .v-hint{margin:0;font-size:10.5px;line-height:1.55;color:var(--muted)}
-  .v-note{margin:11px 0 0;font-size:10.5px;line-height:1.6;color:var(--muted)}
+  .v-hint{margin:0;font-size:10.5px;line-height:1.55;color:var(--muted);word-break:keep-all}
+  .v-note{margin:11px 0 0;font-size:10.5px;line-height:1.6;color:var(--muted);word-break:keep-all}
   @media(min-width:760px){
     .v-frame{width:210px}
     .v-out{flex-wrap:nowrap}
@@ -4550,6 +4550,8 @@
 
   function updateVideoBlock(){
     var q = curP();
+    var vo = $("vidOut");
+    if(vo && !VIDEO.busy) vo.hidden = !(VIDEO.blob && VIDEO.plat === plat);
     var eb = $("vidEyebrow"), ti = $("vidTitle"), note = $("vidNote"), go = $("vidGo");
     if(eb) eb.textContent = q.icon + " " + q.name + " · 9:16 · 약 15초";
     if(ti) ti.textContent = "🎬 " + q.short + " 영상 만들기";
