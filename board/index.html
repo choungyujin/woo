@@ -427,71 +427,73 @@
   .snap-cell b{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
   .snap-cell em{font-style:normal;font-size:10px;font-weight:700}
 
-  /* ---------- 쇼츠·릴스 스튜디오 ---------- */
-  .short-context{display:grid;gap:6px;margin:0 0 14px}
-  @media(min-width:760px){ .short-context{grid-template-columns:repeat(2,minmax(0,1fr))} }
-  .sctx{display:flex;align-items:baseline;gap:7px;background:var(--gray-bg);border-radius:10px;padding:6px 10px;font-size:11.5px;color:var(--ink-2);line-height:1.45}
-  .sctx b{font-weight:750;color:var(--ink);white-space:nowrap}
-  .sctx span{color:var(--muted);min-width:0;word-break:keep-all}
-  .idea-list{display:grid;gap:12px}
-  @media(min-width:900px){ .idea-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start} }
-  .idea{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;box-shadow:var(--shadow)}
-  .idea-top{display:flex;align-items:flex-start;gap:9px}
-  .idea-no{flex:0 0 24px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,#f0a6c6,#bda2ea);color:#fff;font-size:12px;font-weight:800}
-  .idea-top h3{margin:0;font-size:14px;line-height:1.45;letter-spacing:-.01em;font-weight:750}
-  .idea-meta{margin:6px 0 0;display:flex;gap:6px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);align-items:center}
-  .idea-meta i{font-style:normal;background:var(--violet-bg);color:var(--violet);border-radius:999px;padding:1px 8px;font-weight:750}
-  .idea-meta i.len{background:var(--info-bg);color:var(--info)}
-  .idea-aud{margin:9px 0 0;font-size:12px;color:var(--ink-2);line-height:1.6}
-  .idea-aud b{color:var(--muted);font-weight:750;margin-right:5px}
-  .hook-box{margin:10px 0 0;padding:11px 13px;border-radius:12px;background:linear-gradient(135deg,#fff1f7,#f3ecfd);border:1px solid #efe4f8}
-  .hook-box b{display:block;font-size:10.5px;color:#9a6bb5;font-weight:800;letter-spacing:.02em;margin-bottom:4px}
-  .hook-box p{margin:0;font-size:14px;font-weight:750;line-height:1.5;letter-spacing:-.015em;color:#2c2540;word-break:keep-all}
-  .cuts{margin:11px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
-  .cuts li{border-left:2px solid #e7def5;padding:0 0 0 10px}
-  .cut-head{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:10.5px;color:var(--muted)}
-  .cut-head b{font-size:11.5px;font-weight:800;color:var(--violet)}
-  .cut-screen,.cut-line{margin:3px 0 0;font-size:12px;line-height:1.6;color:var(--ink-2);word-break:keep-all}
-  .cut-screen b,.cut-line b{color:var(--muted);font-weight:750;margin-right:4px}
-  .cut-line{color:var(--ink)}
-  .idea-narr{margin:11px 0 0;font-size:11.5px;line-height:1.7;color:var(--ink-2);background:#fbfbfd;border:1px dashed var(--line);border-radius:10px;padding:9px 11px;word-break:keep-all}
-  .idea-narr b{color:var(--muted);font-weight:750;margin-right:5px}
-  .tags{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0 0}
-  .tags span{font-size:11px;font-weight:650;color:#7a5aa8;background:#f6f1fd;border-radius:999px;padding:2px 8px}
-  .idea-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
-  .idea-actions .btn{padding:8px 12px;font-size:12.5px;border-radius:10px}
-  .gen-form{display:grid;gap:9px;grid-template-columns:1fr;align-items:end}
-  @media(min-width:720px){ .gen-form{grid-template-columns:minmax(0,1fr) 150px 110px auto} }
-  .gen-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-  .gen-field>span{font-size:11px;color:var(--muted);font-weight:700}
-  .gen-field input,.gen-field select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13.5px;color:var(--ink);outline:none}
-  .gen-field input:focus,.gen-field select:focus{border-color:#9aa3b5;box-shadow:0 0 0 3px rgba(21,22,26,.06)}
-  .gen-out{margin-top:12px}
-  .draft{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px}
-  .draft-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-  .draft-top h4{margin:0;font-size:13.5px;font-weight:750;line-height:1.45}
-  .draft .note{margin:6px 0 0;font-size:11px;color:var(--muted)}
-  .st{font-size:10px;font-weight:800;border-radius:999px;padding:2px 8px;white-space:nowrap}
-  .st.wait{background:var(--warn-bg);color:var(--warn)}
-  .st.done{background:var(--ok-bg);color:var(--ok)}
-  .draft-list{display:flex;flex-direction:column;gap:8px}
-  .draft-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:#fff}
-  .draft-row .t{flex:1 1 150px;min-width:0;font-size:12.5px;line-height:1.45;font-weight:650;word-break:break-word}
-  .draft-row .m{font-size:10.5px;color:var(--muted);white-space:nowrap}
-  .mini{font-size:11.5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:650;color:var(--ink-2);white-space:nowrap}
-  .mini:hover{border-color:#cdd2db;background:#fbfbfc}
-  .mini.on{background:var(--ok-bg);color:var(--ok);border-color:#cceadb}
-  .draft-empty{border:1px dashed var(--line);border-radius:11px;padding:12px;font-size:11.5px;color:var(--muted);line-height:1.6}
-  .shorts-thumb{display:grid;gap:16px;grid-template-columns:1fr}
-  @media(min-width:720px){ .shorts-thumb{grid-template-columns:minmax(0,1fr) 300px;align-items:start} }
-  .thumb-side{display:flex;flex-direction:column;gap:10px}
-  .thumb-side label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--muted);font-weight:700}
-  .thumb-side select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;color:var(--ink);outline:none}
-  .thumb-side .btn{justify-content:center}
-  .thumb-note{margin:0;font-size:11.5px;color:var(--muted);line-height:1.6}
-  .thumb-frame{display:flex;justify-content:center}
-  .thumb-frame canvas{width:100%;max-width:300px;height:auto;display:block;border-radius:22px;box-shadow:0 18px 40px -22px rgba(60,40,90,.55);border:1px solid #eee6f6;background:#f6f1fb}
+  /* ================= v1.3: 플랫폼 분리 · 영상 스튜디오 ================= */
+  /* ---------- 플랫폼 세그먼트 ---------- */
+  .plat-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .pseg{
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    padding:11px 14px;border-radius:16px;border:1px solid var(--line);background:#fff;
+    cursor:pointer;text-align:left;line-height:1.25;transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .pseg-main{font-size:13px;font-weight:800;letter-spacing:-.02em;color:var(--ink-2)}
+  .pseg-sub{font-size:10.5px;font-weight:650;color:var(--muted)}
+  .pseg:hover{transform:translateY(-1px)}
+  .pseg[aria-selected="true"]{border-color:transparent;box-shadow:0 12px 26px -20px rgba(75,58,130,.9)}
+  .pseg[data-plat="reels"][aria-selected="true"]{background:linear-gradient(135deg,#FFF1EC,#F1EDFF);}
+  .pseg[data-plat="reels"][aria-selected="true"] .pseg-main{color:#B8432E}
+  .pseg[data-plat="shorts"][aria-selected="true"]{background:#15171D}
+  .pseg[data-plat="shorts"][aria-selected="true"] .pseg-main{color:#fff}
+  .pseg[data-plat="shorts"][aria-selected="true"] .pseg-sub{color:rgba(255,255,255,.62)}
+  .pseg:disabled{opacity:.55;cursor:default;transform:none}
+  .plat-line{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+  .pl-item{font-size:11px;line-height:1.55;color:var(--muted)}
+  .pl-item b{display:inline-block;min-width:30px;font-size:9.5px;letter-spacing:.08em;color:#B8432E;font-weight:800;margin-right:5px}
 
+  /* ---------- 플랫폼 칩 ---------- */
+  .pchip{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;border-radius:999px;padding:2px 8px;vertical-align:middle}
+  .pchip-reels{background:#FBEDF6;color:#A8467D}
+  .pchip-shorts{background:#15171D;color:#FFB7A8}
+  .hero-eyebrow .pchip{margin-right:4px}
+
+  /* ---------- 영상 만들기 카드 ---------- */
+  .vblock{
+    margin-top:12px;border-radius:22px;border:1px solid var(--line);background:#fff;
+    padding:15px 16px 16px;box-shadow:0 18px 40px -38px rgba(20,20,25,.65);
+  }
+  .vblock-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+  .v-eyebrow{margin:0;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#B8432E}
+  .vblock-titles h3{margin:5px 0 0;font-size:15.5px;font-weight:800;letter-spacing:-.02em}
+  .v-chip{font-size:10px;font-weight:750;color:#6E6A5E;background:#F2F1EC;border-radius:999px;padding:4px 9px;white-space:nowrap}
+  .v-pick{display:block;margin-top:11px}
+  .v-pick span{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+  .v-pick select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:11px;font-size:12.5px;background:#fff;outline:none}
+  .v-flow{display:flex;gap:12px;align-items:center;margin-top:11px;flex-wrap:wrap}
+  .v-go{flex:1 1 200px;padding:12px 16px;font-size:13.5px;font-weight:750;border-radius:14px}
+  .v-go:disabled{opacity:.62;cursor:progress}
+  .v-progress{flex:1 1 180px;min-width:150px}
+  .v-bar{height:8px;border-radius:999px;background:#EFEDF6;overflow:hidden}
+  .v-bar i{display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#FF9C86,#A98BE8);transition:width .18s linear}
+  .v-progress p{margin:6px 0 0;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .v-out{display:flex;gap:14px;align-items:flex-start;margin-top:14px;flex-wrap:wrap}
+  .v-out[hidden],.v-progress[hidden],.vblock [hidden]{display:none !important}
+  .v-frame{flex:0 0 auto;width:180px;max-width:46vw;margin:0 auto}
+  #vidPreview{display:block;width:100%;height:auto;border-radius:16px;background:#0E1014;border:1px solid var(--line);aspect-ratio:9/16}
+  .v-side{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:8px}
+  .v-meta{margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-2);font-weight:650}
+  .v-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .v-hint{margin:0;font-size:10.5px;line-height:1.55;color:var(--muted)}
+  .v-note{margin:11px 0 0;font-size:10.5px;line-height:1.6;color:var(--muted)}
+  @media(min-width:760px){
+    .v-frame{width:210px}
+    .v-out{flex-wrap:nowrap}
+  }
+
+  /* ---------- 캡션 · CTA ---------- */
+  .idea-cap{margin-top:8px;white-space:pre-line}
+  .idea-cta{margin:7px 0 0;font-size:11.5px;line-height:1.55;color:#B8432E;background:#FBEDE9;border-radius:10px;padding:8px 10px}
+  .idea-cta b{display:inline-block;min-width:26px;font-size:9.5px;letter-spacing:.08em;color:#B8432E;font-weight:800;margin-right:5px}
+  .draft-row .pchip{margin-right:2px}
+  .draft-row .mini{border-radius:999px}
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
   /* ================= v1.2 UI ================= */
   :root{
@@ -982,14 +984,56 @@
     <div id="tipsBody"></div>
   </section>
 
-  <!-- ============ 2. 쇼츠·릴스 스튜디오 ============ -->
+  <!-- ============ 2. 쇼츠·릴스 스튜디오 (v1.3 플랫폼 분리) ============ -->
   <section class="panel" id="panel-shorts" role="tabpanel" aria-labelledby="tab-shorts" hidden>
     <div class="studio">
       <div class="studio-head">
-        <p class="eyebrow">Shorts studio</p>
-        <h2>오늘의 쇼츠·릴스 <span class="count" id="shortsCount">0개</span></h2>
-        <p class="muted">오늘 확인한 〈유튜브·인스타·스레드 소통〉에서 이어지는 아이디어 · 갱신 <b id="shortsUpdated">—</b></p>
+        <p class="eyebrow">Shorts studio · v1.3</p>
+        <h2>쇼츠 · 릴스 분리 스튜디오 <span class="count" id="shortsCount">0개</span></h2>
+        <p class="muted">같은 소재도 플랫폼에 맞춰 <b>대본·훅·화면 지시문·캡션·해시태그·영상 디자인</b>이 각각 달라집니다 · 갱신 <b id="shortsUpdated">—</b></p>
+
+        <div class="plat-seg" id="platSeg" role="tablist" aria-label="플랫폼 선택">
+          <button class="pseg" type="button" role="tab" id="pseg-reels" data-plat="reels" aria-selected="true">
+            <span class="pseg-main">📱 인스타 릴스</span><span class="pseg-sub">공감 · 감성</span>
+          </button>
+          <button class="pseg" type="button" role="tab" id="pseg-shorts" data-plat="shorts" aria-selected="false">
+            <span class="pseg-main">▶ 유튜브 쇼츠</span><span class="pseg-sub">정보 · 임팩트</span>
+          </button>
+        </div>
+        <div class="plat-line" id="platLine"></div>
         <div class="short-context" id="shortsContext"></div>
+      </div>
+
+      <div class="vblock" id="videoBlock">
+        <div class="vblock-head">
+          <div class="vblock-titles">
+            <p class="v-eyebrow" id="vidEyebrow">📱 인스타 릴스 · 9:16 · 약 15초</p>
+            <h3 id="vidTitle">🎬 릴스 영상 만들기</h3>
+          </div>
+          <span class="v-chip" id="vidChip">BGM 자동 · 오프라인</span>
+        </div>
+        <label class="v-pick"><span>대본 선택</span>
+          <select id="vidPick"></select>
+        </label>
+        <div class="v-flow">
+          <button class="btn primary v-go" id="vidGo" type="button">🎬 릴스 영상 만들기</button>
+          <div class="v-progress" id="vidProg" hidden>
+            <div class="v-bar"><i id="vidBar"></i></div>
+            <p id="vidProgText">영상 만드는 중… 0%</p>
+          </div>
+        </div>
+        <div class="v-out" id="vidOut" hidden>
+          <div class="v-frame"><video id="vidPreview" controls playsinline preload="metadata" aria-label="만든 세로 영상 미리보기"></video></div>
+          <div class="v-side">
+            <p class="v-meta" id="vidMeta"></p>
+            <div class="v-actions">
+              <button class="btn primary" id="vidSave" type="button">⬇️ 영상 저장</button>
+              <button class="btn" id="vidAgain" type="button">🔁 다시 만들기</button>
+            </div>
+            <p class="v-hint" id="vidHint"></p>
+          </div>
+        </div>
+        <p class="v-note" id="vidNote">선택한 대본을 4컷 애니메이션으로 그려 9:16 영상(BGM 포함)으로 저장합니다. 외부 서버·저작권 음원 없이 이 화면 안에서만 만듭니다.</p>
       </div>
 
       <div class="studio-grid">
@@ -997,8 +1041,8 @@
 
         <div class="block" id="shortsThumbBlock">
           <div class="block-head">
-            <h2>9:16 첫 컷 미리보기 <span class="count">9:16</span></h2>
-            <p>0~3초 훅을 세로 카드로 그립니다. 외부 이미지·폰트 요청 없이 이 화면의 Canvas로만 그려 <b>PNG로 저장</b>됩니다.</p>
+            <h2>9:16 첫 컷 미리보기 <span class="count" id="thumbPlat">릴스</span></h2>
+            <p>0~3초 훅을 플랫폼 스타일로 그립니다. 외부 이미지·폰트 요청 없이 이 화면의 Canvas로만 그려 <b>PNG로 저장</b>됩니다.</p>
           </div>
           <div class="block-body shorts-thumb">
             <div class="thumb-side">
@@ -1019,7 +1063,7 @@
     <div class="block">
       <div class="block-head">
         <h2>내 아이디어 → 대본 <span class="count" id="genSavedCount">0개 저장</span></h2>
-        <p>오늘 겪은 일을 한 줄로 적고 톤·길이만 고르면 0~3초 훅과 4컷 대본이 바로 나옵니다. 외부 AI 없이 이 화면 안에서만 만들고, 만든 대본은 이 기기에 저장됩니다.</p>
+        <p id="genHint">현재 플랫폼 구조로 대본을 만듭니다.</p>
       </div>
       <div class="block-body">
         <div class="gen-form">
@@ -1035,8 +1079,8 @@
           </label>
           <label class="gen-field"><span>길이</span>
             <select id="genLen">
-              <option value="30">30초</option>
               <option value="15">15초</option>
+              <option value="30">30초</option>
             </select>
           </label>
           <button class="btn primary" id="genBtn" type="button">대본 만들기</button>
@@ -1050,14 +1094,13 @@
     <div class="block">
       <div class="block-head">
         <h2>오늘의 아이디어 더 보기</h2>
-        <p>카드를 누르면 4컷 대본이 펼쳐집니다. 대본 복사·9:16 첫 컷도 카드 안에서 바로.</p>
+        <p>카드를 누르면 4컷 대본이 펼쳐집니다. 대본 복사·9:16 첫 컷·영상 만들기까지 카드 안에서 바로.</p>
       </div>
       <div class="block-body">
         <div class="slim-grid" id="ideaList"></div>
       </div>
     </div>
   </section>
-
 
   <!-- ============ 8. 데이터 관리 ============ -->
   <section class="panel" id="panel-manage" role="tabpanel" aria-labelledby="tab-manage" hidden>
@@ -2139,11 +2182,12 @@
     if(pick){
       var ideas = shortsIdeaList(), one = ideas.length ? ideas[0] : null;
       if(one){
-        pick.innerHTML = '<p class="pick-eyebrow">오늘 만들기 1순위</p>' +
-          '<h3>' + esc(one.title || "") + '</h3>' +
-          '<p class="pick-hook">“' + esc(one.hook || "") + '”</p>' +
-          '<p class="pick-meta">' + esc(one.length || "30초") + ' · ' + esc(one.tone || "") + (one.source ? ' · ' + esc(one.source) : '') + '</p>' +
-          '<button class="pick-btn" type="button" data-jump="shorts">대본 · 9:16 미리보기 열기 →</button>';
+        var ov = (typeof viewOf === "function") ? viewOf(one, (typeof plat === "string" ? plat : "reels")) : one;
+        pick.innerHTML = '<p class="pick-eyebrow">오늘 만들기 1순위 · ' + esc((typeof plat === "string" ? P(plat).short : "쇼츠")) + '</p>' +
+          '<h3>' + esc(ov.title || "") + '</h3>' +
+          '<p class="pick-hook">“' + esc(ov.hook || "") + '”</p>' +
+          '<p class="pick-meta">' + esc(ov.length || "15초") + ' · ' + esc(ov.toneLabel || one.tone || "") + (ov.source ? ' · ' + esc(ov.source) : '') + '</p>' +
+          '<button class="pick-btn" type="button" data-jump="shorts">대본 · 영상 만들기 열기 →</button>';
       } else {
         pick.innerHTML = '<p class="pick-eyebrow">쇼츠 스튜디오</p><h3>아직 아이디어가 없어요</h3>' +
           '<p class="pick-hook">쇼츠 탭에서 내 아이디어로 바로 대본을 만들 수 있어요.</p>' +
@@ -3110,6 +3154,1683 @@
       }
     });
   }
+
+/* ==========================================================================
+   v1.3 — 쇼츠 · 릴스 플랫폼 분리 + 대본 → 9:16 실제 영상 제작
+   · 플랫폼(reels/shorts)에 따라 대본·훅·화면 지시문·캡션·해시태그·영상 스타일이 달라진다
+   · Canvas 720×1280 + WebAudio 합성 BGM + MediaRecorder 로 실제 영상 파일을 만든다
+   ========================================================================== */
+  var SHORTS_KEY = "arisia949_shorts_v1";
+  var PLAT_KEY = "arisia949_plat_v1";
+  var NL = String.fromCharCode(10);
+  var shortsBound = false;
+  var shortsLast = null;      /* 방금 만든 대본 — 화면 표시용 */
+  var thumbSel = null;        /* { kind:"idea"|"draft", id:"…" } */
+  var plat = "reels";         /* reels | shorts */
+  var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0 };
+
+  var PLAT = {
+    reels: {
+      key: "reels", icon: "📱", name: "인스타 릴스", short: "릴스",
+      structure: "공감 상황 훅 → 감정선·비하인드 → 여운 남기는 한 문장 + 저장·공유",
+      look: "파스텔 크림·라벤더·코랄 그라데이션 · 떠다니는 빛 보케 · 부드러운 크로스페이드 · 잔잔한 피아노 BGM",
+      roles: ["공감 훅", "감정·비하인드", "전환", "여운"],
+      dur: [3.5, 4, 4.5, 3],
+      times: ["0~3.5초", "3.5~7.5초", "7.5~12초", "12~15초"]
+    },
+    shorts: {
+      key: "shorts", icon: "▶", name: "유튜브 쇼츠", short: "쇼츠",
+      structure: "0~2초 결론·반전 훅 → 빠른 1·2·3 → 한 줄 요약 + 고정댓글·구독 질문",
+      look: "다크 슬레이트 + 크림 임팩트 카드 · 코랄 키워드 배지 · 팝 컷 전환 · 굵은 타임 게이지 · 리드미컬한 비트 BGM",
+      roles: ["결론 훅", "1단계", "2·3단계", "요약"],
+      dur: [2.5, 4, 5, 3.5],
+      times: ["0~2.5초", "2.5~6.5초", "6.5~11.5초", "11.5~15초"]
+    }
+  };
+
+  function P(p){ return PLAT[p] || PLAT.reels; }
+  function curP(){ return P(plat); }
+
+  function readPlat(){
+    try {
+      var v = localStorage.getItem(PLAT_KEY);
+      if(v === "shorts" || v === "reels") plat = v;
+    } catch(e){}
+  }
+  function writePlat(p){
+    try { localStorage.setItem(PLAT_KEY, p); } catch(e){}
+  }
+
+  /* ---------- 데이터 접근 ---------- */
+  function shortsBlock(){
+    return (DATA.shortsIdeas && typeof DATA.shortsIdeas === "object") ? DATA.shortsIdeas : null;
+  }
+  function shortsIdeaList(){
+    var s = shortsBlock();
+    return (s && Array.isArray(s.ideas)) ? s.ideas : [];
+  }
+  function findIdea(id){
+    var list = shortsIdeaList();
+    for(var i = 0; i < list.length; i++){ if(list[i] && list[i].id === id) return list[i]; }
+    return null;
+  }
+  function toneName(t){
+    return t === "hook" ? "호기심 훅형" : t === "mom" ? "육아·현실공감형" : "담백한 일기형";
+  }
+  function readDrafts(){
+    try {
+      var o = JSON.parse(localStorage.getItem(SHORTS_KEY) || "[]");
+      return Array.isArray(o) ? o : [];
+    } catch(e){ return []; }
+  }
+  function writeDrafts(list){
+    try { localStorage.setItem(SHORTS_KEY, JSON.stringify(list.slice(0, 40))); } catch(e){}
+  }
+  function findDraft(id){
+    var list = readDrafts();
+    for(var i = 0; i < list.length; i++){ if(list[i] && list[i].id === id) return list[i]; }
+    return null;
+  }
+
+  /* ---------- 아이디어 → 플랫폼별 대본 뷰 ---------- */
+  function viewOf(o, p){
+    if(!o) return null;
+    var use = p || o.plat || "reels";
+    var v = (o.scripts && o.scripts[use]) ? o.scripts[use] : null;
+    var base = {
+      id: o.id, kind: o.scripts ? "idea" : "draft", plat: use,
+      title: o.title || o.topic || "", topic: o.topic || o.title || "",
+      length: o.length || "15초", tone: o.tone, toneLabel: o.toneLabel || toneName(o.tone),
+      hook: o.hook || "", cuts: o.cuts || [], narration: o.narration || "",
+      caption: o.caption || "", cta: o.cta || "", hashtags: o.hashtags || [],
+      audience: o.audience || "", source: o.source || "", context: o.context || "",
+      badge: o.badge || "", status: o.status || "", at: o.at || ""
+    };
+    if(v){
+      for(var k in v){ if(v[k] !== undefined && v[k] !== null) base[k] = v[k]; }
+      base.plat = use;
+    }
+    if(!base.badge){
+      var tag = (base.hashtags && base.hashtags.length) ? String(base.hashtags[0]).replace(/^#/, "") : "";
+      base.badge = tag ? tag.slice(0, 12) : (use === "shorts" ? "SHORTS" : "MONGLE NOTE");
+    }
+    return base;
+  }
+  function draftView(d){ return viewOf(d, d.plat || "reels"); }
+  function ideaViewOfId(id, p){ return viewOf(findIdea(id), p || plat); }
+  function viewOfSel(){
+    if(!thumbSel) return null;
+    if(thumbSel.kind === "idea") return viewOf(findIdea(thumbSel.id), plat);
+    var d = findDraft(thumbSel.id);
+    return d ? draftView(d) : null;
+  }
+
+  function cutAt(v, i){
+    if(!v || !v.cuts || !v.cuts.length) return { no: i + 1, role: "", line: "", screen: "" };
+    return v.cuts[Math.min(i, v.cuts.length - 1)] || { no: i + 1, role: "", line: "", screen: "" };
+  }
+  function cutDurs(v){
+    var len = String((v && v.length) || "15초");
+    if(len.indexOf("30") >= 0) return [5, 5, 5, 5];
+    var p = (v && v.plat) || plat;
+    return P(p).dur.slice();
+  }
+  function sumDur(d){ var s = 0; for(var i = 0; i < d.length; i++) s += d[i]; return s; }
+  function cutIndexAt(t, d){
+    var acc = 0;
+    for(var i = 0; i < d.length; i++){
+      if(t < acc + d[i]) return i;
+      acc += d[i];
+    }
+    return d.length - 1;
+  }
+  function cutStartAt(idx, d){
+    var acc = 0;
+    for(var i = 0; i < idx; i++) acc += d[i];
+    return acc;
+  }
+
+  /* ---------- 복사용 텍스트 ---------- */
+  function legacyCopy(txt, done){
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    if(ok) done();
+    else toast("복사가 막혔어요 — 대본을 길게 눌러 선택해 주세요");
+  }
+  function copyText(txt, msg){
+    var done = function(){ toast(msg || "대본을 복사했습니다"); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){ legacyCopy(txt, done); });
+    } else {
+      legacyCopy(txt, done);
+    }
+  }
+
+  function scriptOf(o){
+    if(!o) return "";
+    var p = P(o.plat);
+    var L = [];
+    L.push("[몽글노트 · " + p.name + " 대본]");
+    L.push("제목: " + String(o.title || o.topic || ""));
+    L.push("길이: " + String(o.length || "15초") + " · 톤: " + String(o.toneLabel || toneName(o.tone)));
+    if(o.audience) L.push("타깃: " + o.audience);
+    if(o.context) L.push("맥락: " + o.context);
+    L.push("구조: " + p.structure);
+    L.push("");
+    L.push("0~3초 훅");
+    L.push(String(o.hook || ""));
+    L.push("");
+    (o.cuts || []).forEach(function(c){
+      L.push(String(c.no) + "컷 (" + String(c.time) + ") " + String(c.role || ""));
+      if(c.screen) L.push("  화면: " + c.screen);
+      if(c.line) L.push("  자막/나레이션: " + c.line);
+      L.push("");
+    });
+    if(o.narration){ L.push("나레이션 (통으로 읽기)"); L.push(o.narration); L.push(""); }
+    if(o.caption){ L.push(p.key === "shorts" ? "영상 제목·설명" : "캡션"); L.push(o.caption); L.push(""); }
+    if(o.cta){ L.push("CTA"); L.push(o.cta); L.push(""); }
+    L.push("해시태그: " + (o.hashtags || []).join(" "));
+    return L.join(NL);
+  }
+
+  /* ---------- 아이디어 카드 ---------- */
+  function platChip(p){
+    var q = P(p);
+    return '<span class="pchip pchip-' + q.key + '">' + q.icon + " " + esc(q.short) + "</span>";
+  }
+
+  function cutsHtml(o){
+    return (o.cuts || []).map(function(c){
+      return '<li><div class="cut-head"><b>' + esc(String(c.no) + "컷 · " + (c.role || "")) + "</b><span>" + esc(c.time || "") + "</span></div>" +
+        (c.screen ? '<p class="cut-screen"><b>화면</b>' + esc(c.screen) + "</p>" : "") +
+        (c.line ? '<p class="cut-line"><b>자막</b>' + esc(c.line) + "</p>" : "") +
+      "</li>";
+    }).join("");
+  }
+  function tagsHtml(o){
+    return (o.hashtags || []).map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("");
+  }
+  function captionHtml(o){
+    if(!o.caption) return "";
+    var label = o.plat === "shorts" ? "영상 제목·설명" : "캡션";
+    return '<p class="idea-narr idea-cap"><b>' + label + "</b>" + esc(o.caption) + "</p>" +
+      (o.cta ? '<p class="idea-cta"><b>CTA</b>' + esc(o.cta) + "</p>" : "");
+  }
+
+  function ideaCard(i, idx){
+    var v = viewOf(i, plat);
+    return '<article class="idea idea-slim" data-idea-card="' + esc(v.id) + '">' +
+      '<div class="idea-slim-top"><span class="idea-no">' + (idx + 1) + "</span>" +
+        '<div class="idea-slim-main"><h3>' + esc(v.title) + "</h3>" +
+          '<p class="idea-slim-meta">' + platChip(v.plat) + " " + esc(v.length) + " · " + esc(v.toneLabel) +
+            (v.audience ? " · " + esc(v.audience) : "") + "</p></div></div>" +
+      '<p class="idea-slim-hook">“' + esc(v.hook) + "”</p>" +
+      '<details class="idea-more"><summary>4컷 대본 · 나레이션 · 캡션 보기</summary>' +
+        '<ol class="cuts">' + cutsHtml(v) + "</ol>" +
+        (v.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(v.narration) + "</p>" : "") +
+        captionHtml(v) +
+        (tagsHtml(v) ? '<div class="tags">' + tagsHtml(v) + "</div>" : "") +
+      "</details>" +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-video-idea="' + esc(v.id) + '">🎬 ' + esc(P(v.plat).short) + " 영상</button>" +
+        '<button class="btn" type="button" data-copy-idea="' + esc(v.id) + '">대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-idea="' + esc(v.id) + '">9:16 첫 컷</button>' +
+      "</div></article>";
+  }
+
+  function ideaHeroCard(i){
+    var v = viewOf(i, plat);
+    return '<article class="idea-hero" data-idea-card="' + esc(v.id) + '">' +
+      '<p class="hero-eyebrow">' + platChip(v.plat) + " 오늘의 추천 · 1순위</p>" +
+      "<h3>" + esc(v.title) + "</h3>" +
+      '<p class="hero-meta">' + esc(v.length) + " · " + esc(v.toneLabel) + (v.source ? " · " + esc(v.source) : "") + "</p>" +
+      '<div class="hook-box"><b>0~3초 훅</b><p>' + esc(v.hook) + "</p></div>" +
+      (v.audience ? '<p class="idea-aud"><b>타깃 공감</b>' + esc(v.audience) + "</p>" : "") +
+      '<details class="idea-more"><summary>4컷 대본 · 나레이션 · 캡션 펼치기</summary>' +
+        '<ol class="cuts">' + cutsHtml(v) + "</ol>" +
+        (v.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(v.narration) + "</p>" : "") +
+        captionHtml(v) +
+        (tagsHtml(v) ? '<div class="tags">' + tagsHtml(v) + "</div>" : "") +
+      "</details>" +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-video-idea="' + esc(v.id) + '">🎬 ' + esc(P(v.plat).short) + " 영상 만들기</button>" +
+        '<button class="btn" type="button" data-copy-idea="' + esc(v.id) + '">전체 대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-idea="' + esc(v.id) + '">9:16 첫 컷</button>' +
+      "</div></article>";
+  }
+
+  function draftBody(o){
+    return '<div class="hook-box"><b>0~3초 훅</b><p>' + esc(o.hook) + "</p></div>" +
+      '<ol class="cuts">' + cutsHtml(o) + "</ol>" +
+      (o.narration ? '<p class="idea-narr"><b>나레이션</b>' + esc(o.narration) + "</p>" : "") +
+      captionHtml(o) +
+      (tagsHtml(o) ? '<div class="tags">' + tagsHtml(o) + "</div>" : "");
+  }
+
+  function renderGenOut(){
+    var box = $("genOut");
+    if(!box) return;
+    if(!shortsLast){ box.innerHTML = ""; return; }
+    var v = draftView(shortsLast);
+    box.innerHTML = '<div class="draft"><div class="draft-top"><span class="st ' + (v.status === "done" ? "done" : "wait") + '">' +
+      (v.status === "done" ? "완료" : "제작 대기") + "</span><h4>" + esc(v.topic) + "</h4>" +
+      '<span class="m" style="font-size:10.5px;color:var(--muted)">' + platChip(v.plat) + " " + esc(v.length) + " · " + esc(v.toneLabel) + "</span></div>" +
+      '<p class="note">방금 만든 ' + esc(P(v.plat).name) + ' 대본입니다 — 제작 대기로 저장했어요. 아래에서 완료로 바꾸거나 바로 영상으로 만들 수 있습니다.</p>' +
+      draftBody(v) +
+      '<div class="idea-actions">' +
+        '<button class="btn primary" type="button" data-video-draft="' + esc(v.id) + '">🎬 ' + esc(P(v.plat).short) + " 영상 만들기</button>" +
+        '<button class="btn" type="button" data-copy-draft="' + esc(v.id) + '">전체 대본 복사</button>' +
+        '<button class="btn" type="button" data-thumb-draft="' + esc(v.id) + '">9:16 첫 컷</button>' +
+      "</div></div>";
+  }
+
+  function renderDrafts(){
+    var box = $("genSaved"), cnt = $("genSavedCount");
+    if(!box) return;
+    var list = readDrafts();
+    if(cnt) cnt.textContent = num(list.length) + "개";
+    if(!list.length){
+      box.innerHTML = '<div class="draft-empty">아직 저장한 대본이 없습니다. 위에서 한 줄 주제를 적고 <b>대본 만들기</b>를 누르면 제작 대기로 저장됩니다.</div>';
+      return;
+    }
+    box.innerHTML = '<div class="draft-list">' + list.map(function(d){
+      var v = draftView(d);
+      var done = d.status === "done";
+      return '<div class="draft-row" data-draft="' + esc(d.id) + '">' +
+        '<span class="st ' + (done ? "done" : "wait") + '">' + (done ? "완료" : "제작 대기") + "</span>" +
+        platChip(v.plat) +
+        '<span class="t">' + esc(d.topic) + "</span>" +
+        '<span class="m">' + esc(v.toneLabel) + " · " + esc(v.length) + (d.at ? " · " + esc(d.at) : "") + "</span>" +
+        '<button class="mini" type="button" data-dact="video">영상</button>' +
+        '<button class="mini" type="button" data-dact="copy">복사</button>' +
+        '<button class="mini" type="button" data-dact="thumb">9:16</button>' +
+        '<button class="mini' + (done ? " on" : "") + '" type="button" data-dact="toggle">' + (done ? "완료 취소" : "완료로") + "</button>" +
+        '<button class="mini" type="button" data-dact="del">삭제</button>' +
+      "</div>";
+    }).join("") + "</div>";
+  }
+
+  /* ---------- 대본 생성기 (플랫폼별 구조) ---------- */
+  function topicTags(t, p, tone){
+    var tags = [];
+    if(p === "shorts"){ tags.push("#Shorts"); tags.push(tone === "mom" ? "#육아팁" : tone === "hook" ? "#꿀팁" : "#정보"); }
+    else { tags.push("#릴스"); tags.push(tone === "mom" ? "#육아공감" : tone === "hook" ? "#에세이" : "#기록"); }
+    if(/아이|육아|엄마|아빠|재우|화내/.test(t)) tags.push("#육아맘");
+    if(/앱|개발|코딩|출시|AI|인공지능/.test(t)) tags.push("#앱만들기");
+    if(/메모|생각|정리|기록|일기/.test(t)) tags.push("#생각정리");
+    if(/노래|발성|음악|악보|보컬/.test(t)) tags.push("#보컬");
+    if(/릴스|쇼츠|영상|콘텐츠/.test(t)) tags.push("#콘텐츠기획");
+    tags.push("#몽글노트");
+    var seen = {}, out = [];
+    tags.forEach(function(x){ if(!seen[x]){ seen[x] = 1; out.push(x); } });
+    return out.slice(0, 5);
+  }
+
+  function stampNow(){
+    var now = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    return now.getFullYear() + "-" + p2(now.getMonth() + 1) + "-" + p2(now.getDate());
+  }
+
+  function generateReels(topic, tone, len){
+    var t = String(topic || "").replace(/[.?!。！？]+$/, "").trim();
+    var sec = String(len) === "30" ? "30" : "15";
+    var times = sec === "30" ? ["0~5초", "5~10초", "10~15초", "15~20초"] : PLAT.reels.times;
+    var hook, s1, s2, s3, s4, c1, c2, c3, c4, narr, cap;
+    if(tone === "mom"){
+      hook = "아이 재우고 나서야 알았어요 — " + t + ".";
+      c1 = "그 순간, 하루가 통째로 무너질 것 같았어요";
+      c2 = "문제는 참는 게 아니라, 화의 정체를 모르는 거였어요";
+      c3 = "몽글노트에 「" + t + "」 한 줄을 적고, 몽글이 질문에 답했어요";
+      c4 = "그날 밤에 적은 한 줄이, 다음 날의 저를 조금 덜어줬어요";
+      s1 = "아이 방 문 앞, 손이 잠깐 멈추는 클로즈업. 숨소리만 남기기";
+      s2 = "어질러진 거실, 목소리가 조금씩 올라가는 순간";
+      s3 = "폰 화면: 한 줄 입력 → 몽글이 질문 카드 → 마음 단어가 이어지는 화면";
+      s4 = "아침 현관, 아이 신발을 같이 신기는 손";
+      cap = "그날 밤에 적은 한 줄이 생각보다 오래 남았어요.\n적어두면 화가 문장이 되고, 문장이 되면 조금 덜 폭발하더라고요.\n\n저장해 두고 화나는 날 꺼내보세요. 프로필 링크에 3분 체험이 있어요.";
+    } else if(tone === "hook"){
+      hook = "요즘 제가 제일 자주 하는 말이 있어요. " + t + ". 이게 통한 이유를 15초로 말해볼게요.";
+      c1 = "처음엔 그냥 지나가는 하루였어요";
+      c2 = "비슷한 얘기는 많은데, 직접 해본 사람 말은 없더라고요";
+      c3 = "그래서 「" + t + "」를 한 줄로 적고, 앱에 물어봤어요";
+      c4 = "답은 거창하지 않았어요. 그냥 오늘 한 줄이었어요";
+      s1 = "창가, 멍하니 바깥을 보는 옆모습. 초점은 천천히 흐려지기";
+      s2 = "폰 메모 목록을 빠르게 스크롤 — 다 비어 있는 화면";
+      s3 = "몽글노트 한 화면: 주제 입력 → 질문 카드 3개 → 핵심 한 줄";
+      s4 = "그 한 줄 카드가 천천히 밝아지며 남는 컷";
+      cap = t + ".\n이 한 줄이 오래 남아서, 오늘은 영상으로 남겨봤어요.\n\n비슷한 고민이 있다면 저장해 두세요. 프로필 링크에서 바로 써볼 수 있어요.";
+    } else {
+      hook = t + ". 오늘 이 한 줄이 제일 오래 남았어요.";
+      c1 = "적어두지 않으면 그냥 지나가는 하루예요";
+      c2 = "머릿속에선 계속 맴도는데, 막상 손으로 옮기면 사라져요";
+      c3 = "몽글노트에 한 줄 적었더니, 몽글이가 물었어요. '그중에 제일 중요한 건 뭐예요?'";
+      c4 = "답하다 보면 정리가 돼요. 오늘은 그걸로 충분했어요";
+      s1 = "어두운 책상, 손으로 메모 한 줄 쓰는 클로즈업. 펜 소리만";
+      s2 = "휴대폰 메모 앱 목록을 빠르게 스크롤 — 열어도 비어 있음. 시계 00:40";
+      s3 = "몽글노트 생각정리: 한 줄 입력 → 질문 카드 → 단어 칩이 마인드맵으로 뻗기";
+      s4 = "화면이 천천히 밝아지고 한 줄만 남음";
+      cap = "오늘 하루를 한 줄로 남기면, 내일의 제가 조금 편해져요.\n잘 쓰려고 하지 않아도 괜찮아요. 한 장면, 한 단어면 충분해요.\n\n오늘 한 줄, 같이 적어볼까요? 프로필 링크에서 3분이면 됩니다.";
+    }
+    narr = hook + " " + c1 + ". " + c2 + ". " + c3 + ". " + c4 + ".";
+    return {
+      id: "g" + Date.now() + String(Math.floor(Math.random() * 900) + 100),
+      topic: t, title: t, plat: "reels", length: sec + "초", tone: tone, toneLabel: toneName(tone),
+      context: "내 아이디어 생성기 · " + stampNow() + " · 인스타 릴스", stamp: stampNow(),
+      audience: "직접 정한 주제 — 올리기 전에 '누가 이걸 저장할까'를 한 줄로 정해 보세요.",
+      hook: hook,
+      cuts: [
+        { no: 1, role: "공감 훅", time: times[0], screen: s1, line: c1 },
+        { no: 2, role: "감정·비하인드", time: times[1], screen: s2, line: c2 },
+        { no: 3, role: "전환", time: times[2], screen: s3, line: c3 },
+        { no: 4, role: "여운", time: times[3], screen: s4, line: c4 }
+      ],
+      narration: narr, caption: cap,
+      cta: "저장 · 친구에게 공유 · 프로필 링크에서 3분 체험",
+      hashtags: topicTags(t, "reels", tone), badge: "MONGLE NOTE",
+      status: "wait", at: stampNow()
+    };
+  }
+
+  function generateShorts(topic, tone, len){
+    var t = String(topic || "").replace(/[.?!。！？]+$/, "").trim();
+    var sec = String(len) === "30" ? "30" : "15";
+    var times = sec === "30" ? ["0~5초", "5~10초", "10~15초", "15~20초"] : PLAT.shorts.times;
+    var hook, s1, s2, s3, s4, c1, c2, c3, c4, narr, cap, cta, badge;
+    if(tone === "mom"){
+      hook = "아이한테 소리 지르기 3초 전, 이거 하나만 하면 덜 폭발합니다.";
+      c1 = "화내기 3초 전, 딱 하나만 하세요";
+      c2 = "① 폰을 열고 ② 지금 장면을 한 줄로 적기";
+      c3 = "③ '화난 이유'를 아이가 아니라 내 상태로 바꿔 쓰기";
+      c4 = "요약: 참지 말고 문장으로 옮기세요. 화날 때 여러분은 뭘 하세요?";
+      s1 = "물컵이 쏟아지는 순간, 숨이 멎는 클로즈업 + 결론 자막";
+      s2 = "폰을 집어 드는 손, 메모 입력 화면 클로즈업";
+      s3 = "타이핑 → 문장이 카드로 완성되는 화면";
+      s4 = "불 끄고 이불 덮는 손 + 질문 자막";
+      cap = "화내기 3초 전에 하는 일: 참는 게 아니라 적는 것.\n① 폰 열기 ② 지금 장면 한 줄 ③ 화난 이유를 '내 상태'로 바꿔 쓰기\n\n여러분은 화날 때 뭘 하세요? 고정댓글에 남겨주세요.";
+      cta = "고정댓글에 '화날 때 하는 일' 남기기 · 구독하고 2편 보기";
+      badge = "육아 감정조절";
+    } else if(tone === "hook"){
+      hook = t + " — 결론부터 말하면, 방법이 있습니다.";
+      c1 = "이거 하나면 됩니다. " + t;
+      c2 = "① 먼저 지금 상태를 한 줄로 확인하기";
+      c3 = "② 그다음에 뭘 할지 하나만 정하기 — 두 개는 안 됩니다";
+      c4 = "요약: 확인 → 하나만. " + t + "에 제일 먼저 할 일이 뭐예요?";
+      s1 = "화면 가득 결론 자막 + 폰 화면 인서트";
+      s2 = "메모에 한 줄 입력하는 손 클로즈업";
+      s3 = "체크리스트 ① ② ③ 빠른 컷 전환";
+      s4 = "완성된 한 줄 카드 + 질문 자막";
+      cap = t + ".\n① 지금 상태 한 줄 ② 할 일 하나만 정하기\n\n여러분이라면 뭐부터 하시겠어요? 고정댓글에 적어주세요.";
+      cta = "고정댓글에 '첫 행동' 남기기 · 구독하고 다음 편 보기";
+      badge = "1분 정리";
+    } else {
+      hook = t + ". 이걸 15초로 정리하면 이렇게 됩니다.";
+      c1 = t + " — 15초 정리";
+      c2 = "① 오늘 본 장면 하나만 고르기";
+      c3 = "② 기분 한 단어 ③ 내일 할 일 하나";
+      c4 = "요약: 길게 쓰지 말고 세 줄. 오늘 세 줄, 같이 적어볼까요?";
+      s1 = "창가, 폰을 든 손. 결론 자막이 먼저 뜸";
+      s2 = "장면 하나를 고르는 컷 (아이 신발 두 켤레)";
+      s3 = "3줄 입력 화면, 타이핑 소리";
+      s4 = "1년 치 기록 목록이 빠르게 지나감";
+      cap = t + ".\n① 장면 하나 ② 기분 한 단어 ③ 내일 한 가지 — 세 줄이면 끝.\n\n오늘 세 줄, 같이 적어볼까요? 고정댓글에 한 줄 남겨주세요.";
+      cta = "고정댓글에 오늘 한 줄 남기기 · 구독하고 기록 루틴 보기";
+      badge = "30초 기록법";
+    }
+    narr = hook + " " + c1 + ". " + c2 + ". " + c3 + ". " + c4;
+    return {
+      id: "g" + Date.now() + String(Math.floor(Math.random() * 900) + 100),
+      topic: t, title: t, plat: "shorts", length: sec + "초", tone: tone, toneLabel: toneName(tone),
+      context: "내 아이디어 생성기 · " + stampNow() + " · 유튜브 쇼츠", stamp: stampNow(),
+      audience: "직접 정한 주제 — 첫 2초에 결론이 보이는지가 핵심입니다.",
+      hook: hook,
+      cuts: [
+        { no: 1, role: "결론 훅", time: times[0], screen: s1, line: c1 },
+        { no: 2, role: "1단계", time: times[1], screen: s2, line: c2 },
+        { no: 3, role: "2·3단계", time: times[2], screen: s3, line: c3 },
+        { no: 4, role: "요약", time: times[3], screen: s4, line: c4 }
+      ],
+      narration: narr, caption: cap, cta: cta, badge: badge,
+      hashtags: topicTags(t, "shorts", tone),
+      status: "wait", at: stampNow()
+    };
+  }
+
+  function generateScript(topic, tone, len, p){
+    return (p === "shorts") ? generateShorts(topic, tone, len) : generateReels(topic, tone, len);
+  }
+
+  function runGen(){
+    var ti = $("genTopic"), tn = $("genTone"), ln = $("genLen");
+    var topic = String((ti && ti.value) || "").trim();
+    if(!topic){ toast("한 줄 주제를 먼저 적어 주세요"); if(ti) ti.focus(); return; }
+    var draft = generateScript(topic, (tn && tn.value) || "diary", (ln && ln.value) || "15", plat);
+    var list = readDrafts();
+    list.unshift(draft);
+    writeDrafts(list);
+    shortsLast = draft;
+    renderGenOut();
+    renderDrafts();
+    fillPicks();
+    pickSel("draft", draft.id, true);
+    toast(P(plat).name + " 대본을 만들고 제작 대기로 저장했습니다");
+  }
+
+  function draftAction(id, act){
+    var list = readDrafts();
+    var idx = -1;
+    for(var i = 0; i < list.length; i++){ if(list[i].id === id){ idx = i; break; } }
+    if(idx < 0) return;
+    if(act === "copy"){ copyText(scriptOf(draftView(list[idx])), "대본을 복사했습니다"); return; }
+    if(act === "thumb"){ pickSel("draft", id, false); return; }
+    if(act === "video"){ makeFrom("draft", id); return; }
+    if(act === "toggle"){
+      list[idx].status = list[idx].status === "done" ? "wait" : "done";
+      if(shortsLast && shortsLast.id === id) shortsLast.status = list[idx].status;
+      writeDrafts(list);
+      renderDrafts();
+      renderGenOut();
+      toast(list[idx].status === "done" ? "완료로 표시했습니다" : "제작 대기로 돌렸습니다");
+      return;
+    }
+    if(act === "del"){
+      list.splice(idx, 1);
+      writeDrafts(list);
+      if(shortsLast && shortsLast.id === id) shortsLast = null;
+      renderDrafts();
+      renderGenOut();
+      fillPicks();
+      drawThumbNow();
+      toast("대본을 지웠습니다");
+    }
+  }
+
+  /* ---------- 선택(대본) ---------- */
+  function pickSel(kind, id, quiet){
+    thumbSel = { kind: kind, id: id };
+    var a = $("thumbPick"), b = $("vidPick");
+    if(a) a.value = kind + ":" + id;
+    if(b) b.value = kind + ":" + id;
+    drawThumbNow();
+    updateVideoBlock();
+    if(!quiet){
+      var blk = $("shortsThumbBlock");
+      if(blk && blk.scrollIntoView) blk.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function pickOptions(){
+    var p = plat;
+    var html = "";
+    shortsIdeaList().forEach(function(i){
+      var v = viewOf(i, p);
+      html += '<option value="idea:' + esc(i.id) + '">아이디어 · ' + esc(v.title) + "</option>";
+    });
+    readDrafts().forEach(function(d){
+      if((d.plat || "reels") !== p) return;
+      html += '<option value="draft:' + esc(d.id) + '">내 대본 · ' + esc(d.topic) + "</option>";
+    });
+    return html;
+  }
+
+  function fillPicks(){
+    var opts = pickOptions();
+    ["thumbPick", "vidPick"].forEach(function(id){
+      var sel = $(id);
+      if(!sel) return;
+      var cur = thumbSel ? (thumbSel.kind + ":" + thumbSel.id) : "";
+      sel.innerHTML = opts;
+      var vals = [];
+      for(var i = 0; i < sel.options.length; i++) vals.push(sel.options[i].value);
+      if(cur && vals.indexOf(cur) >= 0){ sel.value = cur; return; }
+      /* 현재 목록에 없으면 첫 항목으로 */
+      if(vals.length){
+        sel.value = vals[0];
+        var parts = String(vals[0]).split(":");
+        if(parts.length === 2){ thumbSel = { kind: parts[0], id: parts[1] }; }
+      } else {
+        thumbSel = null;
+      }
+    });
+    /* 두 목록이 같은 선택을 가리키게 */
+    if(thumbSel){
+      var want = thumbSel.kind + ":" + thumbSel.id;
+      ["thumbPick", "vidPick"].forEach(function(id){ var s = $(id); if(s) s.value = want; });
+    }
+  }
+
+  /* ---------- Canvas 공통 ---------- */
+  var CW = 720, CH = 1280;
+
+  function roundRect(g, x, y, w, h, r){
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.lineTo(x + w - r, y);
+    g.quadraticCurveTo(x + w, y, x + w, y + r);
+    g.lineTo(x + w, y + h - r);
+    g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    g.lineTo(x + r, y + h);
+    g.quadraticCurveTo(x, y + h, x, y + h - r);
+    g.lineTo(x, y + r);
+    g.quadraticCurveTo(x, y, x + r, y);
+    g.closePath();
+  }
+  function softBlob(g, x, y, r, color){
+    var rg = g.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, color);
+    rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg;
+    g.beginPath();
+    g.arc(x, y, r, 0, Math.PI * 2);
+    g.fill();
+  }
+  function setFont(g, weight, size){
+    g.font = weight + " " + size + 'px "Apple SD Gothic Neo", "Noto Sans KR", "NanumGothic", "Malgun Gothic", sans-serif';
+  }
+  function wrapCanvas(g, text, maxW, maxLines){
+    var out = [], cur = "";
+    var chars = String(text || "").split("");
+    for(var i = 0; i < chars.length; i++){
+      var test = cur + chars[i];
+      if(cur && g.measureText(test).width > maxW){ out.push(cur); cur = chars[i]; }
+      else cur = test;
+    }
+    if(cur) out.push(cur);
+    if(maxLines && out.length > maxLines){
+      out = out.slice(0, maxLines);
+      var last = out[maxLines - 1];
+      while(last.length > 1 && g.measureText(last + "…").width > maxW){ last = last.slice(0, -1); }
+      out[maxLines - 1] = last + "…";
+    }
+    return out;
+  }
+
+  var HAS_BOLD = null;
+  function hasBold(){
+    if(HAS_BOLD !== null) return HAS_BOLD;
+    try {
+      var c = document.createElement("canvas");
+      var g = c.getContext("2d");
+      g.font = '400 80px "Apple SD Gothic Neo", "Noto Sans KR", sans-serif';
+      var a = g.measureText("생각정리").width;
+      g.font = '800 80px "Apple SD Gothic Neo", "Noto Sans KR", sans-serif';
+      var b = g.measureText("생각정리").width;
+      HAS_BOLD = Math.abs(b - a) > 0.6;
+    } catch(e){ HAS_BOLD = true; }
+    return HAS_BOLD;
+  }
+  function boldFill(g, txt, x, y, size){
+    if(hasBold()){ g.fillText(txt, x, y); return; }
+    g.save();
+    g.lineWidth = Math.max(1, size * 0.05);
+    g.strokeStyle = g.fillStyle;
+    g.lineJoin = "round";
+    g.strokeText(txt, x, y);
+    g.fillText(txt, x, y);
+    g.restore();
+  }
+  function easeOut(x){ return 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3); }
+  function easeInOut(x){
+    x = Math.min(1, Math.max(0, x));
+    return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  }
+
+  /* ---------- 릴스 스타일 ---------- */
+  function reelsBg(g, t){
+    var grad = g.createLinearGradient(0, 0, CW * 0.6, CH);
+    grad.addColorStop(0, "#FFF7F1");
+    grad.addColorStop(0.5, "#F7F0FC");
+    grad.addColorStop(1, "#E9E3F8");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, CW, CH);
+
+    var blobs = [
+      [150, 220, 320, "rgba(255,206,228,.78)"],
+      [610, 430, 290, "rgba(224,214,250,.82)"],
+      [180, 1060, 330, "rgba(255,226,208,.72)"],
+      [590, 1160, 300, "rgba(214,226,252,.66)"]
+    ];
+    for(var i = 0; i < blobs.length; i++){
+      var b = blobs[i];
+      softBlob(g, b[0] + Math.sin(t * 0.42 + i * 1.7) * 26, b[1] + Math.cos(t * 0.36 + i) * 22, b[2], b[3]);
+    }
+    /* 떠다니는 빛 입자 */
+    g.fillStyle = "rgba(168,138,206,.30)";
+    for(var s = 0; s < 24; s++){
+      var px = (s * 211 + 70) % CW;
+      var py = ((s * 337 + 120 - t * 16) % (CH + 80) + CH + 80) % (CH + 80) - 40;
+      var rr = (s % 4) * 0.9 + 1.6;
+      g.beginPath();
+      g.arc(px, py, rr, 0, Math.PI * 2);
+      g.fill();
+    }
+    /* 위아래 부드러운 비네트 */
+    var vg = g.createLinearGradient(0, 0, 0, CH);
+    vg.addColorStop(0, "rgba(255,255,255,.55)");
+    vg.addColorStop(0.18, "rgba(255,255,255,0)");
+    vg.addColorStop(0.78, "rgba(233,227,248,0)");
+    vg.addColorStop(0.9, "rgba(243,238,252,.28)");
+    vg.addColorStop(1, "rgba(233,227,248,.52)");
+    g.fillStyle = vg;
+    g.fillRect(0, 0, CW, CH);
+  }
+
+  function reelsPill(g, cx, cy, label){
+    setFont(g, "700", 22);
+    var w = g.measureText(label).width + 44;
+    roundRect(g, cx - w / 2, cy - 19, w, 38, 19);
+    g.fillStyle = "rgba(255,255,255,.88)";
+    g.fill();
+    g.strokeStyle = "rgba(150,130,190,.32)";
+    g.lineWidth = 1.5;
+    g.stroke();
+    g.fillStyle = "#9C82BE";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(label, cx, cy + 1);
+  }
+
+  function reelsCut(g, v, i, u, alpha){
+    var cut = cutAt(v, i);
+    var e = easeOut(Math.min(1, u * 2.6));
+    var slide = (1 - e) * 26;
+    g.save();
+    g.globalAlpha = alpha;
+
+    reelsPill(g, CW / 2, 300 + slide * 0.5, cut.role || P("reels").roles[i]);
+
+    roundRect(g, 66, 350, CW - 132, 536, 46);
+    g.fillStyle = "rgba(255,255,255,.78)";
+    g.fill();
+    g.strokeStyle = "rgba(150,130,190,.22)";
+    g.lineWidth = 2;
+    g.stroke();
+
+    var text = String(cut.line || "");
+    var maxW = CW - 132 - 96;
+    var size = 64;
+    setFont(g, "800", size);
+    var lines = wrapCanvas(g, text, maxW, 6);
+    while(lines.length > 3 && size > 42){
+      size -= 4;
+      setFont(g, "800", size);
+      lines = wrapCanvas(g, text, maxW, 6);
+    }
+    if(lines.length > 4) lines = lines.slice(0, 4);
+    var lh = Math.round(size * 1.4);
+    var blockH = lines.length * lh;
+    var startY = 350 + (536 - blockH) / 2 + lh * 0.58;
+    g.fillStyle = "#2C2440";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    for(var k = 0; k < lines.length; k++){
+      var a = easeOut(Math.min(1, Math.max(0, u * 4.5 - k * 0.14)));
+      g.globalAlpha = alpha * a;
+      boldFill(g, lines[k], CW / 2, startY + k * lh + slide * 0.7, size);
+    }
+    g.restore();
+  }
+
+  function drawReelsFrame(g, v, t, durs, still){
+    reelsBg(g, t);
+    var idx = cutIndexAt(t, durs);
+    var start = cutStartAt(idx, durs);
+    var u = (t - start) / durs[idx];
+    var total = sumDur(durs);
+
+    /* 크로스페이드: 이전 컷이 서서히 사라진다 */
+    var FADE = 0.7;
+    if(idx > 0 && (t - start) < FADE){
+      reelsCut(g, v, idx - 1, 1, 1 - (t - start) / FADE);
+    }
+    reelsCut(g, v, idx, u, 1);
+
+    /* 상단 브랜드 */
+    g.save();
+    g.globalAlpha = 0.9;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "#8E7BB4";
+    setFont(g, "700", 22);
+    g.fillText("M O N G L E   N O T E", CW / 2, 132);
+    g.fillStyle = "rgba(142,123,180,.5)";
+    setFont(g, "600", 18);
+    g.fillText("오늘의 기록", CW / 2, 164);
+    g.restore();
+
+    /* 마지막 컷 CTA */
+    if(idx === durs.length - 1){
+      var ce = easeOut(Math.min(1, Math.max(0, (u - 0.1) * 3)));
+      if(ce > 0.01){
+        g.save();
+        g.globalAlpha = ce;
+        setFont(g, "750", 24);
+        var lab = "저장 · 공유";
+        var w = g.measureText(lab).width + 56;
+        roundRect(g, CW / 2 - w / 2, 926 - 8 * (1 - ce), w, 48, 24);
+        g.fillStyle = "#FF6B57";
+        g.fill();
+        g.fillStyle = "#fff";
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(lab, CW / 2, 951 - 8 * (1 - ce));
+        g.restore();
+      }
+    }
+
+    /* 하단 핸들 */
+    g.save();
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "rgba(94,80,120,.72)";
+    setFont(g, "700", 24);
+    g.fillText("@arisia949", CW / 2, 1128);
+    g.fillStyle = "rgba(94,80,120,.5)";
+    setFont(g, "600", 19);
+    g.fillText(String(v.length || "15초") + " · 인스타 릴스", CW / 2, 1164);
+    g.restore();
+
+    /* 진행 라인 */
+    var pw = CW * Math.min(1, t / total);
+    g.fillStyle = "rgba(150,130,190,.18)";
+    g.fillRect(0, CH - 6, CW, 6);
+    var pg = g.createLinearGradient(0, 0, CW, 0);
+    pg.addColorStop(0, "#FF9C86");
+    pg.addColorStop(1, "#A98BE8");
+    g.fillStyle = pg;
+    g.fillRect(0, CH - 6, pw, 6);
+  }
+
+  /* ---------- 쇼츠 스타일 ---------- */
+  function drawShortsFrame(g, v, t, durs, still){
+    var total = sumDur(durs);
+    g.fillStyle = "#111419";
+    g.fillRect(0, 0, CW, CH);
+
+    var glow = g.createRadialGradient(CW * 0.5, 150 + Math.sin(t * 0.7) * 26, 30, CW * 0.5, 150, 560);
+    glow.addColorStop(0, "rgba(255,107,87,.26)");
+    glow.addColorStop(1, "rgba(255,107,87,0)");
+    g.fillStyle = glow;
+    g.fillRect(0, 0, CW, CH);
+
+    /* 톤 그레인 */
+    g.fillStyle = "rgba(255,255,255,.05)";
+    for(var s = 0; s < 30; s++){
+      var px = (s * 173 + 40) % CW;
+      var py = (s * 289 + 90 + t * 12) % CH;
+      g.fillRect(px, py, 2, 2);
+    }
+
+    /* 상단 고정 키워드 배지 */
+    var badge = String(v.badge || "SHORTS");
+    setFont(g, "800", 26);
+    var bw = Math.min(CW - 80, g.measureText(badge).width + 56);
+    roundRect(g, CW / 2 - bw / 2, 92, bw, 52, 16);
+    g.fillStyle = "#FF6B57";
+    g.fill();
+    g.fillStyle = "#fff";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(badge, CW / 2, 119);
+
+    var idx = cutIndexAt(t, durs);
+    var start = cutStartAt(idx, durs);
+    var u = (t - start) / durs[idx];
+    var cut = cutAt(v, idx);
+
+    /* 팝 + 슬라이드 전환 */
+    var pop = 1 + 0.055 * (1 - easeOut(Math.min(1, u * 3.2)));
+    var xoff = 46 * (1 - easeOut(Math.min(1, u * 4)));
+    g.save();
+    g.translate(CW / 2 + xoff, CH / 2 + 30);
+    g.scale(pop, pop);
+    g.translate(-CW / 2, -(CH / 2 + 30));
+
+    roundRect(g, 36, 250, CW - 72, 660, 38);
+    g.fillStyle = "#FBF3E4";
+    g.fill();
+    /* 왼쪽 코랄 액센트 */
+    g.save();
+    roundRect(g, 36, 250, CW - 72, 660, 38);
+    g.clip();
+    g.fillStyle = "#FF6B57";
+    g.fillRect(36, 250, 12, 660);
+    g.restore();
+
+    /* 역할 라벨 (왼쪽) + 단계 배지 (오른쪽 위) */
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    g.fillStyle = "#B8482F";
+    setFont(g, "800", 23);
+    g.fillText(String(cut.role || P("shorts").roles[idx]).toUpperCase(), 84, 318);
+    if(idx > 0 && idx < durs.length - 1){
+      var mi = Math.min(2, idx - 1);
+      g.beginPath();
+      g.arc(CW - 84, 318, 21, 0, Math.PI * 2);
+      g.fillStyle = "#FF6B57";
+      g.fill();
+      g.fillStyle = "#fff";
+      setFont(g, "800", 22);
+      g.textAlign = "center";
+      g.fillText(String(mi + 1), CW - 84, 319);
+    }
+
+    /* 임팩트 자막 */
+    var text = String(cut.line || "");
+    var maxW = CW - 72 - 104;
+    var size = 76;
+    setFont(g, "900", size);
+    var lines = wrapCanvas(g, text, maxW, 6);
+    while(lines.length > 3 && size > 44){
+      size -= 6;
+      setFont(g, "900", size);
+      lines = wrapCanvas(g, text, maxW, 6);
+    }
+    if(lines.length > 5) lines = lines.slice(0, 5);
+    var lh = Math.round(size * 1.32);
+    var blockH = lines.length * lh;
+    var startY = 250 + (660 - blockH) / 2 + lh * 0.58;
+    g.fillStyle = "#15171D";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    for(var k = 0; k < lines.length; k++){
+      var a = easeOut(Math.min(1, Math.max(0, u * 5 - k * 0.1)));
+      g.globalAlpha = a;
+      boldFill(g, lines[k], CW / 2, startY + k * lh, size);
+    }
+    g.globalAlpha = 1;
+    g.restore();
+
+    /* 마지막 컷 CTA */
+    if(idx === durs.length - 1){
+      var ce = easeOut(Math.min(1, Math.max(0, (u - 0.1) * 3)));
+      if(ce > 0.01){
+        g.save();
+        g.globalAlpha = ce;
+        setFont(g, "800", 24);
+        var lab = "구독 · 고정댓글";
+        var w = g.measureText(lab).width + 60;
+        roundRect(g, CW / 2 - w / 2, 952 + 10 * (1 - ce), w, 52, 26);
+        g.fillStyle = "#FF6B57";
+        g.fill();
+        g.fillStyle = "#fff";
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(lab, CW / 2, 978 + 10 * (1 - ce));
+        g.restore();
+      }
+    }
+
+    /* 하단: 채널 + 타임 게이지 */
+    g.save();
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    g.fillStyle = "rgba(255,255,255,.82)";
+    setFont(g, "800", 23);
+    g.fillText("@릴리의리스트", 44, 1076);
+    g.textAlign = "right";
+    g.fillStyle = "rgba(255,255,255,.45)";
+    setFont(g, "600", 19);
+    function mmss(x){ var m = Math.floor(x / 60), s2 = Math.floor(x % 60); return (m < 10 ? "0" : "") + m + ":" + (s2 < 10 ? "0" : "") + s2; }
+    g.fillText(mmss(t) + " / " + mmss(total), CW - 44, 1076);
+    g.restore();
+
+    var segW = (CW - 88 - 3 * 10) / 4;
+    for(var si = 0; si < 4; si++){
+      var sx = 44 + si * (segW + 10);
+      g.fillStyle = "rgba(255,255,255,.16)";
+      roundRect(g, sx, 1118, segW, 12, 6);
+      g.fill();
+      var fill = 0;
+      if(t > cutStartAt(si, durs)) fill = Math.min(1, (t - cutStartAt(si, durs)) / durs[si]);
+      if(fill > 0){
+        g.fillStyle = si === idx ? "#FF6B57" : "rgba(255,107,87,.55)";
+        roundRect(g, sx, 1118, Math.max(2, segW * fill), 12, 6);
+        g.fill();
+      }
+    }
+
+    /* 하단 안전 여백 라인 */
+    g.fillStyle = "rgba(255,255,255,.08)";
+    g.fillRect(44, 1152, CW - 88, 1);
+  }
+
+  /* ---------- 프레임 디스패처 ---------- */
+  function drawVideoFrame(g, v, p, t){
+    var durs = cutDurs(v);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, CW, CH);
+    if(p === "shorts") drawShortsFrame(g, v, t, durs, false);
+    else drawReelsFrame(g, v, t, durs, false);
+  }
+
+  /* ---------- 9:16 첫 컷 PNG ---------- */
+  function drawThumbNow(){
+    var c = $("thumbCanvas");
+    if(!c) return;
+    var v = viewOfSel();
+    var g = c.getContext("2d");
+    if(!g) return;
+    if(c.width !== 1080){ c.width = 1080; c.height = 1920; }
+    g.setTransform(1.5, 0, 0, 1.5, 0, 0);
+    g.clearRect(0, 0, CW, CH);
+    if(v){
+      var durs = cutDurs(v);
+      var tStill = Math.max(0.6, durs[0] * 0.86);
+      if(v.plat === "shorts") drawShortsFrame(g, v, tStill, durs, true);
+      else drawReelsFrame(g, v, tStill, durs, true);
+    } else {
+      g.fillStyle = "#F4F0FA";
+      g.fillRect(0, 0, CW, CH);
+      g.fillStyle = "#9C8FB5";
+      setFont(g, "700", 40);
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText("대본을 선택하면 첫 컷이 그려집니다", CW / 2, CH / 2);
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+
+    var badge = $("thumbPlat");
+    if(badge) badge.textContent = curP().short;
+    var note = $("thumbNote");
+    if(note){
+      note.textContent = v
+        ? ("선택: " + String(v.title || v.topic || "") + " · " + P(v.plat).name + " 스타일 — " + curP().short + " 모드 그대로 1080×1920 PNG로 저장합니다.")
+        : "0~3초 훅을 1080×1920 PNG로 저장합니다.";
+    }
+  }
+
+  function saveThumb(){
+    var c = $("thumbCanvas");
+    if(!c || !c.toDataURL) return;
+    var d = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    var stamp = d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + "_" + p2(d.getHours()) + p2(d.getMinutes());
+    var v = viewOfSel();
+    var who = v && v.plat === "shorts" ? "쇼츠" : "릴스";
+    var name = "몽글노트_" + who + "_첫컷_" + stamp + ".png";
+    if(window.AiriaSave && typeof window.AiriaSave.save === "function"){
+      try {
+        window.AiriaSave.save(c.toDataURL("image/png"), name, "image/png");
+        toast("9:16 첫 컷을 PNG로 저장했습니다");
+        return;
+      } catch(e){}
+    }
+    function deliver(url, revoke){
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      if(revoke) setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast("9:16 첫 컷을 PNG로 저장했습니다");
+    }
+    if(c.toBlob){
+      c.toBlob(function(b){
+        if(!b){ deliver(c.toDataURL("image/png"), false); return; }
+        deliver(URL.createObjectURL(b), true);
+      }, "image/png");
+    } else {
+      deliver(c.toDataURL("image/png"), false);
+    }
+  }
+
+  /* ============================ BGM 합성 ============================ */
+  function freqOf(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
+  var NOTE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  function midiOf(name){
+    var m = /^([A-G])(#|b)?(-?\d)$/.exec(String(name));
+    if(!m) return 60;
+    var v = NOTE[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0);
+    return v + (parseInt(m[3], 10) + 1) * 12;
+  }
+
+  function tone(ctx, t0, midi, dur, type, gain, out, opts){
+    var o = ctx.createOscillator();
+    o.type = type || "sine";
+    o.frequency.value = freqOf(midi);
+    var g = ctx.createGain();
+    var atk = (opts && opts.attack) || 0.02;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(gain, t0 + atk);
+    g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+    var node = g;
+    if(opts && opts.lp){
+      var f = ctx.createBiquadFilter();
+      f.type = "lowpass";
+      f.frequency.value = opts.lp;
+      g.connect(f);
+      node = f;
+    }
+    o.connect(g);
+    node.connect(out);
+    if(opts && opts.detune) o.detune.value = opts.detune;
+    o.start(t0);
+    o.stop(t0 + dur + 0.03);
+  }
+
+  function noiseBurst(ctx, t0, dur, gain, out, hz){
+    var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for(var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    var bp = ctx.createBiquadFilter();
+    bp.type = hz ? "bandpass" : "highpass";
+    bp.frequency.value = hz || 6000;
+    bp.Q.value = 1.2;
+    var g = ctx.createGain();
+    g.gain.value = gain;
+    src.connect(bp); bp.connect(g); g.connect(out);
+    src.start(t0);
+  }
+
+  function reelsMusic(ctx, t0, total, out, send){
+    var beat = 60 / 72;
+    var bars = ["Cmaj7", "Am7", "Fmaj7", "Gadd9", "Cmaj7", "Fmaj7"];
+    var chords = {
+      "Cmaj7": [48, 52, 55, 59, 62],
+      "Am7": [45, 48, 52, 55, 60],
+      "Fmaj7": [41, 45, 48, 52, 57],
+      "Gadd9": [43, 47, 50, 55, 57]
+    };
+    var barLen = beat * 4;
+    var nb = Math.ceil(total / barLen) + 1;
+    for(var b = 0; b < nb; b++){
+      var tb = t0 + b * barLen;
+      if(tb > t0 + total) break;
+      var ch = chords[bars[b % bars.length]];
+      /* 패드 */
+      for(var i = 0; i < 4; i++){
+        tone(ctx, tb, ch[i], barLen + 0.9, "triangle", 0.038, out, { attack: 0.5, detune: i % 2 ? 4 : -4, lp: 1400 });
+      }
+      /* 아르페지오 (8분음표) */
+      for(var a = 0; a < 8; a++){
+        var ta = tb + a * beat / 2;
+        if(ta > t0 + total) break;
+        var n = ch[(a % 4) + 1] + (a >= 4 ? 12 : 0);
+        tone(ctx, ta, n, 1.1, "sine", a % 4 === 0 ? 0.075 : 0.05, out);
+        tone(ctx, ta, n, 0.7, "sine", 0.02, send);
+      }
+      /* 멜로디 긴 음 */
+      tone(ctx, tb + barLen * 0.5, ch[4] + 12, 2.2, "sine", 0.055, send);
+    }
+  }
+
+  function shortsMusic(ctx, t0, total, out, send){
+    var beat = 60 / 112;
+    var root = ["A1", "A1", "F1", "F1", "C2", "C2", "G1", "G1"];
+    var lead = [81, 84, 86, 88, 91, 88, 86, 84];
+    var beats = Math.ceil(total / beat) + 1;
+    for(var b = 0; b < beats; b++){
+      var tb = t0 + b * beat;
+      if(tb > t0 + total) break;
+      /* 킥 */
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(150, tb);
+      o.frequency.exponentialRampToValueAtTime(46, tb + 0.16);
+      g.gain.setValueAtTime(0.34, tb);
+      g.gain.exponentialRampToValueAtTime(0.0008, tb + 0.22);
+      o.connect(g); g.connect(out);
+      o.start(tb); o.stop(tb + 0.24);
+      /* 하이햇 (8분 뒷박) */
+      noiseBurst(ctx, tb + beat / 2, 0.05, 0.09, out, 9000);
+      /* 클랩 (2·4박) */
+      if(b % 4 === 1 || b % 4 === 3) noiseBurst(ctx, tb, 0.08, 0.13, out, 1800);
+      /* 베이스 */
+      var r = midiOf(root[b % root.length]);
+      tone(ctx, tb, r, 0.42, "sawtooth", 0.16, out, { lp: 520, attack: 0.01 });
+      /* 리드 아르페지오 (16분) */
+      for(var s = 0; s < 4; s++){
+        var ts = tb + s * beat / 4;
+        if(ts > t0 + total) break;
+        var li = (b * 4 + s) % lead.length;
+        tone(ctx, ts, lead[li], 0.16, "square", 0.035, send, { attack: 0.005 });
+      }
+    }
+  }
+
+  /* 오디오: AudioContext 하나로 BGM 을 합성해 MediaStreamDestination 에 연결하고,
+     그 오디오 트랙을 캔버스 스트림에 붙인다. */
+  function startBgm(p, total, stream){
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    try {
+      var ctx = new AC();
+      var dest = ctx.createMediaStreamDestination();
+      var master = ctx.createGain();
+      master.gain.value = 0.85;
+      var comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -16;
+      comp.knee.value = 14;
+      comp.ratio.value = 3;
+      comp.attack.value = 0.01;
+      comp.release.value = 0.25;
+      master.connect(comp);
+      comp.connect(dest);
+      /* 공간감 (짧은 딜레이) */
+      var dl = ctx.createDelay(0.6);
+      dl.delayTime.value = p === "shorts" ? 0.16 : 0.3;
+      var fb = ctx.createGain();
+      fb.gain.value = p === "shorts" ? 0.16 : 0.26;
+      var lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 2200;
+      dl.connect(lp);
+      lp.connect(fb);
+      fb.connect(dl);
+      lp.connect(master);
+      var send = ctx.createGain();
+      send.gain.value = 0.9;
+      send.connect(dl);
+      var t0 = ctx.currentTime + 0.08;
+      if(p === "shorts") shortsMusic(ctx, t0, total, master, send);
+      else reelsMusic(ctx, t0, total, master, send);
+      if(ctx.state === "suspended" && ctx.resume) ctx.resume();
+      var track = dest.stream.getAudioTracks()[0];
+      if(track) stream.addTrack(track);
+      return { ctx: ctx, close: function(){ try { ctx.close(); } catch(e){} } };
+    } catch(e){
+      return null;
+    }
+  }
+
+  /* ============================ 녹화 ============================ */
+  function mimeCandidates(){
+    return [
+      "video/mp4;codecs=avc1.42E01E",
+      "video/mp4",
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm"
+    ];
+  }
+  function pickMime(){
+    if(!window.MediaRecorder) return "";
+    for(var i = 0; i < mimeCandidates().length; i++){
+      var t = mimeCandidates()[i];
+      try { if(MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) return t; } catch(e){}
+    }
+    return "";
+  }
+  function extOf(mime){
+    var m = String(mime || "").toLowerCase();
+    if(m.indexOf("mp4") >= 0) return ".mp4";
+    if(m.indexOf("webm") >= 0) return ".webm";
+    return ".mp4";
+  }
+  function stampName(){
+    var d = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + "_" + p2(d.getHours()) + p2(d.getMinutes());
+  }
+
+  function recordVideo(v, p, onProgress){
+    return new Promise(function(resolve, reject){
+      if(!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){
+        reject(new Error("이 브라우저는 영상 녹화(canvas + MediaRecorder)를 지원하지 않습니다"));
+        return;
+      }
+      var canvas = document.createElement("canvas");
+      canvas.width = CW;
+      canvas.height = CH;
+      canvas.setAttribute("aria-hidden", "true");
+      canvas.style.position = "fixed";
+      canvas.style.left = "0";
+      canvas.style.top = "0";
+      canvas.style.width = CW + "px";
+      canvas.style.height = CH + "px";
+      canvas.style.transform = "scale(0.001)";
+      canvas.style.transformOrigin = "0 0";
+      canvas.style.opacity = "0";
+      canvas.style.pointerEvents = "none";
+      canvas.style.zIndex = "-1";
+      document.body.appendChild(canvas);
+      var g = canvas.getContext("2d");
+      var durs = cutDurs(v);
+      var total = sumDur(durs);
+
+      var stream;
+      try { stream = canvas.captureStream(30); }
+      catch(e){
+        document.body.removeChild(canvas);
+        reject(new Error("캔버스 스트림을 만들지 못했습니다"));
+        return;
+      }
+
+      var audio = null;
+      try { audio = startBgm(p, total, stream); } catch(e){ audio = null; }
+
+      var mime = pickMime();
+      var rec = null;
+      try {
+        if(mime){
+          try { rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 4200000, audioBitsPerSecond: 128000 }); }
+          catch(e){ rec = null; }
+        }
+        if(!rec) rec = new MediaRecorder(stream);
+      } catch(e){
+        try { stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e2){}
+        if(audio) audio.close();
+        document.body.removeChild(canvas);
+        reject(new Error("MediaRecorder 를 시작하지 못했습니다"));
+        return;
+      }
+
+      var chunks = [];
+      rec.ondataavailable = function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+      var finished = false;
+      var watchdog = null;
+      function cleanup(){
+        try { stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+        if(audio) audio.close();
+        try { if(canvas.parentNode) canvas.parentNode.removeChild(canvas); } catch(e){}
+        if(watchdog) clearTimeout(watchdog);
+      }
+      rec.onstop = function(){
+        cleanup();
+        var type = rec.mimeType || mime || "video/webm";
+        var blob = new Blob(chunks, { type: type });
+        resolve({ blob: blob, mime: type, secs: total, durs: durs, plat: p });
+      };
+      rec.onerror = function(){
+        cleanup();
+        reject(new Error("녹화 중 오류가 났습니다"));
+      };
+      try { rec.start(250); }
+      catch(e){
+        cleanup();
+        reject(new Error("녹화를 시작하지 못했습니다"));
+        return;
+      }
+
+      var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+      function stopNow(){
+        if(finished) return;
+        finished = true;
+        try { rec.stop(); } catch(e){ cleanup(); reject(new Error("녹화를 마무리하지 못했습니다")); }
+      }
+      watchdog = setTimeout(stopNow, (total + 2.5) * 1000);
+
+      function tick(){
+        var now = (window.performance && performance.now) ? performance.now() : Date.now();
+        var t = (now - t0) / 1000;
+        var drawT = Math.min(t, total);
+        try { drawVideoFrame(g, v, p, drawT); } catch(e){}
+        if(onProgress){
+          var ci = cutIndexAt(drawT, durs);
+          onProgress(Math.min(1, t / total), ci + 1, durs.length, drawT, total);
+        }
+        if(t >= total + 0.25){ stopNow(); return; }
+        window.requestAnimationFrame(tick);
+      }
+      window.requestAnimationFrame(tick);
+    });
+  }
+
+  /* ---------- 영상 UI ---------- */
+  /* 9:16 정지컷(표지) — 영상 첫 프레임이 비어 보이지 않게 */
+  function makePoster(v){
+    try {
+      var c = document.createElement("canvas");
+      c.width = CW; c.height = CH;
+      var g = c.getContext("2d");
+      var durs = cutDurs(v);
+      var t = Math.max(0.6, durs[0] * 0.86);
+      if(v.plat === "shorts") drawShortsFrame(g, v, t, durs, true);
+      else drawReelsFrame(g, v, t, durs, true);
+      var s = document.createElement("canvas");
+      s.width = 360; s.height = 640;
+      s.getContext("2d").drawImage(c, 0, 0, 360, 640);
+      return s.toDataURL("image/jpeg", 0.85);
+    } catch(e){ return ""; }
+  }
+
+  /* MediaRecorder 의 MP4 는 조각(fragmented) 파일이라 mvhd 길이가 0 으로 나온다.
+     플레이어·업로드 도구가 길이를 제대로 읽도록 실제 길이를 적어 넣는다. */
+  function fixMp4Duration(blob, secs, cb){
+    if(!blob || blob.size < 256 || String(blob.type || "").indexOf("mp4") < 0){ cb(blob); return; }
+    var fr = new FileReader();
+    fr.onload = function(){
+      var out = blob;
+      try {
+        var buf = new Uint8Array(fr.result);
+        var dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+        var i = 0, patched = false;
+        while(i + 8 <= buf.length){
+          var size = dv.getUint32(i);
+          var type = String.fromCharCode(buf[i + 4], buf[i + 5], buf[i + 6], buf[i + 7]);
+          if(size < 8) break;
+          if(type === "moov"){
+            var j = i + 8, end = i + size;
+            while(j + 8 <= end){
+              var s2 = dv.getUint32(j);
+              var t2 = String.fromCharCode(buf[j + 4], buf[j + 5], buf[j + 6], buf[j + 7]);
+              if(s2 < 8) break;
+              if(t2 === "mvhd"){
+                var p = j + 8, ver = buf[p];
+                if(ver === 1){
+                  var ts1 = dv.getUint32(p + 20);
+                  var d1 = Math.round(secs * ts1);
+                  dv.setUint32(p + 24, 0);
+                  dv.setUint32(p + 28, d1 >>> 0);
+                  patched = true;
+                } else {
+                  var ts0 = dv.getUint32(p + 12);
+                  var d0 = Math.round(secs * ts0);
+                  dv.setUint32(p + 16, d0);
+                  patched = true;
+                }
+              }
+              j += s2;
+            }
+            break;
+          }
+          i += size;
+        }
+        if(patched) out = new Blob([buf], { type: blob.type });
+      } catch(e){ out = blob; }
+      cb(out);
+    };
+    fr.onerror = function(){ cb(blob); };
+    fr.readAsArrayBuffer(blob);
+  }
+
+  function updateVideoBlock(){
+    var q = curP();
+    var eb = $("vidEyebrow"), ti = $("vidTitle"), note = $("vidNote"), go = $("vidGo");
+    if(eb) eb.textContent = q.icon + " " + q.name + " · 9:16 · 약 15초";
+    if(ti) ti.textContent = "🎬 " + q.short + " 영상 만들기";
+    if(go && !VIDEO.busy) go.textContent = "🎬 " + q.short + " 영상 만들기";
+    if(note) note.textContent = q.look + " · 선택한 대본을 4컷으로 그려 9:16 영상(BGM 포함)으로 저장합니다. 외부 서버·저작권 음원 없이 이 화면 안에서만 만듭니다.";
+    var v = viewOfSel();
+    var hint = $("vidHint");
+    if(hint && !VIDEO.busy){
+      hint.textContent = v ? ("지금 선택: " + String(v.title || v.topic || "") + " · " + P(v.plat).name) : "위에서 대본을 고르면 바로 만들 수 있어요.";
+    }
+  }
+
+  function setBusy(on){
+    VIDEO.busy = on;
+    var go = $("vidGo");
+    if(go){
+      go.disabled = on;
+      go.textContent = on ? "영상 만드는 중…" : ("🎬 " + curP().short + " 영상 만들기");
+    }
+    var prog = $("vidProg");
+    if(prog) prog.hidden = !on;
+    var seg = $("platSeg");
+    if(seg){
+      Array.prototype.forEach.call(seg.querySelectorAll(".pseg"), function(b){ b.disabled = on; });
+    }
+  }
+
+  function progressText(pct, cut, cutTotal){
+    var t = $("vidProgText"), bar = $("vidBar");
+    if(bar) bar.style.width = Math.round(pct * 100) + "%";
+    if(t) t.textContent = "영상 만드는 중… " + Math.round(pct * 100) + "% (" + cut + "/" + cutTotal + "컷)";
+  }
+
+  function makeFrom(kind, id){
+    if(VIDEO.busy) return;
+    pickSel(kind, id, true);
+    makeVideo();
+  }
+
+  function makeVideo(){
+    if(VIDEO.busy) return;
+    var v = viewOfSel();
+    if(!v){ toast("먼저 대본을 선택해 주세요"); return; }
+    var p = v.plat || plat;
+    if(VIDEO.url){ try { URL.revokeObjectURL(VIDEO.url); } catch(e){} VIDEO.url = null; }
+    var out = $("vidOut");
+    if(out) out.hidden = true;
+    setBusy(true);
+    progressText(0, 1, 4);
+    var t = $("vidProgText");
+    if(t) t.textContent = "영상 만드는 중… 0% (1/4컷)";
+
+    recordVideo(v, p, function(pct, cut, cutTotal){
+      progressText(pct, Math.min(cut, cutTotal), cutTotal);
+    }).then(function(res){
+      if(!res.blob || res.blob.size <= 0){
+        setBusy(false);
+        toast("영상이 비어 있어요 — 다시 시도해 주세요");
+        return;
+      }
+      fixMp4Duration(res.blob, res.secs + 0.25, function(blob){
+        setBusy(false);
+        VIDEO.blob = blob;
+        VIDEO.mime = res.mime;
+        VIDEO.size = blob.size;
+        VIDEO.plat = p;
+        VIDEO.view = v;
+        VIDEO.secs = res.secs;
+        VIDEO.name = "몽글노트_" + P(p).short + "_" + stampName() + extOf(res.mime);
+        if(VIDEO.url){ try { URL.revokeObjectURL(VIDEO.url); } catch(e){} }
+        VIDEO.url = URL.createObjectURL(blob);
+        var vd = $("vidPreview");
+        if(vd){
+          /* 조각 MP4 는 탐색(seek)이 안 되므로, 첫 화면 대신 우리가 그린 정지컷을 표지로 쓴다 */
+          try { vd.poster = makePoster(v); } catch(e){}
+          vd.src = VIDEO.url;
+          vd.load();
+        }
+        var meta = $("vidMeta");
+        if(meta){
+          meta.textContent = "720×1280 · " + res.secs.toFixed(0) + "초 · " + (res.mime.indexOf("mp4") >= 0 ? "MP4 (H.264)" : "WebM") +
+            " · " + (blob.size / 1048576).toFixed(1) + "MB · " + P(p).name;
+        }
+        var hint = $("vidHint");
+        updateVideoBlock();
+        if(hint) hint.textContent = "‘" + String(v.title || v.topic || "") + "’ — 미리보기에서 재생해 확인하고 저장하세요.";
+        if(out) out.hidden = false;
+        progressText(1, 4, 4);
+        toast(P(p).short + " 영상을 만들었습니다");
+      });
+    }).catch(function(err){
+      setBusy(false);
+      var msg = (err && err.message) ? err.message : "영상을 만들지 못했습니다";
+      toast(msg);
+      var t2 = $("vidProgText");
+      if(t2) t2.textContent = msg;
+    });
+  }
+
+  function browserSave(blob, name){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    toast("영상을 저장했습니다 · " + name);
+  }
+
+  function saveVideo(){
+    var blob = VIDEO.blob, name = VIDEO.name;
+    if(!blob){ toast("먼저 영상을 만들어 주세요"); return; }
+    if(window.AiriaSave && typeof window.AiriaSave.startWrite === "function"){
+      var token = "";
+      try { token = window.AiriaSave.startWrite(name, String(VIDEO.mime || "video/mp4").split(";")[0]); } catch(e){ token = ""; }
+      if(token){
+        var CHUNK = 1024 * 1024, off = 0;
+        (function step(){
+          if(off >= blob.size){
+            var where = "";
+            try { where = window.AiriaSave.endWrite(token); } catch(e){ where = ""; }
+            toast(where ? ("다운로드에 저장했습니다 · " + name) : "저장하지 못했어요");
+            return;
+          }
+          var part = blob.slice(off, Math.min(blob.size, off + CHUNK));
+          var fr = new FileReader();
+          fr.onload = function(){
+            var s = String(fr.result || "");
+            var i = s.indexOf(",");
+            var b64 = i >= 0 ? s.slice(i + 1) : s;
+            var ok = false;
+            try { ok = window.AiriaSave.writeChunk(token, b64); } catch(e){ ok = false; }
+            if(!ok){
+              try { window.AiriaSave.cancelWrite(token); } catch(e){}
+              browserSave(blob, name);
+              return;
+            }
+            off += CHUNK;
+            step();
+          };
+          fr.onerror = function(){
+            try { window.AiriaSave.cancelWrite(token); } catch(e){}
+            browserSave(blob, name);
+          };
+          fr.readAsDataURL(part);
+        })();
+        return;
+      }
+    }
+    browserSave(blob, name);
+  }
+
+  /* ---------- 플랫폼 ---------- */
+  function renderPlatform(){
+    var q = curP();
+    var seg = $("platSeg");
+    if(seg){
+      Array.prototype.forEach.call(seg.querySelectorAll(".pseg"), function(b){
+        b.setAttribute("aria-selected", b.getAttribute("data-plat") === plat ? "true" : "false");
+      });
+    }
+    var line = $("platLine");
+    if(line){
+      line.innerHTML = '<span class="pl-item"><b>대본</b>' + esc(q.structure) + "</span>" +
+        '<span class="pl-item"><b>영상</b>' + esc(q.look) + "</span>";
+    }
+    var g = $("genHint");
+    if(g){
+      g.innerHTML = "현재 <b>" + esc(q.name) + "</b> 구조로 대본을 만듭니다 — " + esc(q.structure) + ". 톤·길이를 고르면 플랫폼에 맞는 4컷이 나옵니다.";
+    }
+    updateVideoBlock();
+  }
+
+  function setPlat(p){
+    if(VIDEO.busy) return;
+    if(p !== "shorts") p = "reels";
+    if(p === plat){
+      renderPlatform();
+      return;
+    }
+    plat = p;
+    writePlat(p);
+    renderPlatform();
+    renderShorts();
+    toast(P(p).name + " 모드로 바꿨습니다");
+  }
+
+  /* ---------- 전체 렌더 ---------- */
+  function renderShorts(){
+    var box = $("ideaList");
+    if(!box) return;
+    bindShorts();
+    readPlat();
+    renderPlatform();
+
+    var s = shortsBlock();
+    var list = shortsIdeaList();
+    var cnt = $("shortsCount");
+    if(cnt) cnt.textContent = num(list.length) + "개";
+    var up = $("shortsUpdated");
+    if(up) up.textContent = (s && s.updated) ? fmtDate(s.updated) : "—";
+
+    var ctx = $("shortsContext");
+    if(ctx){
+      var items = (s && Array.isArray(s.context)) ? s.context : [];
+      ctx.innerHTML = items.length
+        ? '<details class="ctx-fold"><summary>이번 아이디어를 만든 참고 소스 ' + num(items.length) + "개 보기</summary><div class=\"ctx-list\">" +
+          items.map(function(c){
+            return '<span class="sctx"><b>' + esc(c.label) + "</b><span>" + esc(c.note) + "</span></span>";
+          }).join("") + "</div></details>"
+        : "";
+    }
+
+    var head = list.length ? list[0] : null;
+    var heroBox = $("ideaHero");
+    if(heroBox){
+      heroBox.innerHTML = head ? ideaHeroCard(head)
+        : '<div class="empty"><span class="big">🎬</span><strong>아직 아이디어가 없습니다</strong><p>데이터의 shortsIdeas 블록에 아이디어를 넣으면 여기에 표시됩니다.</p></div>';
+    }
+    var rest = head ? list.slice(1) : list;
+    box.innerHTML = rest.length
+      ? rest.map(function(i, idx){ return ideaCard(i, idx + (head ? 1 : 0)); }).join("")
+      : (head ? '<p class="slim-empty">1순위 아이디어는 위 스튜디오 카드에 있습니다. 내 아이디어로 만든 대본은 아래 저장 목록에서 볼 수 있어요.</p>' : "");
+
+    renderDrafts();
+    renderGenOut();
+    fillPicks();
+    drawThumbNow();
+    updateVideoBlock();
+  }
+
+  function bindShorts(){
+    if(shortsBound) return;
+    var panel = $("panel-shorts");
+    if(!panel) return;
+    shortsBound = true;
+
+    panel.addEventListener("click", function(e){
+      var t = e.target.closest ? e.target.closest("button") : null;
+      if(!t) return;
+      var pt = t.getAttribute("data-plat");
+      if(pt){ setPlat(pt); return; }
+      var cid = t.getAttribute("data-copy-idea");
+      if(cid){ var idea = findIdea(cid); if(idea) copyText(scriptOf(viewOf(idea, plat)), "대본을 복사했습니다"); return; }
+      var tid = t.getAttribute("data-thumb-idea");
+      if(tid){ pickSel("idea", tid, false); return; }
+      var vid = t.getAttribute("data-video-idea");
+      if(vid){ makeFrom("idea", vid); return; }
+      var vdr = t.getAttribute("data-video-draft");
+      if(vdr){ makeFrom("draft", vdr); return; }
+      if(t.getAttribute("data-copy-draft")){ var d1 = findDraft(t.getAttribute("data-copy-draft")); if(d1) copyText(scriptOf(draftView(d1)), "대본을 복사했습니다"); return; }
+      if(t.getAttribute("data-thumb-draft")){ pickSel("draft", t.getAttribute("data-thumb-draft"), false); return; }
+      if(t.id === "genBtn"){ runGen(); return; }
+      if(t.id === "thumbSave"){ saveThumb(); return; }
+      if(t.id === "vidGo"){ makeVideo(); return; }
+      if(t.id === "vidSave"){ saveVideo(); return; }
+      if(t.id === "vidAgain"){ makeVideo(); return; }
+      var row = t.closest ? t.closest("[data-draft]") : null;
+      if(row && t.getAttribute("data-dact")){ draftAction(row.getAttribute("data-draft"), t.getAttribute("data-dact")); return; }
+    });
+
+    panel.addEventListener("change", function(e){
+      if(!e.target) return;
+      if(e.target.id === "thumbPick" || e.target.id === "vidPick"){
+        var p = String(e.target.value || "").split(":");
+        if(p.length === 2){ pickSel(p[0], p[1], true); }
+      }
+    });
+
+    panel.addEventListener("keydown", function(e){
+      if(e.target && e.target.id === "genTopic" && e.key === "Enter"){
+        e.preventDefault();
+        runGen();
+      }
+    });
+
+    readPlat();
+  }
+
   /* ---------- export / import ---------- */
   function exportData(){
     var payload = JSON.parse(JSON.stringify(DATA));
