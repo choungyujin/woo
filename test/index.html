@@ -17225,15 +17225,6 @@ function renderCurLib() {
       : '<section class="fav-sec">' + empty('예시 수업이 아직 없어요', '내 관심사로 만든 커리큘럼부터 시작해 보세요.') + '</section>') +
     '</section>';
 }
-function curSamplesHtml() {
-  /* 예시 수업이 실제로 있는 칸만 보여 줘요(없는 칸을 빈 채로 권하지 않아요) */
-  const L = [['pstore', '📱', '앱 수업'], ['money', '💰', '돈 공부'], ['threads', '🧵', '스레드'], ['place', '📍', '플레이스'], ['acct', '🧾', '회계·노무'], ['excel', '📊', '엑셀']]
-    .filter(([k]) => { try { const d = typeof cuDoc === 'function' ? cuDoc(k) : null; return arr(d && d.stages).length > 0; } catch (e) { return false; } });
-  if (!L.length) return '';
-  return '<section class="fav-sec" id="curSamples"><div class="td-sec"><h2>🗂 예시 커리큘럼</h2><span class="sp"></span><small class="muted">골라서 보기</small></div>' +
-    '<p class="muted fav-lead">앱을 만들며 정리해 둔 예시 수업이에요. 필요한 칸만 골라 보세요. 예시가 있는 칸만 보여 드려요.</p>' +
-    '<div class="cur-chips">' + L.map(([k, e, t]) => '<button class="cur-chip" type="button" data-act="sub" data-v="' + k + '">' + e + ' ' + esc(t) + '</button>').join('') + '</div></section>';
-}
 function curEmptyPlanHtml() {
   return '<article class="card cur-week" id="curWeek"><div class="cur-wk-h"><b>이렇게 만들어 드려요</b><small>3단계면 돼요</small></div>' +
     '<ul class="cur-list"><li class="cur-li"><div class="cur-li-main"><b>① 주제 고르기</b><small>일·마음·몸·취미·돈 등에서 최대 4개</small></div></li>' +
