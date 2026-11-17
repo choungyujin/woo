@@ -3524,7 +3524,7 @@ const TABS = [
   { id: 'today', label: '홈', title: '몽글노트2', tint: 'aqua' },
   { id: 'think', label: '생각 정리', short: '생각', title: '생각 정리', tint: 'lilac' },
   { id: 'info', label: '자료 정리', short: '자료', title: '자료 정리', tint: 'sky', subs: [['insight', '요즘 내 생각'], ['info', '근거 자료']] },
-  { id: 'mkt', label: '커리큘럼', title: '커리큘럼', tint: 'peri', subs: [['mycur', '🧭 내 커리큘럼'], ['mnews', '📰 새소식'], ['pstore', '📱 앱 수업'], ['money', '💰 돈 공부'], ['threads', '🧵 스레드'], ['place', '📍 플레이스'], ['acct', '🧾 회계·노무'], ['excel', '📊 엑셀']] },
+  { id: 'mkt', label: '커리큘럼', title: '커리큘럼', tint: 'peri', subs: [['mycur', '🧭 내 커리큘럼'], ['mnews', '📰 새소식'], ['curlib', '🗂 예시 커리큘럼']] },
   { id: 'fav', label: '관심사', title: '관심사', tint: 'pink', subs: [['boards', '관심사'], ['sns', '📣 SNS방'], ['duk', '💖 덕질방'], ['play', '🎮 쉼터'], ['star', '⭐ 즐겨찾기'], ['bible', '말씀'], ['health', '건강']] },
   { id: 'memo', label: '메모', title: '메모', tint: 'butter', subs: [['memo', '메모'], ['calc', '계산기']] },
 ];
@@ -3844,8 +3844,8 @@ function render() {
   pendingRender = false;
   const T = TABS.find(t => t.id === tab);
   if (T && T.subs) {
-    let cur = ui.sub[tab] || T.subs[0][0]; if (!T.subs.some(([v]) => v === cur)) cur = T.subs[0][0];
-    ({ mycur: renderMyCur, mnews: renderMkt, pstore: renderCur, place: renderCur, acct: renderCur, excel: renderCur, boards: renderFav, sns: renderSns, duk: renderDuk, play: renderPlay, threads: renderCur, launch: renderCur, star: renderStar, bible: renderBible, health: renderHealth, memo: renderMemo, calc: renderCalc, insight: renderInsight, info: renderInfo, money: renderCur })[cur]();
+    let cur = ui.sub[tab] || T.subs[0][0]; if (!T.subs.some(([v]) => v === cur) && !(tab === 'mkt' && typeof CURS !== 'undefined' && CURS[cur])) cur = T.subs[0][0];
+    ({ mycur: renderMyCur, curlib: renderCurLib, mnews: renderMkt, pstore: renderCur, place: renderCur, acct: renderCur, excel: renderCur, boards: renderFav, sns: renderSns, duk: renderDuk, play: renderPlay, threads: renderCur, launch: renderCur, star: renderStar, bible: renderBible, health: renderHealth, memo: renderMemo, calc: renderCalc, insight: renderInsight, info: renderInfo, money: renderCur })[cur]();
     view.insertAdjacentHTML('afterbegin', `<div class="subnav" role="tablist" aria-label="${esc(T.label)} 안의 메뉴">${T.subs.map(([v, l]) => `<button type="button" role="tab" data-act="sub" data-v="${v}" class="${cur === v ? 'on' : ''}" aria-selected="${cur === v}">${l}</button>`).join('')}</div>`);
     paintChip(); paintBadge(); pgTag(); return;
   }
@@ -17203,6 +17203,28 @@ function curSavedHtml() {
   return '<section class="fav-sec" id="curSaved"><div class="td-sec"><h2>📌 담아 둔 관심사</h2><span class="sp"></span><small class="muted">' + L.length + '개</small></div>' +
     '<ul class="cur-list">' + L.slice(0, 8).map((x, i) => '<li class="cur-li"><div class="cur-li-main"><b>' + esc(x.t) + '</b><small>' + esc(x.d || '') + '</small></div><button class="btn sm ghost" type="button" data-act="cur-unsave" data-i="' + i + '">빼기</button></li>').join('') + '</ul></section>';
 }
+function curSamplesLinkHtml() {
+  if (!curSamples().length) return '';
+  return '<section class="fav-sec" id="curSamplesLink"><div class="td-sec"><h2>🗂 예시 커리큘럼</h2><span class="sp"></span><small class="muted">골라서 보기</small></div>' +
+    '<p class="muted fav-lead">앱을 만들며 정리해 둔 예시 수업이에요. 필요한 칸만 골라 보세요.</p>' +
+    '<div class="cur-acts"><button class="btn sm ghost" type="button" data-act="sub" data-v="curlib">예시 커리큘럼 목록 보기 ›</button></div></section>';
+}
+function curSamples() {
+  /* 예시 수업이 실제로 있는 칸만 */
+  return [['pstore', '📱', '앱 수업'], ['money', '💰', '돈 공부'], ['threads', '🧵', '스레드'], ['place', '📍', '플레이스'], ['acct', '🧾', '회계·노무'], ['excel', '📊', '엑셀']]
+    .filter(([k]) => { try { const d = typeof cuDoc === 'function' ? cuDoc(k) : null; return arr(d && d.stages).length > 0; } catch (e) { return false; } });
+}
+function renderCurLib() {
+  const L = curSamples();
+  view.innerHTML = '<section class="pane cur-pane"><div class="cur-hero" id="curLibHero"><h2>🗂 예시 커리큘럼</h2>' +
+    '<p>앱을 만들며 정리해 둔 예시 수업이에요. 필요한 칸만 골라 보세요. 내가 고른 주제로 만든 커리큘럼은 ‘🧭 내 커리큘럼’에 있어요.</p>' +
+    '<div class="cur-acts"><button class="btn sm primary" type="button" data-act="sub" data-v="mycur">🧭 내 커리큘럼</button></div></div>' +
+    (L.length ? '<section class="fav-sec"><div class="td-sec"><h2>지금 볼 수 있는 예시</h2><span class="sp"></span><small class="muted">' + L.length + '개</small></div><div class="cur-chips">' +
+      L.map(([k, e, t]) => '<button class="cur-chip" type="button" data-act="sub" data-v="' + k + '">' + e + ' ' + esc(t) + '</button>').join('') + '</div>' +
+      '<p class="cur-note">예시가 아직 없는 칸은 목록에 넣지 않았어요. 없는 수업을 있는 것처럼 보여 드리지 않아요.</p></section>'
+      : '<section class="fav-sec">' + empty('예시 수업이 아직 없어요', '내 관심사로 만든 커리큘럼부터 시작해 보세요.') + '</section>') +
+    '</section>';
+}
 function curSamplesHtml() {
   /* 예시 수업이 실제로 있는 칸만 보여 줘요(없는 칸을 빈 채로 권하지 않아요) */
   const L = [['pstore', '📱', '앱 수업'], ['money', '💰', '돈 공부'], ['threads', '🧵', '스레드'], ['place', '📍', '플레이스'], ['acct', '🧾', '회계·노무'], ['excel', '📊', '엑셀']]
@@ -17250,7 +17272,7 @@ function paintHomeTrack() {
 }
 function renderMyCur() {
   const M = curMenu(), T = M.topics.map(curFind).filter(Boolean);
-  view.innerHTML = '<section class="pane cur-pane">' + curMenuCardHtml(M, T) + (T.length ? curWeekCardHtml(M, T) : curEmptyPlanHtml()) + curFeedHtml(M, T, 6) + curSavedHtml() + curSamplesHtml() + '</section>';
+  view.innerHTML = '<section class="pane cur-pane">' + curMenuCardHtml(M, T) + (T.length ? curWeekCardHtml(M, T) : curEmptyPlanHtml()) + curFeedHtml(M, T, 6) + curSavedHtml() + curSamplesLinkHtml() + '</section>';
 }
 function curRefresh() {
   try { paintHomeTrack(); } catch (e) {}
