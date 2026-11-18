@@ -1202,6 +1202,16 @@
   @media(min-width:600px){ .drt-picks{flex-direction:row;flex-wrap:wrap} .drt-pick{width:auto;flex:0 1 calc(50% - 3px)} }
   .dchip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:0;border-radius:6px;
     padding:1px 6px;margin-right:5px;vertical-align:1.5px;background:#F7EFE2;color:#8A5A2B;white-space:nowrap}
+
+  /* ---------- v1.9 — 영상 4가지 컨셉 배지 ---------- */
+  .tchip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:0;border-radius:6px;
+    padding:1px 6px;margin-right:5px;vertical-align:1.5px;white-space:nowrap;border:1px solid transparent}
+  .tchip.t-talk{background:#FFEDE7;color:#B8432E;border-color:#FBD6C9}
+  .tchip.t-split{background:#FFF3DC;color:#8A5A10;border-color:#F6E0B4}
+  .tchip.t-mindmap{background:#EEEAFA;color:#5B4B8A;border-color:#DCD4F3}
+  .tchip.t-essay{background:#EDEBF3;color:#4A4664;border-color:#DAD6E6}
+  .sv-tpl{margin:6px 0 0;font-size:12px;font-weight:600;color:#6B5FA8;line-height:1.5}
+  .cut-x{margin:3px 0 0;font-size:12px;font-weight:500;color:#7A5230;line-height:1.5}
 </style>
 </head>
 <body class="locked">
@@ -4224,6 +4234,17 @@ var AiriaMp4 = (function(){
     }
   };
 
+  /* v1.9 — 영상 4가지 컨셉 템플릿 */
+  var TPL = {
+    talk:    { label: "🎧 취향토크", accent: "#FF6B57" },
+    split:   { label: "⚡ 반전분할", accent: "#F5B23E" },
+    mindmap: { label: "🧠 마인드맵", accent: "#7E6FD0" },
+    essay:   { label: "🌙 밤에세이", accent: "#C9BFF5" }
+  };
+  function tplOf(v){ var t = String((v && v.template) || "essay"); return TPL[t] ? t : "essay"; }
+  function tplLabelOf(v){ return String((v && v.templateLabel) || TPL[tplOf(v)].label); }
+  function channelOf(p){ return (p === "shorts") ? "@릴리의리스트" : "@arisia949"; }
+
   function P(p){ return PLAT[p] || PLAT.reels; }
   function curP(){ return P(plat); }
 
@@ -4281,7 +4302,8 @@ var AiriaMp4 = (function(){
       caption: o.caption || "", cta: o.cta || "", hashtags: o.hashtags || [],
       audience: o.audience || "", source: o.source || "", context: o.context || "",
       target: o.target || "", rank: o.rank || "", mongle: o.mongle || "",
-      badge: o.badge || "", status: o.status || "", at: o.at || ""
+      badge: o.badge || "", status: o.status || "", at: o.at || "",
+      template: o.template || "", templateLabel: o.templateLabel || "", concept: o.concept || ""
     };
     if(v){ for(var k in v){ if(v[k] !== undefined && v[k] !== null) base[k] = v[k]; } base.plat = use; }
     return base;
@@ -4906,13 +4928,18 @@ var AiriaMp4 = (function(){
     return '<span class="pchip pchip-' + q.key + '">' + q.icon + " " + esc(q.short) + "</span>";
   }
 
+  function tplChip(v){
+    var t = tplOf(v);
+    return '<span class="tchip t-' + t + '">' + esc(tplLabelOf(v)) + "</span>";
+  }
+
   function ideaRow(i, idx){
     var v = viewOf(i, plat);
     var cur = (sel && sel.kind === "idea" && sel.id === v.id) ? "true" : "false";
     return '<li class="idea-row" data-idea="' + esc(v.id) + '" data-plat="' + esc(v.plat) + '" tabindex="0" aria-current="' + cur + '">' +
       '<span class="no">' + (idx + 1) + "</span>" +
       "<div>" +
-        "<h4>" + (i.dayRole && typeof dayTagOf === "function" && dayTagOf(i.dayRole) ? '<span class="dchip">' + esc(dayTagOf(i.dayRole)) + "</span>" : "") +
+        "<h4>" + tplChip(i) + (i.dayRole && typeof dayTagOf === "function" && dayTagOf(i.dayRole) ? '<span class="dchip">' + esc(dayTagOf(i.dayRole)) + "</span>" : "") +
           (i.group ? '<span class="gchip ' + (i.group === "mongle" ? "g-mg" : "g-dl") + '">' +
           (i.group === "mongle" ? "몽글노트" : "일상") + "</span>" : "") + esc(v.title) + "</h4>" +
         '<p class="hook">“' + esc(v.hook) + '”</p>' +
@@ -4938,6 +4965,9 @@ var AiriaMp4 = (function(){
       return "<li>" +
         '<div class="cut-h"><b>' + esc(String(c.no) + "컷 · " + (c.role || "")) + "</b><span>" + esc(c.time || "") + "</span></div>" +
         (c.line ? '<p class="cut-t">' + esc(c.line) + "</p>" : "") +
+        (c.a || c.b ? '<p class="cut-x">겉 · ' + esc(c.a || "") + " &nbsp;↔&nbsp; 속 · " + esc(c.b || "") + "</p>" : "") +
+        (c.node ? '<p class="cut-x">단계 · ' + esc(c.node) + (c.branches && c.branches.length ? " → " + esc(c.branches.join(" · ")) : "") + "</p>" : "") +
+        (c.chip ? '<p class="cut-x">키워드 칩 · ' + esc(c.chip) + "</p>" : "") +
         (c.screen ? '<p class="cut-s">화면 · ' + esc(c.screen) + "</p>" : "") +
       "</li>";
     }).join("");
@@ -4960,6 +4990,7 @@ var AiriaMp4 = (function(){
     }
     box.innerHTML =
       '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip(v.plat) + "</div>" +
+      '<p class="sv-tpl">' + esc(tplLabelOf(v)) + (v.concept ? " · " + esc(v.concept) : "") + "</p>" +
       '<p class="sv-meta">' + esc(v.length || "15초") + " · " + esc(v.toneLabel || toneName(v.tone)) +
         (v.audience ? " · " + esc(v.audience) : "") + "</p>" +
       (v.hook ? '<p class="sv-hook"><b>0~3초 훅</b>' + esc(v.hook) + "</p>" : "") +
@@ -4983,7 +5014,7 @@ var AiriaMp4 = (function(){
     var q = curP();
     if(pick){
       pick.innerHTML = v
-        ? ("<b>" + esc(v.title) + "</b> · " + esc(v.length || "15초") + " · " + esc(q.name) + " 720×1280")
+        ? (tplChip(v) + " <b>" + esc(v.title) + "</b> · " + esc(v.length || "15초") + " · " + esc(q.name) + " 720×1280")
         : "대본을 먼저 골라 주세요.";
     }
     if(go && !VIDEO.busy) go.textContent = "🎬 " + q.short + " 영상 만들기";
@@ -5070,7 +5101,7 @@ var AiriaMp4 = (function(){
     var html = "";
     shortsIdeaList().forEach(function(i){
       var v = viewOf(i, plat);
-      html += '<option value="idea:' + esc(i.id) + '">추천 · ' + esc(v.title) + "</option>";
+      html += '<option value="idea:' + esc(i.id) + '">추천 · ' + esc(tplLabelOf(i)) + " · " + esc(v.title) + "</option>";
     });
     readDrafts().forEach(function(d){
       if((d.plat || "reels") !== plat) return;
@@ -5709,11 +5740,509 @@ var AiriaMp4 = (function(){
     }
   }
 
+
+  /* ==========================================================================
+     v1.9 — 4가지 영상 컨셉 (talk · split · mindmap · essay)
+       · 같은 9:16 · 720×1280 캔버스에서 배치·색감·모션이 완전히 다르다
+       · 글자는 fillText 만 · 굵기 500~600 · 글자 외곽선 없음
+     ========================================================================== */
+  function sceneImgAt(v, i){
+    var src = sceneSrcFor(v, i);
+    if(!src) return null;
+    var key = sceneKeyFor(v, i);
+    if(key === "__user__"){
+      var im = SC_IMG["__user__" + sceneUiKey(v, i)];
+      if(!im){ im = new Image(); im.src = src; SC_IMG["__user__" + sceneUiKey(v, i)] = im; }
+      return im;
+    }
+    return SC_IMG[key] || null;
+  }
+  /* 카드 안에 사진을 꽉 차게(cover) 자르고 둥근 모서리로 */
+  function coverImg(g, im, x, y, w, h, r, zoom){
+    g.save();
+    roundRect(g, x, y, w, h, r);
+    g.clip();
+    if(im && im.complete && im.naturalWidth){
+      var s = Math.max(w / im.naturalWidth, h / im.naturalHeight) * (zoom || 1);
+      var dw = im.naturalWidth * s, dh = im.naturalHeight * s;
+      g.drawImage(im, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+    } else {
+      var gr = g.createLinearGradient(x, y, x + w, y + h);
+      gr.addColorStop(0, "#F6EEE7");
+      gr.addColorStop(1, "#E5DDF3");
+      g.fillStyle = gr;
+      g.fillRect(x, y, w, h);
+    }
+    g.restore();
+  }
+  function softCard(g, x, y, w, h, r, fill, shadow){
+    g.save();
+    if(shadow){ g.shadowColor = shadow; g.shadowBlur = 24; g.shadowOffsetY = 8; }
+    roundRect(g, x, y, w, h, r);
+    g.fillStyle = fill;
+    g.fill();
+    g.restore();
+  }
+  function writeText(g, weight, size, txt, x, y, color, align){
+    setFont(g, weight, size);
+    g.textAlign = align || "left";
+    g.textBaseline = "alphabetic";
+    g.fillStyle = color;
+    g.fillText(String(txt == null ? "" : txt), x, y);
+  }
+
+  /* ---------- 🎧 취향·덕질 툭 던지기 ---------- */
+  function drawTalkFrame(g, v, t, durs){
+    var idx = cutIndexAt(t, durs);
+    var start = cutStartAt(idx, durs);
+    var u = (t - start) / durs[idx];
+    var cut = cutAt(v, idx);
+    var A = "#FF6B57", INK = "#2A2336";
+
+    /* 장면 + 크로스페이드 */
+    var fade = Math.min(1, (t - start) / 0.35);
+    if(idx > 0 && fade < 1){
+      drawScene(g, v, idx - 1, 1, 1);
+      g.save();
+      g.globalAlpha = fade;
+      drawScene(g, v, idx, u, 1);
+      g.restore();
+    } else {
+      drawScene(g, v, idx, u, 1);
+    }
+    /* 위는 크림(질문 카드 자리), 아래는 부드러운 그늘 */
+    var top = g.createLinearGradient(0, 0, 0, 500);
+    top.addColorStop(0, "rgba(255,247,242,.97)");
+    top.addColorStop(0.55, "rgba(255,247,242,.90)");
+    top.addColorStop(1, "rgba(255,247,242,0)");
+    g.fillStyle = top;
+    g.fillRect(0, 0, CW, 500);
+    var bot = g.createLinearGradient(0, CH * 0.52, 0, CH);
+    bot.addColorStop(0, "rgba(26,18,30,0)");
+    bot.addColorStop(0.5, "rgba(26,18,30,.16)");
+    bot.addColorStop(1, "rgba(26,18,30,.62)");
+    g.fillStyle = bot;
+    g.fillRect(0, CH * 0.52, CW, CH * 0.48);
+
+    /* 상단 질문 배너 (파스텔 코랄 포인트) */
+    var bIn = easeOut(Math.min(1, t / 0.5));
+    var bh = 176, by = 50 - 24 * (1 - bIn);
+    g.save();
+    g.globalAlpha = bIn;
+    softCard(g, 40, by, 640, bh, 34, "rgba(255,255,255,.97)", "rgba(70,32,44,.18)");
+    g.fillStyle = A;
+    roundRect(g, 40, by + 18, 8, bh - 36, 4);
+    g.fill();
+    pillBadge(g, 66, by + 22, 36, "🎧 오늘의 수다", "#FFE9E2", "#B8432E", 19);
+    var q = String(v.card || v.hook || v.title || "");
+    var fq = fitLines(g, "600", q, 552, 40, 28, 2);
+    for(var qi = 0; qi < fq.lines.length; qi++){
+      writeText(g, "600", fq.size, fq.lines[qi].text, 66, by + 106 + qi * Math.round(fq.size * 1.3), INK, "left");
+    }
+    g.restore();
+
+    /* 컷마다 짧은 키워드 칩 — 지금 컷만 코랄로 */
+    var showIdx = [], si;
+    for(si = Math.max(0, idx - 1); si <= Math.min(durs.length - 1, idx + 1); si++) showIdx.push(si);
+    var chips = [], gap = 12, totalW = 0, k;
+    for(k = 0; k < showIdx.length; k++){
+      var ci = showIdx[k];
+      var lab = String(cutAt(v, ci).chip || ("0" + (ci + 1)));
+      setFont(g, "600", 21);
+      var cw = g.measureText(lab).width + 44;
+      chips.push({ ci: ci, lab: lab, w: cw });
+      totalW += cw + (k ? gap : 0);
+    }
+    var chIn = easeOut(Math.min(1, u * 5));
+    var cx = (CW - totalW) / 2;
+    g.save();
+    g.globalAlpha = chIn;
+    for(k = 0; k < chips.length; k++){
+      var cp = chips[k];
+      var on = (cp.ci === idx);
+      roundRect(g, cx, 252, cp.w, 44, 22);
+      g.fillStyle = on ? A : "rgba(255,255,255,.94)";
+      g.fill();
+      if(!on){
+        g.strokeStyle = "rgba(126,111,208,.32)";
+        g.lineWidth = 1.5;
+        g.stroke();
+      }
+      writeText(g, "600", 21, cp.lab, cx + cp.w / 2, 281, on ? "#FFFFFF" : "rgba(42,35,54,.62)", "center");
+      cx += cp.w + gap;
+    }
+    g.restore();
+
+    /* 말풍선 — 컷마다 톡 튀어나오는 모션 */
+    var f = fitLines(g, "600", cut.line, 548, 46, 32, 3);
+    var lh = Math.round(f.size * 1.36);
+    var bubH = 76 + f.lines.length * lh + 22;
+    var byy = 758, bx = 44, bw = 632;
+    var pop = easeOut(Math.min(1, u * 3.6));
+    g.save();
+    g.globalAlpha = pop;
+    g.translate(CW / 2, byy + bubH / 2);
+    g.scale(0.965 + 0.035 * pop, 0.965 + 0.035 * pop);
+    g.translate(-CW / 2, -(byy + bubH / 2));
+    softCard(g, bx, byy, bw, bubH, 40, "rgba(255,253,250,.98)", "rgba(28,16,30,.28)");
+    g.beginPath();
+    g.moveTo(bx + 96, byy + 6);
+    g.lineTo(bx + 130, byy - 26);
+    g.lineTo(bx + 162, byy + 6);
+    g.closePath();
+    g.fillStyle = "rgba(255,253,250,.98)";
+    g.fill();
+    writeText(g, "500", 21, (idx === 0 ? "첫 질문" : "제 이야기"), bx + 42, byy + 48, "rgba(126,111,208,.95)", "left");
+    for(var bj = 0; bj < f.lines.length; bj++){
+      writeText(g, "600", f.size, f.lines[bj].text, bx + 42, byy + 100 + bj * lh, INK, "left");
+    }
+    g.restore();
+
+    /* 하단 — 채널 · 컨셉 배지 · 진행 점 */
+    g.save();
+    g.shadowColor = "rgba(0,0,0,.55)";
+    g.shadowBlur = 10;
+    writeText(g, "500", 21, channelOf(v.plat || plat), 56, 1124, "rgba(255,255,255,.96)", "left");
+    g.shadowColor = "transparent";
+    g.shadowBlur = 0;
+    setFont(g, "500", 19);
+    var tag = tplLabelOf(v);
+    var tw = g.measureText(tag).width + 40;
+    pillBadge(g, CW - 56 - tw, 1096, 40, tag, "rgba(22,16,26,.58)", "#FFFFFF", 19);
+    var dotW = 26, dx = (CW - durs.length * dotW) / 2 + dotW / 2;
+    for(var di = 0; di < durs.length; di++){
+      g.beginPath();
+      g.arc(dx + di * dotW, 1180, di === idx ? 6 : 4, 0, Math.PI * 2);
+      g.fillStyle = di === idx ? A : (di < idx ? "rgba(255,255,255,.82)" : "rgba(255,255,255,.34)");
+      g.fill();
+    }
+    g.restore();
+  }
+
+  /* ---------- ⚡ 겉 vs 속 반전 컷 ---------- */
+  function drawSplitFrame(g, v, t, durs){
+    var idx = cutIndexAt(t, durs);
+    var start = cutStartAt(idx, durs);
+    var u = (t - start) / durs[idx];
+    var cut = cutAt(v, idx);
+    var AMB = "#F5B23E", PLUM = "#2B2140", INK = "#1B1630";
+
+    g.fillStyle = "#171326";
+    g.fillRect(0, 0, CW, CH);
+    var glow = g.createRadialGradient(CW * 0.5, 300, 60, CW * 0.5, 300, 620);
+    glow.addColorStop(0, "rgba(245,178,62,.18)");
+    glow.addColorStop(1, "rgba(245,178,62,0)");
+    g.fillStyle = glow;
+    g.fillRect(0, 0, CW, 760);
+
+    var ca = easeOut(Math.min(1, (t - start) / 0.16));   /* 빠른 컷 전환 */
+    var yTop = 66 - 14 * (1 - ca);
+
+    /* 위 카드 — 겉으로 보이는 것 (사진) */
+    g.save();
+    g.globalAlpha = ca;
+    coverImg(g, sceneImgAt(v, idx), 40, yTop, 640, 496, 34, 1.02 + 0.05 * easeInOut(u));
+    g.save();
+    roundRect(g, 40, yTop, 640, 496, 34);
+    g.clip();
+    var sc = g.createLinearGradient(0, yTop + 250, 0, yTop + 496);
+    sc.addColorStop(0, "rgba(16,12,24,0)");
+    sc.addColorStop(1, "rgba(16,12,24,.88)");
+    g.fillStyle = sc;
+    g.fillRect(40, yTop + 250, 640, 246);
+    g.restore();
+    pillBadge(g, 64, yTop + 20, 38, "겉으로 보이는 것", "rgba(255,255,255,.92)", INK, 19);
+    var fa = fitLines(g, "600", cut.a || "", 560, 44, 32, 2);
+    var alh = Math.round(fa.size * 1.3);
+    var ay = yTop + 496 - 26 - (fa.lines.length - 1) * alh;
+    for(var ai = 0; ai < fa.lines.length; ai++){
+      writeText(g, "600", fa.size, fa.lines[ai].text, 64, ay + ai * alh, "#FFFFFF", "left");
+    }
+    g.restore();
+
+    /* 가운데 대비 배지 */
+    g.fillStyle = "rgba(255,255,255,.16)";
+    g.fillRect(40, 596, 640, 2);
+    var pu = Math.min(1, u * 3.2);
+    var ps = 1 + 0.10 * Math.sin(pu * Math.PI);
+    g.save();
+    g.translate(CW / 2, 597);
+    g.scale(ps, ps);
+    g.beginPath();
+    g.arc(0, 0, 34, 0, Math.PI * 2);
+    g.fillStyle = AMB;
+    g.fill();
+    g.restore();
+    setFont(g, "600", 26);
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "#2A1E08";
+    g.fillText("⚡", CW / 2, 599);
+
+    /* 아래 카드 — 진짜 내 모습 */
+    var yb = 640 + 14 * (1 - ca);
+    g.save();
+    g.globalAlpha = ca;
+    softCard(g, 40, yb, 640, 392, 34, PLUM, "rgba(0,0,0,.40)");
+    g.save();
+    roundRect(g, 40, yb, 640, 392, 34);
+    g.clip();
+    var lg = g.createLinearGradient(40, yb, 680, yb + 392);
+    lg.addColorStop(0, "rgba(126,111,208,.30)");
+    lg.addColorStop(1, "rgba(126,111,208,0)");
+    g.fillStyle = lg;
+    g.fillRect(40, yb, 640, 392);
+    g.restore();
+    pillBadge(g, 64, yb + 26, 38, "진짜 내 모습", "rgba(126,111,208,.42)", "#EAE4FF", 19);
+    var fb = fitLines(g, "600", cut.b || cut.line || "", 560, 48, 34, 3);
+    var blh = Math.round(fb.size * 1.34);
+    var visH = (fb.lines.length - 1) * blh + fb.size;
+    var topB = yb + 88 + Math.max(0, (276 - visH) / 2);
+    for(var bi = 0; bi < fb.lines.length; bi++){
+      writeText(g, "600", fb.size, fb.lines[bi].text, 64, topB + fb.size * 0.82 + bi * blh, "#FFFFFF", "left");
+    }
+    g.restore();
+
+    /* 한 줄 캡션 · 채널 · 진행 바 */
+    var fcap = fitLines(g, "500", cut.line || "", 600, 30, 24, 1);
+    if(fcap.lines.length){
+      writeText(g, "500", fcap.size, fcap.lines[0].text, CW / 2, 1098, "rgba(255,255,255,.74)", "center");
+    }
+    g.save();
+    writeText(g, "500", 20, channelOf(v.plat || plat), 56, 1172, "rgba(255,255,255,.90)", "left");
+    setFont(g, "500", 19);
+    var tag = tplLabelOf(v);
+    var tw = g.measureText(tag).width + 40;
+    pillBadge(g, CW - 56 - tw, 1144, 40, tag, "rgba(255,255,255,.16)", "#FFFFFF", 19);
+    var gapB = 8;
+    var bw = (CW - 112 - gapB * (durs.length - 1)) / durs.length;
+    var byY = 1218;
+    for(var i2 = 0; i2 < durs.length; i2++){
+      var bxx = 56 + i2 * (bw + gapB);
+      g.fillStyle = "rgba(255,255,255,.20)";
+      roundRect(g, bxx, byY, bw, 6, 3);
+      g.fill();
+      var fl = 0;
+      if(t > cutStartAt(i2, durs)) fl = Math.min(1, (t - cutStartAt(i2, durs)) / durs[i2]);
+      if(fl > 0){
+        g.fillStyle = (i2 === idx) ? AMB : "rgba(245,178,62,.55)";
+        roundRect(g, bxx, byY, Math.max(4, bw * fl), 6, 3);
+        g.fill();
+      }
+    }
+    g.restore();
+  }
+
+  /* ---------- 🧠 몽글노트 생각정리 · 마인드맵 ---------- */
+  function drawMindmapFrame(g, v, t, durs){
+    var idx = cutIndexAt(t, durs);
+    var start = cutStartAt(idx, durs);
+    var u = (t - start) / durs[idx];
+    var ACC = "#7E6FD0", MINT = "#57B99D", INK = "#241E33";
+
+    drawScene(g, v, idx, u, 1);
+    g.fillStyle = "rgba(18,14,30,.89)";
+    g.fillRect(0, 0, CW, CH);
+    var vg = g.createRadialGradient(CW * 0.5, CH * 0.18, 60, CW * 0.5, CH * 0.55, CH * 0.9);
+    vg.addColorStop(0, "rgba(126,111,208,.24)");
+    vg.addColorStop(1, "rgba(8,6,16,.62)");
+    g.fillStyle = vg;
+    g.fillRect(0, 0, CW, CH);
+    var bs = g.createLinearGradient(0, CH * 0.74, 0, CH);
+    bs.addColorStop(0, "rgba(9,7,16,0)");
+    bs.addColorStop(1, "rgba(9,7,16,.82)");
+    g.fillStyle = bs;
+    g.fillRect(0, CH * 0.74, CW, CH * 0.26);
+
+    g.save();
+    pillBadge(g, 52, 54, 42, "🧠 몽글노트 · 생각 정리", "rgba(255,255,255,.15)", "#F0ECFF", 19);
+    writeText(g, "500", 19, "STEP " + (idx + 1) + " / " + durs.length, CW - 52, 80, "rgba(255,255,255,.60)", "right");
+    g.restore();
+
+    var SLOT = [226, 450, 674, 898], HH = 190, CX0 = 116, CWD = 552;
+
+    /* 세로 연결선 + 카드로 가는 짧은 가지 */
+    g.save();
+    g.fillStyle = "rgba(255,255,255,.14)";
+    g.fillRect(74, SLOT[0] + 62, 2, SLOT[3] + 62 - (SLOT[0] + 62));
+    for(var li = 0; li < 4; li++){
+      g.fillStyle = "rgba(255,255,255,.12)";
+      g.fillRect(76, SLOT[li] + 61, CX0 - 82, 2);
+    }
+    g.restore();
+
+    /* 지나온 카드 → 다음 카드 → 지금 카드(맨 위) */
+    var order = [], i;
+    for(i = 0; i < 4; i++){ if(i !== idx) order.push(i); }
+    order.push(idx);
+    for(var oi = 0; oi < order.length; oi++){
+      var ci = order[oi];
+      var c = cutAt(v, ci);
+      var y = SLOT[ci];
+      var kind = (ci < idx) ? "past" : (ci === idx ? "active" : "future");
+      g.save();
+      if(kind === "active"){
+        var ap = easeOut(Math.min(1, u * 3.4));
+        var off = 14 * (1 - ap);
+        var hasBr = !!(c.branches && c.branches.length);
+        var acH = hasBr ? 240 : (HH + 24);
+        g.globalAlpha = ap;
+        softCard(g, CX0, y - 10 + off, CWD, acH, 30, "#FFFDF8", "rgba(0,0,0,.42)");
+        g.beginPath();
+        g.arc(74, y + 62 + off, 18, 0, Math.PI * 2);
+        g.fillStyle = ACC;
+        g.fill();
+        writeText(g, "600", 17, String(ci + 1), 74, y + 69 + off, "#FFFFFF", "center");
+        writeText(g, "500", 22, String(c.node || ("단계 " + (ci + 1))), CX0 + 32, y + 38 + off, "#6C5AC8", "left");
+
+        if(hasBr){
+          var fl1 = fitLines(g, "600", c.line || "", CWD - 64, 28, 22, 1);
+          if(fl1.lines.length){
+            writeText(g, "600", fl1.size, fl1.lines[0].text, CX0 + 32, y + 78 + off, INK, "left");
+          }
+          /* 가운데 낱말 → 세 갈래 */
+          var hubX = CX0 + 30, hubY = y + 96 + off, hubW = 140, hubH = 44;
+          roundRect(g, hubX, hubY, hubW, hubH, 22);
+          g.fillStyle = ACC;
+          g.fill();
+          writeText(g, "600", 20, String(c.center || "정리"), hubX + hubW / 2, hubY + 28, "#FFFFFF", "center");
+          var bys = [y + 92, y + 136, y + 180];
+          var bIn = easeOut(Math.min(1, Math.max(0, u * 2.2)));
+          var hubCx = hubX + hubW, hubCy = hubY + hubH / 2;
+          for(var bj2 = 0; bj2 < 3; bj2++){
+            if(bj2 >= c.branches.length) break;
+            var ty = bys[bj2] + off;
+            var tx = CX0 + CWD - 232;
+            var px2 = tx, py2 = ty + 17;
+            var k1x = hubCx + 34, k1y = hubCy;
+            var k2x = px2 - 54, k2y = py2;
+            if(bIn > 0.04){
+              g.save();
+              g.strokeStyle = "rgba(108,90,200,.85)";
+              g.lineWidth = 3;
+              g.lineCap = "round";
+              g.beginPath();
+              g.moveTo(hubCx, hubCy);
+              var steps = 26;
+              for(var kk = 1; kk <= steps * bIn; kk++){
+                var tt = kk / steps, mt = 1 - tt;
+                var bx2 = mt * mt * mt * hubCx + 3 * mt * mt * tt * k1x + 3 * mt * tt * tt * k2x + tt * tt * tt * px2;
+                var by2 = mt * mt * mt * hubCy + 3 * mt * mt * tt * k1y + 3 * mt * tt * tt * k2y + tt * tt * tt * py2;
+                g.lineTo(bx2, by2);
+              }
+              g.stroke();
+              g.restore();
+            }
+            if(bIn > 0.55){
+              g.save();
+              g.globalAlpha = ap * Math.min(1, (bIn - 0.55) / 0.45);
+              roundRect(g, tx, ty, 208, 34, 17);
+              g.fillStyle = "rgba(126,111,208,.16)";
+              g.fill();
+              g.strokeStyle = "rgba(108,90,200,.60)";
+              g.lineWidth = 1.5;
+              g.stroke();
+              writeText(g, "600", 19, String(c.branches[bj2]), tx + 104, ty + 23, "#4A3E9E", "center");
+              g.restore();
+            }
+          }
+        } else if(c.check){
+          var fl2 = fitLines(g, "600", c.line || "", CWD - 64, 32, 26, 2);
+          var lh2 = Math.round(fl2.size * 1.34);
+          for(var l2 = 0; l2 < fl2.lines.length; l2++){
+            writeText(g, "600", fl2.size, fl2.lines[l2].text, CX0 + 32, y + 76 + off + l2 * lh2, INK, "left");
+          }
+          var ckY = y + 130 + off;
+          var ckP = easeOut(Math.min(1, Math.max(0, (u - 0.25) * 2.6)));
+          roundRect(g, CX0 + 32, ckY, 44, 44, 12);
+          g.fillStyle = "#F1EEF8";
+          g.fill();
+          g.strokeStyle = "rgba(126,111,208,.55)";
+          g.lineWidth = 2;
+          g.stroke();
+          if(ckP > 0.02){
+            g.save();
+            g.strokeStyle = MINT;
+            g.lineWidth = 5;
+            g.lineCap = "round";
+            g.beginPath();
+            g.moveTo(CX0 + 43, ckY + 24);
+            g.lineTo(CX0 + 52, ckY + 33);
+            g.lineTo(CX0 + 43 + 22 * ckP, ckY + 33 - 17 * ckP);
+            g.stroke();
+            g.restore();
+          }
+          writeText(g, "500", 25, String(c.check), CX0 + 96, ckY + 31, "#3C3656", "left");
+        } else {
+          var fl3 = fitLines(g, "600", c.line || "", CWD - 64, 34, 27, 3);
+          var lh3 = Math.round(fl3.size * 1.36);
+          var vis3 = (fl3.lines.length - 1) * lh3 + fl3.size;
+          var top3 = y + 52 + off + Math.max(0, (144 - vis3) / 2);
+          for(var l3 = 0; l3 < fl3.lines.length; l3++){
+            writeText(g, "600", fl3.size, fl3.lines[l3].text, CX0 + 32, top3 + fl3.size * 0.82 + l3 * lh3, INK, "left");
+          }
+        }
+      } else if(kind === "past"){
+        softCard(g, CX0, y, CWD, HH, 28, "rgba(255,255,255,.10)", null);
+        g.strokeStyle = "rgba(255,255,255,.14)";
+        g.lineWidth = 1.5;
+        roundRect(g, CX0, y, CWD, HH, 28);
+        g.stroke();
+        g.beginPath();
+        g.arc(74, y + 62, 16, 0, Math.PI * 2);
+        g.fillStyle = "rgba(87,185,157,.85)";
+        g.fill();
+        writeText(g, "600", 15, "✓", 74, y + 68, "#0F2B24", "center");
+        writeText(g, "500", 21, String(c.node || ""), CX0 + 30, y + 48, "rgba(255,255,255,.80)", "left");
+        var fp = fitLines(g, "500", c.line || "", CWD - 60, 22, 18, 2);
+        for(var lp = 0; lp < fp.lines.length; lp++){
+          writeText(g, "500", fp.size, fp.lines[lp].text, CX0 + 30, y + 86 + lp * 28, "rgba(255,255,255,.52)", "left");
+        }
+      } else {
+        g.save();
+        g.setLineDash([9, 9]);
+        g.strokeStyle = "rgba(255,255,255,.22)";
+        g.lineWidth = 2;
+        roundRect(g, CX0, y, CWD, HH, 28);
+        g.stroke();
+        g.restore();
+        g.beginPath();
+        g.arc(74, y + 62, 16, 0, Math.PI * 2);
+        g.strokeStyle = "rgba(255,255,255,.28)";
+        g.lineWidth = 2;
+        g.stroke();
+        writeText(g, "500", 21, String(c.node || ""), CX0 + 30, y + 56, "rgba(255,255,255,.42)", "left");
+        writeText(g, "400", 18, "다음 단계", CX0 + 30, y + 90, "rgba(255,255,255,.28)", "left");
+      }
+      g.restore();
+    }
+
+    /* 하단 — 채널 · 컨셉 배지 · 진행 점 */
+    g.save();
+    writeText(g, "500", 20, channelOf(v.plat || plat), 52, 1176, "rgba(255,255,255,.86)", "left");
+    setFont(g, "500", 19);
+    var tag = tplLabelOf(v);
+    var tw = g.measureText(tag).width + 40;
+    pillBadge(g, CW - 52 - tw, 1148, 40, tag, "rgba(255,255,255,.14)", "#FFFFFF", 19);
+    var dotW = 26, dx = (CW - durs.length * dotW) / 2 + dotW / 2;
+    for(var di = 0; di < durs.length; di++){
+      g.beginPath();
+      g.arc(dx + di * dotW, 1222, di === idx ? 6 : 4, 0, Math.PI * 2);
+      g.fillStyle = di === idx ? ACC : (di < idx ? "rgba(255,255,255,.76)" : "rgba(255,255,255,.30)");
+      g.fill();
+    }
+    g.restore();
+  }
+
   function drawVideoFrame(g, v, p, t){
     var durs = cutDurs(v);
+    var kind = tplOf(v);
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(0, 0, CW, CH);
-    if((p || v.plat) === "shorts") drawShortsFrame(g, v, t, durs);
+    if(kind === "talk") drawTalkFrame(g, v, t, durs);
+    else if(kind === "split") drawSplitFrame(g, v, t, durs);
+    else if(kind === "mindmap") drawMindmapFrame(g, v, t, durs);
+    else if((p || v.plat) === "shorts") drawShortsFrame(g, v, t, durs);
     else drawReelsFrame(g, v, t, durs);
   }
 
@@ -5725,22 +6254,26 @@ var AiriaMp4 = (function(){
     if(!g) return;
     if(isImgPost()) return;
     if(c.width !== 1080){ c.width = 1080; c.height = 1920; }
-    g.setTransform(1.5, 0, 0, 1.5, 0, 0);
-    g.clearRect(0, 0, CW, CH);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, 1080, 1920);
     var v = viewOfSel();
     if(v){
       var durs = cutDurs(v);
       var tt = Math.max(0.6, durs[0] * 0.8);
-      if(v.plat === "shorts") drawShortsFrame(g, v, tt, durs);
-      else drawReelsFrame(g, v, tt, durs);
+      /* v1.9 — 렌더러가 캔버스 변환을 스스로 초기화하므로 720×1280 에 먼저 그린 뒤 1.5배로 올린다 */
+      var tmp = document.createElement("canvas");
+      tmp.width = CW; tmp.height = CH;
+      var tg = tmp.getContext("2d");
+      drawVideoFrame(tg, v, v.plat, tt);
+      g.drawImage(tmp, 0, 0, 1080, 1920);
     } else {
       g.fillStyle = "#F6F5F1";
-      g.fillRect(0, 0, CW, CH);
+      g.fillRect(0, 0, 1080, 1920);
       g.fillStyle = "#8A8579";
       setFont(g, "600", 34);
       g.textAlign = "center";
       g.textBaseline = "middle";
-      g.fillText("대본을 고르면 첫 컷이 그려집니다", CW / 2, CH / 2);
+      g.fillText("대본을 고르면 첫 컷이 그려집니다", 540, 960);
     }
     g.setTransform(1, 0, 0, 1, 0, 0);
     var note = $("thumbNote");
@@ -6206,8 +6739,7 @@ var AiriaMp4 = (function(){
       var g = c.getContext("2d");
       var durs = cutDurs(v);
       var t = Math.max(0.6, durs[0] * 0.8);
-      if(v.plat === "shorts") drawShortsFrame(g, v, t, durs);
-      else drawReelsFrame(g, v, t, durs);
+      drawVideoFrame(g, v, v.plat, t);
       var s = document.createElement("canvas");
       s.width = 360; s.height = 640;
       s.getContext("2d").drawImage(c, 0, 0, 360, 640);
@@ -7720,8 +8252,8 @@ var AiriaMp4 = (function(){
   var OTA_VERSION_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/version.json";
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
-  var OTA_APP_VERSION = "1.8.2";
-  var OTA_APP_BUILD = 17;
+  var OTA_APP_VERSION = "1.8.3";
+  var OTA_APP_BUILD = 18;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
