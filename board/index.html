@@ -5365,7 +5365,7 @@
 
     if(sceneOpen >= 0 && sceneOpen < n){
       var cur = sceneKeyFor(v, sceneOpen);
-      var g2 = '<div class="v16-gal-hd"><b>' + (sceneOpen + 1) + "컷 장면</b><span>고른 장면은 이 컷에만 적용돼요</span>";
+      var g2 = '<div class="v16-gal-hd"><b>' + (sceneOpen + 1) + "컷 장면</b><span>고른 장면은 이 컷에만 · 옆으로 넘기면 ‘📷 내 사진’까지</span>";
       if(sceneOverride(v, sceneOpen)) g2 += '<button class="v16-auto" type="button" data-scene-reset="1">↺ 자동으로</button>';
       g2 += '</div><div class="v16-gal-row">';
       for(i = 0; i < SCENE_LIST.length; i++){
