@@ -1089,6 +1089,68 @@
     #panel-shorts.mode-threads .th-out{grid-template-columns:1fr;gap:14px}
     #panel-shorts.mode-threads .th-frame canvas{max-width:100%}
   }
+
+  /* ==========================================================================
+     v1.8 — 📸 인스타 피드 (4번째 플랫폼)
+       · 좁은 화면(≤599px): 2×2 로 접어 이름이 잘리지 않게
+       · 넓은 화면(≥600px): 4개 한 줄
+     ========================================================================== */
+  .plat-seg{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(min-width:600px){ .plat-seg{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .pseg[data-plat="feed"][aria-selected="true"]{background:#1F1B16;border-color:#1F1B16}
+  .pseg[data-plat="feed"][aria-selected="true"] .pseg-sub{color:rgba(255,255,255,.72)}
+  .pchip-feed{background:#F6EFE3;color:#7A5230}
+  @media(max-width:460px){
+    .pseg{padding:11px 11px;gap:2px}
+    .pseg-main{flex-direction:row;align-items:baseline;gap:5px;line-height:1.25}
+    .pseg-ico{font-size:14px}
+    .pseg-txt{font-size:12.5px}
+    .pseg-sub{font-size:10.5px}
+  }
+  @media(max-width:356px){
+    .pseg-sub{display:none}
+    .pseg-txt{font-size:12px}
+  }
+
+  /* ==========================================================================
+     v1.8 — 오늘의 골든타임 바 · 알림 설정
+     ========================================================================== */
+  .gt-host{margin-bottom:14px}
+  .gt-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 2px 8px}
+  .gt-head b{font-size:14px;font-weight:800;color:var(--ink)}
+  .gt-head span{font-size:12px;color:var(--muted)}
+  .gt-rows{display:flex;flex-direction:column;gap:8px}
+  .gt-row{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:10px;
+    padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+  .gt-row.is-now{border-color:#E6C9A6;background:#FFFBF3}
+  .gt-time{font-size:12.5px;font-weight:750;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .gt-now{display:inline-block;margin-left:5px;padding:1px 6px;border-radius:999px;background:#B4633C;color:#fff;font-size:10.5px;font-weight:800;font-style:normal;vertical-align:1px}
+  .gt-topic{font-size:12.5px;color:var(--ink-2);line-height:1.45;min-width:0;word-break:keep-all;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .gt-topic i{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .gt-go{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:999px;
+    padding:8px 13px;font:inherit;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer}
+  .gt-go:active{opacity:.82}
+  @media(max-width:540px){
+    .gt-row{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"plat topic go" "time topic go";row-gap:3px}
+    .gt-row .pchip{grid-area:plat;justify-self:start}
+    .gt-time{grid-area:time}
+    .gt-topic{grid-area:topic;font-size:12px;-webkit-line-clamp:2}
+    .gt-topic i{display:none}
+    .gt-go{grid-area:go;padding:8px 11px}
+  }
+
+  .sw-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;cursor:pointer}
+  .sw-row>span{display:flex;flex-direction:column;gap:3px}
+  .sw-row b{font-size:14.5px;color:var(--ink)}
+  .sw-row i{font-style:normal;font-size:12px;color:var(--muted)}
+  .sw{appearance:none;-webkit-appearance:none;width:52px;height:30px;border-radius:999px;background:#D8D4CC;
+    position:relative;transition:background .18s ease;flex:none;cursor:pointer;border:0}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .18s ease}
+  .sw:checked{background:#1F1B16}
+  .sw:checked::after{transform:translateX(22px)}
+  .sw:disabled{opacity:.45;cursor:default}
+  .ota-status{margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.6}
 </style>
 </head>
 <body class="locked">
@@ -1149,6 +1211,7 @@
 
   <!-- ============ 0. 오늘 요약 ============ -->
   <section class="panel" id="panel-today" role="tabpanel" aria-labelledby="tab-today">
+    <div class="gt-host" id="gtHostToday"></div>
     <div class="today-hero">
       <p class="eyebrow">Today</p>
       <h2>오늘 요약</h2>
@@ -1361,6 +1424,7 @@
 
   <!-- ============ 2. 쇼츠·릴스·스레드 스튜디오 (v1.7 · 3단계) ============ -->
   <section class="panel" id="panel-shorts" role="tabpanel" aria-labelledby="tab-shorts" hidden>
+    <div class="gt-host" id="gtHostShorts"></div>
     <div class="sx-wrap">
 
       <div class="sx-intro">
@@ -1384,6 +1448,9 @@
           </button>
           <button class="pseg" type="button" role="tab" id="pseg-threads" data-plat="threads" aria-selected="false">
             <span class="pseg-main"><i class="pseg-ico" aria-hidden="true">🧵</i><span class="pseg-txt">스레드</span></span><span class="pseg-sub">솔직 · 글</span>
+          </button>
+          <button class="pseg" type="button" role="tab" id="pseg-feed" data-plat="feed" aria-selected="false">
+            <span class="pseg-main"><i class="pseg-ico" aria-hidden="true">📸</i><span class="pseg-txt">인스타 피드</span></span><span class="pseg-sub">저장 · 댓글</span>
           </button>
         </div>
       </section>
@@ -1495,7 +1562,7 @@
       <section class="sx-card" id="stepThread" hidden>
         <div class="sx-head">
           <span class="sx-n">3</span>
-          <h3>이미지 만들고 올리기</h3>
+          <h3 id="thHead">이미지 만들고 올리기</h3>
           <span class="sx-note">이미지 1장 + 글</span>
         </div>
         <p class="sx-pick" id="thSel">글을 먼저 골라 주세요.</p>
@@ -1550,6 +1617,44 @@
   <!-- ============ 8. 데이터 관리 ============ -->
   <section class="panel" id="panel-manage" role="tabpanel" aria-labelledby="tab-manage" hidden>
     <div id="importedBannerWrap"></div>
+
+    <!-- v1.8: 앱 버전 · 자동 업데이트(OTA) -->
+    <div class="block" id="appUpdateBlock">
+      <div class="block-head">
+        <h2>앱 버전 · 자동 업데이트</h2>
+        <p>화면·장면·기능이 바뀌면 앱을 켈 때 새 버전을 받아 조용히 적용합니다. 새 권한이 생겼을 때만 APK를 다시 설치하면 됩니다.</p>
+      </div>
+      <div class="block-body">
+        <dl class="kv">
+          <div><dt>현재 버전</dt><dd id="otaVersion">—</dd></div>
+          <div><dt>설치된 빌드</dt><dd id="otaBuild">—</dd></div>
+          <div><dt>마지막 확인</dt><dd id="otaChecked">—</dd></div>
+        </dl>
+        <div class="btn-row">
+          <button class="btn primary" id="otaCheckBtn" type="button">🔄 지금 업데이트 확인</button>
+          <button class="btn ghost" id="otaClearBtn" type="button" hidden>업데이트 지우고 기본 버전으로</button>
+        </div>
+        <p class="ota-status" id="otaStatus">—</p>
+      </div>
+    </div>
+
+    <!-- v1.8: 골든타임 업로드 알림(소리+팝업) -->
+    <div class="block" id="notifyBlock">
+      <div class="block-head">
+        <h2>골든타임 업로드 알림</h2>
+        <p>업로드가 잘 되는 시간에 소리·진동과 함께 팝업으로 알려드려요. 누르면 그 플랫폼의 추천 콘티가 준비된 화면으로 열립니다.</p>
+      </div>
+      <div class="block-body">
+        <label class="sw-row" for="notifyToggle">
+          <span><b>🔔 골든타임 업로드 알림 (소리+팝업)</b><i>12:30 · 19:00 · 20:30 · 21:00 · 21:30</i></span>
+          <input type="checkbox" id="notifyToggle" class="sw" role="switch">
+        </label>
+        <div class="btn-row">
+          <button class="btn" id="notifyTest" type="button">🔊 지금 알림 테스트</button>
+        </div>
+        <p class="ota-status" id="notifyNote">—</p>
+      </div>
+    </div>
 
     <div class="block">
       <div class="block-head">
@@ -3613,7 +3718,7 @@
   ];
 
 /* ==========================================================================
-   v1.7 — 쇼츠 · 릴스 · 스레드 스튜디오 (3단계: 플랫폼 → 대본·글 → 영상·이미지·업로드)
+   v1.8 — 쇼츠 · 릴스 · 스레드 · 피드 스튜디오 (3단계: 플랫폼 → 대본·글 → 영상·이미지·업로드)
    · 대본은 데이터(shortsIdeas)에서, 영상은 이 화면의 Canvas + MediaRecorder 로만 만든다
    · 자막은 한글 '어절(공백)' 단위로만 줄바꿈한다 (keep-all)
    · v1.6: 컷마다 '실제 장면' 사진이 배경으로 나오고(느린 줌·크로스페이드),
@@ -3626,7 +3731,7 @@
   var shortsBound = false;
   var shortsLast = null;          /* 방금 만든 대본 */
   var sel = null;                 /* { kind:"idea"|"draft", id:"…" } */
-  var plat = "reels";             /* reels | shorts | threads */
+  var plat = "reels";             /* reels | shorts | threads | feed */
   var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0, textKey:"" };
 
   var PLAT = {
@@ -3656,6 +3761,15 @@
       roles: ["첫 줄", "경험", "반전", "여운"],
       upload: { label: "📤 스레드에 바로 올리기 ↗", url: "https://www.threads.com/",
                 copy: "스레드 글을 복사했어요 — 사진과 함께 공유 창이 열립니다" }
+    },
+    feed: {
+      key: "feed", icon: "📸", name: "인스타 피드", short: "피드",
+      tag: "저장 · 댓글",
+      structure: "첫 줄 → 이야기 → 저장 포인트 → 질문",
+      dur: [0, 0, 0, 0],
+      roles: ["첫 줄", "이야기", "저장 포인트", "질문"],
+      upload: { label: "📤 인스타 피드에 바로 올리기 ↗", url: "https://www.instagram.com/",
+                copy: "피드 글을 복사했어요 — 사진과 함께 공유 창이 열립니다" }
     }
   };
 
@@ -3665,7 +3779,7 @@
   function readPlat(){
     try {
       var v = localStorage.getItem(PLAT_KEY);
-      if(v === "shorts" || v === "reels" || v === "threads") plat = v;
+      if(v === "shorts" || v === "reels" || v === "threads" || v === "feed") plat = v;
     } catch(e){}
   }
   function writePlat(p){
@@ -3824,6 +3938,11 @@
       return { label: q.upload.label, url: q.upload.url,
                text: tb + (tags ? NL + NL + tags : ""), msg: q.upload.copy };
     }
+    if(q.key === "feed"){
+      var fb = String(v.body || v.caption || "");
+      return { label: q.upload.label, url: q.upload.url,
+               text: fb + (tags ? NL + NL + tags : ""), msg: q.upload.copy };
+    }
     if(q.key === "shorts"){
       var head = String(v.title || v.topic || "");
       var body = String(v.caption || "");
@@ -3885,24 +4004,32 @@
      ========================================================================== */
   var THREAD_KEY = "arisia949_thread_v1";
   var THREAD_TEXT_KEY = "arisia949_threadtext_v1";
+  var FEED_KEY = "arisia949_feed_v1";
+  var FEED_TEXT_KEY = "arisia949_feedtext_v1";
+  function imgKey(){ return isFeed() ? FEED_KEY : THREAD_KEY; }
+  function imgTextKey(){ return isFeed() ? FEED_TEXT_KEY : THREAD_TEXT_KEY; }
   var TWD = 1080, THT = 1350;
   var TH = { key: "", dataUrl: "" };
 
   function isThreads(){ return plat === "threads"; }
+  function isFeed(){ return plat === "feed"; }
+  /* 스레드·피드 = 영상 대신 '4:5 이미지 1장 + 글'로 올리는 플랫폼 */
+  function isImgPost(){ return plat === "threads" || plat === "feed"; }
+  function imgPostName(){ return isFeed() ? "피드" : "스레드"; }
 
   function readThreadCfg(){
-    try { var o = JSON.parse(localStorage.getItem(THREAD_KEY) || "{}"); return (o && typeof o === "object") ? o : {}; }
+    try { var o = JSON.parse(localStorage.getItem(imgKey()) || "{}"); return (o && typeof o === "object") ? o : {}; }
     catch(e){ return {}; }
   }
   function writeThreadCfg(o){
-    try { localStorage.setItem(THREAD_KEY, JSON.stringify(o)); }
+    try { localStorage.setItem(imgKey(), JSON.stringify(o)); }
     catch(e){ toast("이미지 설정을 저장하지 못했어요 — 내 사진을 조금 작은 걸로 해주세요"); }
   }
   function readThreadTexts(){
-    try { var o = JSON.parse(localStorage.getItem(THREAD_TEXT_KEY) || "{}"); return (o && typeof o === "object") ? o : {}; }
+    try { var o = JSON.parse(localStorage.getItem(imgTextKey()) || "{}"); return (o && typeof o === "object") ? o : {}; }
     catch(e){ return {}; }
   }
-  function writeThreadTexts(o){ try { localStorage.setItem(THREAD_TEXT_KEY, JSON.stringify(o)); } catch(e){} }
+  function writeThreadTexts(o){ try { localStorage.setItem(imgTextKey(), JSON.stringify(o)); } catch(e){} }
 
   function threadSceneDefault(v){
     var s0 = (v && v.image && v.image.scene) ? v.image.scene : "";
@@ -3930,6 +4057,7 @@
     return threadCfg(v);
   }
   function threadBody(v){ return String((v && (v.body || v.caption)) || ""); }
+  function imgPostBody(v){ return threadBody(v); }
   function threadFullText(v){
     var b = threadBody(v).replace(/\s+$/, "");
     var t = ((v && v.hashtags) || []).join(" ");
@@ -3945,7 +4073,7 @@
   }
 
   /* ---------- 이미지 (1080×1350) ---------- */
-  function threadImgName(){ return "몽글노트_스레드_" + stampName() + ".jpg"; }
+  function threadImgName(){ return "몽글노트_" + imgPostName() + "_" + stampName() + ".jpg"; }
 
   function threadImgFor(v, cfg){
     var key = cfg.scene;
@@ -3959,6 +4087,109 @@
     return d ? SC_IMG[d.key] : null;
   }
 
+  /* ---------------------------------------------------------------------------
+     v1.8 — 에디토리얼 매거진 포스터 (1080×1350, 4:5)
+       · 상단 포인트 배지 + 오른쪽으로 붙인 큰 사진(비대칭) + 여백을 살린 큰 헤드라인
+       · 순수 도형·글자만, shadowBlur 0 · 캔버스 원본 크기(1080×1350)에 그려 글자가 안 뭉개진다
+     --------------------------------------------------------------------------- */
+  function drawEditorialPoster(g, v, cfg, im){
+    var W = TWD, H = THT;
+    g.save();
+    g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)"; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
+    g.textAlign = "left"; g.textBaseline = "alphabetic";
+
+    /* 종이 배경 */
+    var bg = g.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, "#FBF7F0"); bg.addColorStop(.55, "#F6F0E6"); bg.addColorStop(1, "#EFE6D6");
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.strokeStyle = "rgba(23,19,16,.12)"; g.lineWidth = 2;
+    g.strokeRect(44, 44, W - 88, H - 88);
+
+    /* 상단 포인트 배지 */
+    setFont(g, "800", 25);
+    var badge = "MONGLE NOTE";
+    var bw = g.measureText(badge).width + 46;
+    g.fillStyle = "#1F1A15";
+    roundRect(g, 96, 92, bw, 54, 27);
+    g.fill();
+    g.fillStyle = "#FBF7F0";
+    g.fillText(badge, 119, 127);
+
+    /* 작은 인덱스 · 플랫폼 */
+    setFont(g, "700", 25);
+    g.fillStyle = "rgba(23,19,16,.46)";
+    var no = String(v.id || "").replace(/[^0-9]/g, "");
+    g.fillText((no ? "NO." + no + "  ·  " : "") + (isFeed() ? "인스타 피드" : "스레드"), 96, 196);
+
+    /* 글 배치를 먼저 계산하고, 사진 높이를 글에 맞춘다 (매거진 조판) */
+    var lineTxt = String(cfg.line || "").trim() || String((v.image && v.image.card) || "");
+    var hook = String((v && v.hook) || "").replace(/\s+/g, " ").trim();
+    var sub = hook ? (hook.length > 46 ? hook.slice(0, 45) + "…" : hook) : "";
+    var fit = lineTxt ? fitLines(g, "800", lineTxt, 888, 84, 54, 2) : null;
+    var sf = sub ? fitLines(g, "600", sub, 888, 31, 24, 2) : null;
+    var subLast = 1196;
+    var ssStep = sf ? Math.round(sf.size * 1.42) : 0;
+    var subFirst = sf ? subLast - (sf.lines.length - 1) * ssStep : subLast;
+    var headLast = sf ? (subFirst - sf.size - 40) : (subLast - 12);
+    var hStep = fit ? Math.round(fit.size * 1.24) : 0;
+    var headFirst = fit ? (headLast - (fit.lines.length - 1) * hStep) : headLast;
+    var ruleY = headFirst - (fit ? fit.size : 40) - 26;
+
+    /* 사진 — 오른쪽으로 붙인 비대칭 블록 (아래는 글 위에서 끝난다) */
+    var px = 352, py = 132, pw = W - px - 92;
+    var pbot = Math.max(py + 520, ruleY - 48);
+    var ph = pbot - py;
+    if(im && im.complete && im.naturalWidth){
+      g.save();
+      g.beginPath();
+      roundRect(g, px, py, pw, ph, 10);
+      g.clip();
+      var s = Math.max(pw / im.width, ph / im.height);
+      var dw = im.width * s, dh = im.height * s;
+      g.drawImage(im, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh);
+      var fade = g.createLinearGradient(0, py + ph - 190, 0, py + ph);
+      fade.addColorStop(0, "rgba(248,243,233,0)");
+      fade.addColorStop(1, "rgba(248,243,233,.92)");
+      g.fillStyle = fade;
+      g.fillRect(px, py + ph - 190, pw, 190);
+      g.restore();
+    } else {
+      g.fillStyle = "#E8DDCB";
+      g.fillRect(px, py, pw, ph);
+    }
+
+    /* 포인트 룰 · 헤드라인 · 서브라인 */
+    g.fillStyle = "#B4633C";
+    g.fillRect(96, ruleY, 56, 6);
+
+    if(fit){
+      for(var i = 0; i < fit.lines.length; i++){
+        setFont(g, "800", fit.size);
+        g.fillStyle = "#171310";
+        boldFill(g, fit.lines[i].text, 96, headFirst + i * hStep, fit.size);
+      }
+    }
+    if(sf){
+      g.fillStyle = "#5D5548";
+      for(var j = 0; j < sf.lines.length; j++){
+        setFont(g, "600", sf.size);
+        g.fillText(sf.lines[j].text, 96, subFirst + j * ssStep);
+      }
+    }
+
+    /* 하단 미니 시그니처 */
+    g.fillStyle = "rgba(23,19,16,.16)";
+    g.fillRect(96, 1238, 888, 2);
+    setFont(g, "700", 27);
+    g.fillStyle = "#171310";
+    g.fillText("@arisia949", 96, 1292);
+    g.textAlign = "right";
+    setFont(g, "600", 24);
+    g.fillStyle = "rgba(23,19,16,.44)";
+    g.fillText("하루를 한 줄로", 984, 1292);
+    g.restore();
+  }
+
   function drawThreadImage(){
     var c = $("thCanvas");
     if(!c) return;
@@ -3966,6 +4197,7 @@
     if(!g) return;
     if(c.width !== TWD){ c.width = TWD; c.height = THT; }
     g.setTransform(1, 0, 0, 1, 0, 0);
+    g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)";
     g.clearRect(0, 0, TWD, THT);
     var v = viewOfSel();
     if(!v){
@@ -3980,55 +4212,19 @@
     }
     var cfg = threadCfg(v);
     var im = threadImgFor(v, cfg);
-    var ready = !!(im && im.complete && im.naturalWidth);
-    if(ready){
-      /* 배경: 같은 사진을 크게 흐리게 깔아 4:5 여백을 채운다 */
-      var sc = Math.max(TWD / im.width, THT / im.height);
-      var bw = im.width * sc, bh = im.height * sc;
-      g.save();
-      try { g.filter = "blur(26px) brightness(.94)"; } catch(e){}
-      g.drawImage(im, (TWD - bw) / 2, (THT - bh) / 2, bw, bh);
-      g.restore();
-      /* 원본 비율 그대로 가운데 */
-      var s2 = Math.min(TWD / im.width, THT / im.height);
-      var w2 = im.width * s2, h2 = im.height * s2;
-      g.drawImage(im, (TWD - w2) / 2, (THT - h2) / 2, w2, h2);
-    } else {
-      var gr = g.createLinearGradient(0, 0, TWD, THT);
-      gr.addColorStop(0, "#F7EFE6"); gr.addColorStop(0.55, "#EFE7F6"); gr.addColorStop(1, "#E4DCF2");
-      g.fillStyle = gr; g.fillRect(0, 0, TWD, THT);
-    }
-
     if(cfg.mode === "card"){
-      var ch = 430, cy = THT - ch;
-      g.save();
-      g.fillStyle = "#FCF9F3";
-      roundRect(g, 0, cy, TWD, ch + 60, 44);
-      g.fill();
-      g.fillStyle = "rgba(255,255,255,.72)";
-      roundRect(g, 0, cy, TWD, 3, 2);
-      g.fill();
-      var lineTxt = String(cfg.line || "").trim() || String((v.image && v.image.card) || "");
-      if(lineTxt){
-        var fit = fitLines(g, "700", lineTxt, TWD - 168, 62, 44, 3);
-        var stepH = Math.round(fit.size * 1.5);
-        var y0 = cy + 120;
-        g.fillStyle = "#1F1B16";
-        g.textAlign = "left";
-        g.textBaseline = "alphabetic";
-        for(var i = 0; i < fit.lines.length; i++){
-          setFont(g, "700", fit.size);
-          g.fillText(fit.lines[i].text, 84, y0 + i * stepH);
-        }
-      }
-      setFont(g, "600", 26);
-      g.fillStyle = "rgba(60,50,40,.55)";
-      g.textAlign = "left";
-      g.textBaseline = "alphabetic";
-      g.fillText("@arisia949", 84, THT - 74);
-      g.restore();
+      drawEditorialPoster(g, v, cfg, im);       /* v1.8 — 뻔한 박스 대신 매거진 포스터 */
     } else {
-      /* 깔끔한 원본 장면: 아주 옅은 비네팅만 */
+      /* 깔끔한 원본 장면: 사진으로 4:5를 꽉 채우고 옅은 비네팅만 */
+      if(im && im.complete && im.naturalWidth){
+        var sc = Math.max(TWD / im.width, THT / im.height);
+        var bw = im.width * sc, bh = im.height * sc;
+        g.drawImage(im, (TWD - bw) / 2, (THT - bh) / 2, bw, bh);
+      } else {
+        var gr = g.createLinearGradient(0, 0, TWD, THT);
+        gr.addColorStop(0, "#F7EFE6"); gr.addColorStop(.55, "#EFE7F6"); gr.addColorStop(1, "#E4DCF2");
+        g.fillStyle = gr; g.fillRect(0, 0, TWD, THT);
+      }
       var vg = g.createRadialGradient(TWD * 0.5, THT * 0.46, THT * 0.24, TWD * 0.5, THT * 0.46, THT * 0.78);
       vg.addColorStop(0, "rgba(0,0,0,0)");
       vg.addColorStop(1, "rgba(0,0,0,.14)");
@@ -4040,19 +4236,34 @@
 
   /* ---------- 화면: 스레드 3단계 ---------- */
   function syncStepCards(){
-    var th = isThreads();
+    var img = isImgPost();
     var pn = $("panel-shorts");
-    if(pn) pn.classList.toggle("mode-threads", th);
+    if(pn) pn.classList.toggle("mode-threads", img);
     var vd = $("stepVideo"), tc = $("stepThread");
-    if(vd) vd.hidden = th;
-    if(tc) tc.hidden = !th;
+    if(vd) vd.hidden = img;
+    if(tc) tc.hidden = !img;
     var sh = $("scriptHead"), pl = $("pickLabel"), hs = $("videoHead");
-    if(sh) sh.textContent = th ? "글" : "대본";
-    if(pl) pl.textContent = th ? "글 선택" : "대본 선택";
-    if(hs) hs.textContent = th ? "이미지 만들고 올리기" : "영상 만들고 올리기";
+    if(sh) sh.textContent = img ? "글" : "대본";
+    if(pl) pl.textContent = img ? "글 선택" : "대본 선택";
+    if(hs) hs.textContent = img ? (isFeed() ? "이미지 만들고 피드 올리기" : "이미지 만들고 올리기") : "영상 만들고 올리기";
     var tf = $("thumbFold"), gf = $("genFold");
-    if(tf) tf.hidden = th;
-    if(gf) gf.hidden = th;
+    if(tf) tf.hidden = img;
+    if(gf) gf.hidden = img;
+    /* 3단계 머리말·버튼도 플랫폼에 맞춘다 */
+    var head = $("thHead");
+    if(head) head.textContent = isFeed() ? "이미지 만들고 피드 올리기" : "이미지 만들고 올리기";
+    var note = $("thNote");
+    if(note) note.textContent = isFeed() ? "피드 글만" : "스레드 글만";
+    var ta = $("thText");
+    if(ta) ta.setAttribute("aria-label", "올라갈 " + imgPostName() + " 글 — 고쳐도 됩니다");
+    var cv = $("thCanvas");
+    if(cv) cv.setAttribute("aria-label", imgPostName() + "에 올릴 4:5 이미지 미리보기");
+    var up = $("thUpload");
+    if(up) up.textContent = isFeed() ? "📤 인스타 피드에 바로 올리기" : "📤 스레드에 바로 올리기";
+    var hint = $("thHint");
+    if(hint) hint.textContent = isFeed()
+      ? "‘인스타 피드에 바로 올리기’를 누르면 사진과 글이 함께 공유 창으로 넘어가요. 인스타를 고르면 사진이 붙은 새 게시물 화면이 열립니다."
+      : "‘스레드에 바로 올리기’를 누르면 사진과 글이 함께 공유 창으로 넘어가요. 스레드를 고르면 사진이 붙은 글쓰기 화면이 열립니다.";
   }
 
   function renderThreadScenes(){
@@ -4073,12 +4284,18 @@
     row.innerHTML = html;
   }
 
+  /* 글꼴이 늦게 준비되면 한 번 더 그려 글자가 흐릿하게 남지 않게 한다 */
+  if(document.fonts && document.fonts.ready && !window.__thFontHooked){
+    window.__thFontHooked = true;
+    document.fonts.ready.then(function(){ try { if(isImgPost()) drawThreadImage(); } catch(e){} });
+  }
+
   function renderThreadAll(){
     var v = viewOfSel();
     var selEl = $("thSel");
     if(selEl){
       selEl.innerHTML = v
-        ? ("<b>" + esc(v.title) + "</b> · 이미지 1장(1080×1350) + 글 1편")
+        ? ("<b>" + esc(v.title) + "</b> · 이미지 1장(1080×1350) + " + (isFeed() ? "피드 글" : "글 1편"))
         : "글을 먼저 골라 주세요.";
     }
     var mode = $("thCardMode"), line = $("thLine"), wrap = $("thLineWrap");
@@ -4088,7 +4305,7 @@
     if(wrap) wrap.hidden = (cfg.mode !== "card");
     var ta = $("thText");
     if(ta){
-      var key = v ? String(v.id) : "";
+      var key = v ? (plat + "|" + String(v.id)) : "";
       if(TH.key !== key){ ta.value = v ? (threadSavedText(v) || threadFullText(v)) : ""; TH.key = key; }
       threadCount();
     }
@@ -4100,8 +4317,9 @@
     var ta = $("thText"), cnt = $("thChars");
     if(!ta || !cnt) return;
     var n = String(ta.value || "").length;
-    cnt.textContent = n + "자" + (n > 500 ? " · 500자를 넘으면 잘려요" : "");
-    cnt.style.color = n > 500 ? "#B8432E" : "";
+    var max = isFeed() ? 2200 : 500;
+    cnt.textContent = n + "자" + (n > max ? " · " + num(max) + "자를 넘으면 잘려요" : "");
+    cnt.style.color = n > max ? "#B8432E" : "";
   }
   function threadSaveText(){
     var v = viewOfSel();
@@ -4249,7 +4467,7 @@
     if(webShareImage(text, du)) return;
     copyText(text, "스레드 글을 복사했어요 — 이미지도 저장해 두었습니다");
     try { saveThreadImage(); } catch(e){}
-    openOut("https://www.threads.com/");
+    openOut(P(plat).upload.url);
   }
 
   function renderScriptThread(box, v){
@@ -4267,7 +4485,7 @@
       (card ? '<p class="th-cardline"><b>카드 한 줄</b>' + esc(card) + "</p>" : "") +
       ((v.hashtags || []).length ? '<div class="sv-tags">' + v.hashtags.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
       '<div class="sv-actions">' +
-        '<button class="btn" type="button" data-copy="1">스레드 글 복사</button>' +
+        '<button class="btn" type="button" data-copy="1">' + (isFeed() ? "피드 글 복사" : "스레드 글 복사") + '</button>' +
         '<button class="btn primary" type="button" data-to-thread="1">📷 이 글로 이미지 만들기</button>' +
       "</div>";
   }
@@ -4319,10 +4537,10 @@
     var v = viewOfSel();
     if(!v){
       box.innerHTML = "";
-      if(isThreads()) renderThreadAll(); else renderSceneBar();
+      if(isImgPost()) renderThreadAll(); else renderSceneBar();
       return;
     }
-    if((v.plat || plat) === "threads"){
+    if((v.plat || plat) === "threads" || (v.plat || plat) === "feed"){
       renderScriptThread(box, v);
       renderSceneBar();
       renderThreadAll();
@@ -4348,7 +4566,7 @@
   function updateStep3(){
     var v = viewOfSel();
     syncStepCards();
-    if(isThreads()){ renderThreadAll(); return; }
+    if(isImgPost()){ renderThreadAll(); return; }
     var pick = $("vidSel"), go = $("vidGo"), up = $("vidUpload"), meta = $("vidMeta");
     var q = curP();
     if(pick){
@@ -4382,14 +4600,15 @@
     var note = $("platNote");
     if(note) note.textContent = q.tag;
     var cnt = $("shortsCount");
-    if(cnt) cnt.textContent = num(shortsIdeaList().length) + (isThreads() ? "편 글" : "개 대본");
+    if(cnt) cnt.textContent = num(shortsIdeaList().length) + (isImgPost() ? "편 글" : "개 대본");
     syncStepCards();
     updateStep3();
+    if(typeof renderGolden === "function") renderGolden();
   }
 
   function setPlat(p){
     if(VIDEO.busy) return;
-    if(p !== "shorts" && p !== "threads") p = "reels";
+    if(p !== "shorts" && p !== "threads" && p !== "feed") p = "reels";
     if(p !== plat){
       plat = p;
       writePlat(p);
@@ -4408,7 +4627,7 @@
       renderScript();
       fillPicks();
       drawThumb();
-      if(isThreads()) renderThreadAll();
+      if(isImgPost()) renderThreadAll();
       toast(P(p).name + " 모드로 바꿨습니다");
     } else {
       renderPlatform();
@@ -4426,7 +4645,7 @@
     renderScript();
     updateStep3();
     drawThumb();
-    if(isThreads()) renderThreadAll();
+    if(isImgPost()) renderThreadAll();
     if(!quiet){
       var el = $("scriptView");
       if(el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -4658,7 +4877,7 @@
       (function(s){
         if(SC_IMG[s.key]) return;
         var im = new Image();
-        im.onload = function(){ try { if($("thumbCanvas")) drawThumb(); if(isThreads()) drawThreadImage(); } catch(e){} };
+        im.onload = function(){ try { if($("thumbCanvas")) drawThumb(); if(isImgPost()) drawThreadImage(); } catch(e){} };
         im.src = s.src;
         SC_IMG[s.key] = im;
       })(SCENE_LIST[i]);
@@ -5074,7 +5293,7 @@
     if(!c) return;
     var g = c.getContext("2d");
     if(!g) return;
-    if(isThreads()) return;
+    if(isImgPost()) return;
     if(c.width !== 1080){ c.width = 1080; c.height = 1920; }
     g.setTransform(1.5, 0, 0, 1.5, 0, 0);
     g.clearRect(0, 0, CW, CH);
@@ -5480,7 +5699,7 @@
 
   function makeVideo(){
     if(VIDEO.busy) return;
-    if(isThreads()){ toast("스레드는 영상 대신 이미지 1장으로 올려요"); return; }
+    if(isImgPost()){ toast(imgPostName() + "는 영상 대신 이미지 1장으로 올려요"); return; }
     var v = viewOfSel();
     if(!v){ toast("먼저 대본을 골라 주세요"); return; }
     var p = v.plat || plat;
@@ -5939,7 +6158,7 @@
     var bar = $("sceneBar"), row = $("sceneRow"), gal = $("sceneGal");
     if(!bar || !row) return;
     var v = viewOfSel();
-    if(isThreads()){ bar.hidden = true; return; }
+    if(isImgPost()){ bar.hidden = true; return; }
     if(!v){ bar.hidden = true; return; }
     bar.hidden = false;
     var n = cutDurs(v).length;
@@ -6085,7 +6304,7 @@
       if(t.id === "shareCopy"){ copyText(shareTextNow(), "올라갈 글만 복사했어요 — 대본은 들어가지 않습니다"); return; }
       if(t.id === "vidAgain"){ makeVideo(); return; }
       if(t.getAttribute("data-copy")){
-        if(isThreads()) copyText(threadFullText(viewOfSel()), "스레드 글을 복사했어요");
+        if(isImgPost()) copyText(threadFullText(viewOfSel()), imgPostName() + " 글을 복사했어요");
         else copyText(scriptOf(viewOfSel()), "대본을 복사했습니다");
         return;
       }
@@ -6165,7 +6384,362 @@
     renderPlatform();
     drawThumb();
     updateStep3();
-    if(isThreads()) renderThreadAll();
+    if(isImgPost()) renderThreadAll();
+  }
+
+/* ==========================================================================
+   v1.8 — 오늘의 골든타임 바 (오늘 요약 · 쇼츠·릴스 상단)
+     · 유입이 많은 시간대 + 오늘 추천 콘티 1줄 + [바로 올리기 →]
+     · 누르면 그 플랫폼·추천 콘티가 선택된 상태로 업로드 준비(3단계)로 이동
+     · 알림(골든타임 팝업)을 누르고 들어와도 같은 곳으로 이동한다
+   ========================================================================== */
+  var GOLDEN = [
+    { plat: "threads", time: "12:30 · 21:30", slots: ["12:30", "21:30"], idea: "s04",
+      note: "점심엔 짧은 글 · 밤엔 감정선" },
+    { plat: "feed", time: "19:00", slots: ["19:00"], idea: "s07",
+      note: "저장·댓글을 부르는 피드 글" },
+    { plat: "reels", time: "20:30", slots: ["20:30"], idea: "s01",
+      note: "첫 3초 공감 훅" },
+    { plat: "shorts", time: "21:00", slots: ["21:00"], idea: "s06",
+      note: "결론 훅 15초" }
+  ];
+
+  function goldenIdea(ideaId){
+    var list = [];
+    try { list = shortsIdeaList(); } catch(e){ return null; }
+    var i;
+    for(i = 0; i < list.length; i++){ if(list[i] && list[i].id === ideaId) return list[i]; }
+    return list.length ? list[0] : null;
+  }
+
+  /* 지금이 어느 골든타임 안(±45분)인지 */
+  function goldenNow(platKey){
+    var d = new Date();
+    var cur = d.getHours() * 60 + d.getMinutes();
+    var g = null, i, k;
+    for(i = 0; i < GOLDEN.length; i++){ if(GOLDEN[i].plat === platKey){ g = GOLDEN[i]; break; } }
+    if(!g) return false;
+    for(k = 0; k < g.slots.length; k++){
+      var p = g.slots[k].split(":");
+      var m = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+      if(cur >= m && cur <= m + 45) return true;
+    }
+    return false;
+  }
+
+  function goldenPick(platKey){
+    var i;
+    for(i = 0; i < GOLDEN.length; i++){ if(GOLDEN[i].plat === platKey) return GOLDEN[i]; }
+    return null;
+  }
+
+  function renderGolden(){
+    var hosts = document.querySelectorAll(".gt-host");
+    if(!hosts.length) return;
+    if(typeof DATA === "undefined" || !DATA) return;   /* 데이터가 아직 없으면 그리지 않는다 */
+    var html = '<div class="gt-head">' +
+      '<b>오늘의 골든타임</b><span>유입 많은 시간 · 누르면 바로 업로드 준비</span></div>' +
+      '<div class="gt-rows">';
+    GOLDEN.forEach(function(g){
+      var p = P(g.plat);
+      var idea = goldenIdea(g.idea);
+      var line = idea ? String(idea.title || "") : "";
+      var now = goldenNow(g.plat);
+      html += '<div class="gt-row' + (now ? " is-now" : "") + '" data-gt-plat="' + esc(g.plat) +
+        '" data-gt-idea="' + esc(g.idea) + '">' +
+        '<span class="pchip pchip-' + p.key + '">' + p.icon + " " + esc(p.short) + "</span>" +
+        '<span class="gt-time">' + esc(g.time) + (now ? '<i class="gt-now">지금</i>' : "") + "</span>" +
+        '<span class="gt-topic">' + esc(line) + "<i>" + esc(g.note) + "</i></span>" +
+        '<button class="gt-go" type="button" data-gt-go="1">바로 올리기 →</button>' +
+        "</div>";
+    });
+    html += "</div>";
+    Array.prototype.forEach.call(hosts, function(h){ h.innerHTML = html; });
+  }
+
+  /* 플랫폼 + 추천 콘티를 고르고 3단계(업로드 준비)로 이동 */
+  function goldenGo(platKey, ideaId, quiet){
+    if(platKey !== "threads" && platKey !== "feed" && platKey !== "reels" && platKey !== "shorts") return;
+    var g = goldenPick(platKey);
+    var id = ideaId || (g ? g.idea : "");
+    try {
+      if(typeof setTab === "function") setTab("shorts");
+      if(typeof setPlat === "function") setPlat(platKey);
+      if(id && typeof findIdea === "function" && findIdea(id) && typeof selectScript === "function"){
+        selectScript("idea", id, true);
+      }
+      setTimeout(function(){
+        var card = (platKey === "threads" || platKey === "feed") ? $("stepThread") : $("stepVideo");
+        if(card && card.scrollIntoView) card.scrollIntoView({ behavior: "smooth", block: "start" });
+        var btn = (platKey === "threads" || platKey === "feed") ? $("thUpload") : $("vidUpload");
+        try { if(btn && btn.focus) btn.focus({ preventScroll: true }); } catch(e){}
+        if(!quiet) toast(P(platKey).name + " · 오늘 추천 콘티로 준비했어요");
+      }, 240);
+    } catch(e){}
+  }
+
+  /* 알림(팝업)을 눌러 들어오면 앱이 이 함수를 부른다 */
+  window.AiriaGoldenOpen = function(platKey){
+    setTimeout(function(){ goldenGo(platKey, "", true); }, 350);
+  };
+
+  document.addEventListener("click", function(ev){
+    var t = ev.target;
+    if(!t || !t.closest) return;
+    var b = t.closest("[data-gt-go]");
+    if(!b) return;
+    var row = b.closest(".gt-row");
+    if(!row) return;
+    ev.preventDefault();
+    goldenGo(row.getAttribute("data-gt-plat"), row.getAttribute("data-gt-idea"));
+  });
+
+  function goldenBoot(){
+    renderGolden();
+    setTimeout(renderGolden, 400);
+    setTimeout(renderGolden, 1500);
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", goldenBoot);
+  else goldenBoot();
+
+/* ==========================================================================
+   v1.8 — 앱 자동 업데이트(OTA) + 골든타임 알림 설정 (⚙️ 관리 탭)
+     · 켤 때 조용히 version.json(5초 타임아웃)을 보고, 새 빌드면
+       app.enc.json(PIN 099900 · AES-256-GCM)을 받아 복호화 → SHA-256 검증 →
+       AiriaOTA 로 저장·교체 → 토스트 후 자동 리로드
+     · 오프라인·손상 파일이면 아무 팝업 없이 지금 화면 그대로 쓴다 (벽돌 방지)
+   ========================================================================== */
+  var OTA_VERSION_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/version.json";
+  var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
+  var OTA_PIN = "099900";
+  var OTA_APP_VERSION = "1.8.0";
+  var OTA_APP_BUILD = 10;
+  var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
+  var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
+  var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
+  var otaBusy = false;
+  var otaAt = 0;
+
+  function otaNative(){ try { return window.AiriaOTA || null; } catch(e){ return null; } }
+  function otaEl(id){ return document.getElementById(id); }
+
+  function otaInfo(){
+    var n = otaNative();
+    if(n && n.getOtaInfo){
+      try { var o = JSON.parse(String(n.getOtaInfo())); if(o && typeof o === "object") return o; } catch(e){}
+    }
+    return { baseBuild: OTA_APP_BUILD, build: OTA_APP_BUILD, version: OTA_APP_VERSION, ota: false };
+  }
+
+  function otaInstalledBuild(){
+    var n = otaNative();
+    if(n && n.getInstalledBuild){ try { return parseInt(n.getInstalledBuild(), 10) || OTA_APP_BUILD; } catch(e){} }
+    return OTA_APP_BUILD;
+  }
+
+  function otaSetStatus(msg){
+    var el = otaEl("otaStatus");
+    if(el) el.textContent = msg || "";
+  }
+
+  function otaPaint(remote){
+    var o = otaInfo();
+    var ver = otaEl("otaVersion"), bd = otaEl("otaBuild"), ck = otaEl("otaChecked"), cl = otaEl("otaClearBtn");
+    if(ver) ver.textContent = "v" + String(o.version || OTA_APP_VERSION) + (o.ota ? " · 자동 업데이트 적용됨" : "");
+    if(bd) bd.textContent = "빌드 " + String(o.build || OTA_APP_BUILD) + " (앱 기본 " + String(o.baseBuild || OTA_APP_BUILD) + ")" +
+      (remote && remote > (o.build || 0) ? " · 새 빌드 " + remote + " 있음" : "");
+    if(ck) ck.textContent = otaAt ? new Date(otaAt).toLocaleString("ko-KR", { hour12: false }) : "—";
+    if(cl){
+      var showClear = Number(o.build || 0) > Number(o.baseBuild || 0);
+      cl.hidden = !showClear;
+      cl.style.display = showClear ? "" : "none";   /* .btn 의 display 를 확실히 덮는다 */
+    }
+  }
+
+  function otaFetchText(url, ms){
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = null;
+    if(ctl) timer = setTimeout(function(){ try { ctl.abort(); } catch(e){} }, ms);
+    return fetch(url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now(), {
+        cache: "no-store", mode: "cors", credentials: "omit",
+        signal: ctl ? ctl.signal : undefined
+      })
+      .then(function(r){
+        if(timer) clearTimeout(timer);
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      });
+  }
+
+  function otaB64ToBytes(b64){
+    var s = atob(String(b64 || ""));
+    var a = new Uint8Array(s.length);
+    for(var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    return a;
+  }
+
+  function otaBytesToB64(u8){
+    var out = "", STEP = 8192;
+    for(var i = 0; i < u8.length; i += STEP){
+      out += String.fromCharCode.apply(null, u8.subarray(i, Math.min(u8.length, i + STEP)));
+    }
+    return btoa(out);
+  }
+
+  function otaHex(buf){
+    var b = new Uint8Array(buf), s = "";
+    for(var i = 0; i < b.length; i++) s += (b[i] < 16 ? "0" : "") + b[i].toString(16);
+    return s;
+  }
+
+  /* PIN → PBKDF2-SHA256(60만 회) → AES-256-GCM */
+  function otaDecrypt(env){
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey("raw", enc.encode(OTA_PIN), { name: "PBKDF2" }, false, ["deriveKey"])
+      .then(function(base){
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: otaB64ToBytes(env.salt), iterations: env.iter || 600000, hash: "SHA-256" },
+          base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+      })
+      .then(function(key){
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: otaB64ToBytes(env.iv) }, key, otaB64ToBytes(env.ct));
+      });
+  }
+
+  function otaApply(ver, bodyText){
+    var env;
+    try { env = JSON.parse(bodyText); } catch(e){ throw new Error("본문 형식 오류"); }
+    if(!env || !env.ct || !env.iv || !env.salt) throw new Error("암호문 형식 오류");
+    return otaDecrypt(env).then(function(buf){
+      var want = String(ver.sha256 || "").toLowerCase();
+      var bytes = new Uint8Array(buf);
+      if(bytes.length < 100000) throw new Error("본문이 너무 작습니다");
+      var head = new TextDecoder().decode(bytes.subarray(0, 1024));
+      if(head.indexOf("<!DOCTYPE html") < 0 && head.indexOf("<html") < 0) throw new Error("HTML이 아닙니다");
+      return crypto.subtle.digest("SHA-256", buf).then(function(d){
+        var got = otaHex(d);
+        if(!want || want !== got) throw new Error("SHA-256 불일치 (" + got.slice(0, 12) + "…)");
+        var n = otaNative();
+        if(!n || !n.saveOtaChunk) throw new Error("저장 통로 없음");
+        for(var off = 0; off < bytes.length; off += OTA_CHUNK){
+          var part = otaBytesToB64(bytes.subarray(off, Math.min(bytes.length, off + OTA_CHUNK)));
+          var ok = false;
+          try { ok = !!n.saveOtaChunk(part, off === 0); } catch(e){ ok = false; }
+          if(!ok) throw new Error("저장 실패");
+        }
+        var build = parseInt(ver.build, 10) || 0;
+        var done = false;
+        try { done = !!n.commitOtaUpdate(got, build); } catch(e){ done = false; }
+        if(!done) throw new Error("교체 실패 — 기존 버전 유지");
+        return build;
+      });
+    });
+  }
+
+  function checkOta(manual){
+    var n = otaNative();
+    if(!n){
+      if(manual) otaSetStatus("이 화면(웹)에서는 앱 자동 업데이트를 적용할 수 없어요. 앱에서 확인해 주세요.");
+      return;
+    }
+    if(otaBusy) return;
+    if(!(window.crypto && window.crypto.subtle)){
+      if(manual) otaSetStatus("이 기기에서는 암호 해독을 지원하지 않아 자동 업데이트를 쓸 수 없어요.");
+      return;
+    }
+    otaBusy = true;
+    var btn = otaEl("otaCheckBtn");
+    if(btn) btn.disabled = true;
+    otaSetStatus("업데이트 확인 중…");
+    otaFetchText(OTA_VERSION_URL, OTA_TIMEOUT)
+      .then(function(txt){
+        var ver = JSON.parse(txt);
+        var remote = parseInt(ver.build, 10) || 0;
+        var inst = otaInstalledBuild();
+        otaAt = Date.now();
+        otaPaint(remote);
+        if(remote <= inst){
+          otaSetStatus(manual ? "이미 최신 버전입니다 · v" + (ver.version || OTA_APP_VERSION) + " (빌드 " + inst + ")" : "");
+          return null;
+        }
+        otaSetStatus("새 버전 v" + (ver.version || "") + " 내려받는 중…");
+        return otaFetchText(OTA_BODY_URL, OTA_BODY_TIMEOUT).then(function(body){
+          return otaApply(ver, body).then(function(build){
+            otaSetStatus("새 버전 v" + (ver.version || "") + " 적용 완료 — 다시 불러옵니다");
+            try { toast("새 버전(v" + (ver.version || "") + ")이 적용되었습니다"); } catch(e){}
+            setTimeout(function(){
+              try { if(n && n.reload) n.reload(); else location.reload(); } catch(e){}
+            }, 1100);
+            return build;
+          });
+        });
+      })
+      .catch(function(err){
+        console.warn("자동 업데이트 건너뜀:", err && err.message ? err.message : err);
+        otaSetStatus(manual ? "지금은 업데이트를 확인할 수 없어요 — 지금 화면 그대로 사용합니다" : "");
+      })
+      .then(function(){
+        otaBusy = false;
+        if(btn) btn.disabled = false;
+      });
+  }
+
+  function initOta(){
+    var n = otaNative();
+    otaPaint(0);
+    var btn = otaEl("otaCheckBtn");
+    if(btn) btn.addEventListener("click", function(){ checkOta(true); });
+    var cl = otaEl("otaClearBtn");
+    if(cl) cl.addEventListener("click", function(){
+      if(!confirm("자동 업데이트로 받은 화면을 지우고 앱에 들어 있는 기본 버전으로 돌아갈까요?")) return;
+      try { if(n && n.clearOta) n.clearOta(); } catch(e){}
+      try { toast("기본 버전으로 되돌릴게요 — 다시 불러옵니다"); } catch(e){}
+      setTimeout(function(){ try { if(n && n.reload) n.reload(); else location.reload(); } catch(e){} }, 700);
+    });
+    if(!n){ otaSetStatus("앱(APK)에서 열면 새 버전이 자동으로 적용됩니다."); return; }
+    setTimeout(function(){ checkOta(false); }, 1600);
+  }
+
+  /* ---------- 골든타임 알림 (앱 전용) ---------- */
+  function initNotify(){
+    var tg = otaEl("notifyToggle"), btn = otaEl("notifyTest"), note = otaEl("notifyNote");
+    if(!tg) return;
+    var n = null;
+    try { n = window.AiriaNotify || null; } catch(e){ n = null; }
+    var on = false;
+    if(n && n.isEnabled){ try { on = !!n.isEnabled(); } catch(e){ on = false; } }
+    tg.checked = on;
+    if(!n){
+      tg.disabled = true;
+      if(note) note.textContent = "앱(APK)에서 알림을 켜고 끌 수 있어요.";
+      if(btn) btn.disabled = true;
+      return;
+    }
+    if(note) note.textContent = on
+      ? "골든타임 5번(12:30 · 19:00 · 20:30 · 21:00 · 21:30)에 소리·진동과 함께 팝업으로 알려드려요."
+      : "알림이 꺼져 있어요. 켜면 다음 골든타임부터 알려드려요.";
+    tg.addEventListener("change", function(){
+      var v = !!tg.checked;
+      try { n.setEnabled(v); } catch(e){}
+      if(note) note.textContent = v
+        ? "골든타임 5번(12:30 · 19:00 · 20:30 · 21:00 · 21:30)에 소리·진동과 함께 팝업으로 알려드려요."
+        : "알림이 꺼져 있어요. 켜면 다음 골든타임부터 알려드려요.";
+      try { toast(v ? "골든타임 알림을 켰어요" : "골든타임 알림을 껐어요"); } catch(e){}
+    });
+    if(btn) btn.addEventListener("click", function(){
+      try {
+        n.testNow();
+        if(note) note.textContent = "테스트 알림을 보냈어요 — 안 보이면 설정에서 알림 권한을 확인해 주세요.";
+      } catch(e){
+        if(note) note.textContent = "테스트 알림을 보내지 못했어요 — 알림 권한을 확인해 주세요.";
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ initOta(); initNotify(); });
+  } else {
+    initOta(); initNotify();
   }
 
   /* ---------- export / import ---------- */
