@@ -1064,6 +1064,31 @@
   .sv-cap{color:#18181B}
   .vid-hint,.thumb-note{font-size:13px;color:#52525B}
   .pseg-sub{font-weight:650}
+
+  /* 플랫폼 버튼: 좁은 화면에서는 아이콘 위·이름 아래로 쌓아 '릴스'가 줄바꿈되지 않게 */
+  .pseg-main{display:flex;align-items:baseline;gap:5px;min-width:0}
+  .pseg-ico{font-style:normal;flex:none;line-height:1}
+  .pseg-txt{white-space:nowrap}
+  @media(max-width:460px){
+    .pseg{padding:10px 8px;gap:3px}
+    .pseg-main{flex-direction:column;align-items:flex-start;gap:3px;line-height:1.2}
+    .pseg-ico{font-size:15px}
+    .pseg-txt{font-size:12.5px;font-weight:750;color:var(--ink-2)}
+    .pseg-sub{font-size:10.5px;line-height:1.3}
+    .pseg[aria-selected="true"] .pseg-txt{color:#fff}
+  }
+
+  /* 1000px 이상 그리드: 스레드 모드는 오른쪽에 이미지 카드를 붙인다(영상 카드와 같은 자리) */
+  @media(min-width:1000px){
+    #stepThread{grid-area:video;position:sticky;top:64px;margin-bottom:0}
+    #panel-shorts.mode-threads .sx-wrap{
+      grid-template-columns:minmax(0,1fr) minmax(0,480px);
+      grid-template-areas:"intro intro" "plat thread" "script thread";
+    }
+    #panel-shorts.mode-threads #stepThread{grid-area:thread;position:sticky;top:64px;margin-bottom:0}
+    #panel-shorts.mode-threads .th-out{grid-template-columns:1fr;gap:14px}
+    #panel-shorts.mode-threads .th-frame canvas{max-width:100%}
+  }
 </style>
 </head>
 <body class="locked">
@@ -1352,13 +1377,13 @@
         </div>
         <div class="plat-seg" id="platSeg" role="tablist" aria-label="플랫폼 선택">
           <button class="pseg" type="button" role="tab" id="pseg-reels" data-plat="reels" aria-selected="true">
-            <span class="pseg-main">📱 인스타 릴스</span><span class="pseg-sub">공감 · 감성</span>
+            <span class="pseg-main"><i class="pseg-ico" aria-hidden="true">📱</i><span class="pseg-txt">인스타 릴스</span></span><span class="pseg-sub">공감 · 감성</span>
           </button>
           <button class="pseg" type="button" role="tab" id="pseg-shorts" data-plat="shorts" aria-selected="false">
-            <span class="pseg-main">▶ 유튜브 쇼츠</span><span class="pseg-sub">정보 · 임팩트</span>
+            <span class="pseg-main"><i class="pseg-ico" aria-hidden="true">▶</i><span class="pseg-txt">유튜브 쇼츠</span></span><span class="pseg-sub">정보 · 임팩트</span>
           </button>
           <button class="pseg" type="button" role="tab" id="pseg-threads" data-plat="threads" aria-selected="false">
-            <span class="pseg-main">🧵 스레드</span><span class="pseg-sub">솔직 · 글</span>
+            <span class="pseg-main"><i class="pseg-ico" aria-hidden="true">🧵</i><span class="pseg-txt">스레드</span></span><span class="pseg-sub">솔직 · 글</span>
           </button>
         </div>
       </section>
@@ -1493,7 +1518,7 @@
             </div>
 
             <div class="th-scenes" id="thSceneWrap">
-              <div class="v16-hd"><b>🖼 장면</b><span>8컷 중에서 · 📷 내 사진도 됩니다</span></div>
+              <div class="v16-hd"><b>📷 장면</b><span>8컷 중에서 · 📷 내 사진도 됩니다</span></div>
               <div class="v16-gal-row" id="thSceneRow"></div>
               <input type="file" id="thFile" accept="image/*" hidden>
             </div>
@@ -4016,6 +4041,8 @@
   /* ---------- 화면: 스레드 3단계 ---------- */
   function syncStepCards(){
     var th = isThreads();
+    var pn = $("panel-shorts");
+    if(pn) pn.classList.toggle("mode-threads", th);
     var vd = $("stepVideo"), tc = $("stepThread");
     if(vd) vd.hidden = th;
     if(tc) tc.hidden = !th;
@@ -4238,7 +4265,7 @@
       ((v.hashtags || []).length ? '<div class="sv-tags">' + v.hashtags.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
       '<div class="sv-actions">' +
         '<button class="btn" type="button" data-copy="1">스레드 글 복사</button>' +
-        '<button class="btn primary" type="button" data-to-thread="1">🖼 이 글로 이미지 만들기</button>' +
+        '<button class="btn primary" type="button" data-to-thread="1">📷 이 글로 이미지 만들기</button>' +
       "</div>";
   }
 
