@@ -14,6 +14,8 @@
 | --- | --- |
 | `index.html` | 잠금 화면 + 대시보드 (평문 데이터 없음) |
 | `data.enc.json` | **암호문**. `v / kdf / iter / salt / iv / ct` — PIN 없이는 열 수 없음 |
+| `app.enc.json` | **앱 본문 암호문**(index.html 전체). APK 가 켜질 때 받아 스스로 갱신한다 (같은 PIN·AES-256-GCM) |
+| `version.json` | `{version, build, sha256, bytes}` — 앱이 새 빌드인지 판단하는 평문 파일 |
 | `manifest.webmanifest` | 앱 이름 `아리아 소셜보드`, `display: standalone`, 아이콘 |
 | `sw.js` | 앱 껍데기만 캐시하는 서비스워커 (암호문은 캐시하지 않음) |
 | `icons/` | 192·512·maskable·apple-touch 아이콘 |
@@ -46,3 +48,10 @@ PIN을 바꾸면 기존에 기억된 기기 키는 무효가 되고, 각 기기�
 - 이 저장소는 공개 저장소지만 **평문 개인정보는 없습니다.** 암호문만 있고, 복호화는 PIN을 아는
   기기에서만 됩니다. `noindex` 로 검색 노출도 막습니다.
 - 비밀번호·로그인 정보·인스타그램 원본 내보내기(zip)·개인 서명키는 저장하지 않습니다.
+
+## 앱 자동 업데이트(v1.8)
+
+APK 는 켜질 때 `version.json` 을 5초 안에 확인하고, `build` 가 설치된 빌드보다 크면
+`app.enc.json` 을 받아 PIN 으로 복호화 → SHA-256 검증 → `files/ota_index.html` 로 원자적 교체합니다.
+검증에 실패하면 기존 화면을 그대로 두므로 앱이 멈추지 않습니다. 화면·장면·기능 변경은 이 두 파일만
+올리면 되고, 새 권한이나 네이티브 기능이 늘 때만 APK 를 다시 설치하면 됩니다.
