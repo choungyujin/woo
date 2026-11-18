@@ -5327,9 +5327,17 @@ var AiriaMp4 = (function(){
     if(ov && ov.scene) return ov.scene;
     if(ov && ov.data) return "__user__";
     var list = sceneRank(v, i);
-    var prev = (i > 0) ? sceneKeyFor(v, i - 1) : null;
+    /* 이 영상에서 이미 쓴 장면은 최대한 피한다 — 15초 안에 같은 장면이 두 번 나오지 않게 */
+    var used = {};
+    for(var j = 0; j < i; j++){
+      try { used[sceneKeyFor(v, j)] = true; } catch(e){}
+    }
     for(var k = 0; k < list.length; k++){
-      if(list[k].key !== prev) return list[k].key;
+      if(!used[list[k].key]) return list[k].key;
+    }
+    var prev = (i > 0) ? sceneKeyFor(v, i - 1) : null;
+    for(var k2 = 0; k2 < list.length; k2++){
+      if(list[k2].key !== prev) return list[k2].key;
     }
     return list[0].key;
   }
@@ -6046,7 +6054,7 @@ var AiriaMp4 = (function(){
 
   function recordStandardMp4(v, p, onProgress){
     return new Promise(function(resolve, reject){
-      if(!window.AiriaMp4){ reject(new Error("표준 MP4 인코더를 쓸 수 없습니다")); return; }
+      if(typeof AiriaMp4 === "undefined" || !AiriaMp4){ reject(new Error("표준 MP4 인코더를 쓸 수 없습니다")); return; }
       var durs = cutDurs(v), total = sumDur(durs);
       var canvas = document.createElement("canvas");
       canvas.width = CW; canvas.height = CH;
