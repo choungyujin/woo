@@ -3,10 +3,10 @@
   "package": "com.arisia.socialboard",
   "version": "1.8.1",
   "build": 11,
-  "sha256": "9f95339c3ff544544b192b4584d1b6f770cd0200551d064cc20ff34f6d2d2b36",
-  "bytes": 2072623,
+  "sha256": "6ec31539a0e1904e1adb3922222f4f6dcefbaf8b4bdf9c3a395ee947fb4cb5fe",
+  "bytes": 2073304,
   "body": "app.enc.json",
   "kdf": "PBKDF2-SHA256",
   "iter": 600000,
-  "updatedAt": "2026-11-18T13:46:29+09:00"
+  "updatedAt": "2026-11-18T13:55:35+09:00"
 }
