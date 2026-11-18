@@ -6668,12 +6668,12 @@
       var sc = Math.max((W - m * 2) / im.width, (H - m * 2) / im.height);
       var dw = im.width * sc, dh = im.height * sc;
       g.drawImage(im, m + (W - m * 2 - dw) / 2, m + (H - m * 2 - dh) / 2, dw, dh);
-      var gr = g.createLinearGradient(0, H * 0.56, 0, H - m);
+      var gr = g.createLinearGradient(0, H * 0.50, 0, H - m);
       gr.addColorStop(0, "rgba(16,12,9,0)");
-      gr.addColorStop(.62, "rgba(16,12,9,.34)");
-      gr.addColorStop(1, "rgba(16,12,9,.66)");
+      gr.addColorStop(.55, "rgba(16,12,9,.30)");
+      gr.addColorStop(1, "rgba(16,12,9,.72)");
       g.fillStyle = gr;
-      g.fillRect(m, H * 0.56, W - m * 2, H - m - H * 0.56);
+      g.fillRect(m, H * 0.50, W - m * 2, H - m - H * 0.50);
       g.restore();
       g.strokeStyle = "rgba(31,26,21,.10)"; g.lineWidth = 2;
       roundRect(g, m, m, W - m * 2, H - m * 2, 30); g.stroke();
@@ -6686,7 +6686,7 @@
     var txt = String(line || "").replace(/\s+/g, " ").trim();
     if(txt){
       setFont(g, "400", 25);
-      g.fillStyle = "rgba(255,255,255,.74)";
+      g.fillStyle = "rgba(255,255,255,.86)";
       g.fillText("오늘의 한 컷", 96, H - 250);
       var fit = fitLines(g, "400", txt, W - 260, 46, 32, 2);
       setFont(g, "400", fit.size);
