@@ -2589,11 +2589,11 @@
       var d = cur - old;
       if(!d) return '<span class="d">변화 없음</span>';
       return '<span class="d ' + (d > 0 ? "up" : "down") + '">' + (d > 0 ? "▲ " : "▼ ") +
-        num(Math.abs(d)) + ' 직전 점검 대바</span>';
+        num(Math.abs(d)) + ' 직전 점검 대비</span>';
     }
 
     var kpis = [
-      { k:"팔로워", v:num(s.followers), d:delta(last && last.igFollowers, prev && prev.igFollowers) || '<span class="d">내보내기 기준</span>' },
+      { k:"팔로워", v:num((last && typeof last.igFollowers === "number") ? last.igFollowers : s.followers), d:delta(last && last.igFollowers, prev && prev.igFollowers) || '<span class="d">내보내기 기준</span>' },
       { k:"맞팔", v:num(s.mutual), d:delta(last && last.igMutual, prev && prev.igMutual) || '<span class="d">서로 팔로우</span>' },
       { k:"답글 대기", v:num(s.pending), d:'<span class="d">' + (s.dmAvailable ? "댓글 + DM" : "DM 데이터 없음") + "</span>" },
       { k:"누적 소통", v:num(s.first + s.reply), d:'<span class="d">선댓글 ' + num(s.first) + " · 대댓글 " + num(s.reply) + "</span>" }
