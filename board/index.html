@@ -1175,6 +1175,33 @@
   .btn.ghost.on{background:#E9F5EE;color:#1E6E4E;border-color:#BFE3CE}
   .mark-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 0}
   .mark-row span{font-size:12px;color:var(--muted);font-weight:500;word-break:keep-all}
+
+  /* ==========================================================================
+     v1.8.3 — 요일 리듬 (월·수·금·일 주 4회 + 화·목·토 자유 골든타임)
+       · 골든타임 바 맨 위 오늘 요일 배지 + 그날 콘티 바로 고르기
+       · 콘티 카드의 요일 태그(월·문제장면 / 수·정리과정 / 금·이번주결과 / 일·질문잡담)
+     ========================================================================== */
+  .drt{margin:0 0 10px;padding:11px 12px;border:1px solid #E8DECB;border-radius:14px;background:#FFFCF5}
+  .drt.is-free{border-color:#DED8EE;background:#FBFAFF}
+  .drt-top{display:flex;flex-direction:column;gap:3px}
+  .drt-badge{font-size:12.5px;font-weight:600;color:#8A5A2B;line-height:1.45;word-break:keep-all}
+  .drt.is-free .drt-badge{color:#5B4B8A}
+  .drt-note{margin:0;font-size:11.5px;color:var(--muted);line-height:1.5;word-break:keep-all}
+  .drt-picks{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+  .drt-pick{display:flex;align-items:center;gap:8px;min-width:0;width:100%;
+    border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px 10px;
+    font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .drt-pick.on{border-color:#C08A4E;box-shadow:0 0 0 2px rgba(180,99,60,.14)}
+  .drt-pick:active{opacity:.85}
+  .drt-pick:focus-visible{outline:2px solid #C9C4B8;outline-offset:2px}
+  .drt-tag{flex:none;font-size:10.5px;font-weight:600;color:#8A5A2B;background:#F7EFE2;border-radius:999px;padding:2px 7px}
+  .drt.is-free .drt-tag{color:#5B4B8A;background:#F1EEFA}
+  .drt-t{min-width:0;flex:1;font-size:12.5px;color:var(--ink-2);line-height:1.4;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .drt-pick i{flex:none;font-style:normal;font-size:13px;color:var(--muted)}
+  @media(min-width:600px){ .drt-picks{flex-direction:row;flex-wrap:wrap} .drt-pick{width:auto;flex:1 1 calc(50% - 3px)} }
+  .dchip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:0;border-radius:6px;
+    padding:1px 6px;margin-right:5px;vertical-align:1.5px;background:#F7EFE2;color:#8A5A2B;white-space:nowrap}
 </style>
 </head>
 <body class="locked">
@@ -1683,11 +1710,11 @@
     <div class="block" id="notifyBlock">
       <div class="block-head">
         <h2>골든타임 업로드 알림</h2>
-        <p>업로드가 잘 되는 시간에 소리·진동과 함께 팝업으로 알려드려요. 누르면 그 플랫폼의 추천 콘티가 준비된 화면으로 열립니다.</p>
+        <p>월·수·금·일은 그 요일 리듬에 맞는 콘티로, 화·목·토는 자유 골든타임으로 소리·진동과 함께 팝업 알림을 드려요. 누르면 그 플랫폼의 추천 콘티가 준비된 화면으로 열립니다.</p>
       </div>
       <div class="block-body">
         <label class="sw-row" for="notifyToggle">
-          <span><b>🔔 골든타임 업로드 알림 (소리+팝업)</b><i>12:30 · 19:00 · 20:30 · 21:00 · 21:30</i></span>
+          <span><b>🔔 골든타임 업로드 알림 (소리+팝업)</b><i>월·수·금·일은 요일 리듬 추천, 화·목·토는 자유 골든타임 · 알림 12:30·19:00·20:30·21:00·21:30</i></span>
           <input type="checkbox" id="notifyToggle" class="sw" role="switch">
         </label>
         <div class="btn-row">
@@ -4885,7 +4912,8 @@ var AiriaMp4 = (function(){
     return '<li class="idea-row" data-idea="' + esc(v.id) + '" data-plat="' + esc(v.plat) + '" tabindex="0" aria-current="' + cur + '">' +
       '<span class="no">' + (idx + 1) + "</span>" +
       "<div>" +
-        "<h4>" + (i.group ? '<span class="gchip ' + (i.group === "mongle" ? "g-mg" : "g-dl") + '">' +
+        "<h4>" + (i.dayRole && typeof dayTagOf === "function" && dayTagOf(i.dayRole) ? '<span class="dchip">' + esc(dayTagOf(i.dayRole)) + "</span>" : "") +
+          (i.group ? '<span class="gchip ' + (i.group === "mongle" ? "g-mg" : "g-dl") + '">' +
           (i.group === "mongle" ? "몽글노트" : "일상") + "</span>" : "") + esc(v.title) + "</h4>" +
         '<p class="hook">“' + esc(v.hook) + '”</p>' +
         '<div class="bl">' +
@@ -7503,12 +7531,120 @@ var AiriaMp4 = (function(){
     return null;
   }
 
+  /* ==========================================================================
+     v1.8.3 — 요일 리듬 (월·수·금·일 주 4회 + 화·목·토 자유 골든타임)
+       · 오늘 요일 배지를 골든타임 바 맨 위에 띄운다
+       · 리듬 요일: 그날 배정된 콘티(dayRole)를 버튼으로 바로 선택
+       · 자유 요일: ✨ 자유 골든타임 + 오늘 아직 안 올린 콘티 2개를 제안
+       · 요일 정보는 data 의 shortsIdeas.rhythm, 없으면 아래 기본값
+     ========================================================================== */
+  var DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];   /* new Date().getDay() 순서 */
+  var DAY_FALLBACK = {
+    sun: { name: "일요일", short: "일", role: "질문·잡담", note: "나들이·일상 · \"당신이 가장 좋아했던 건 뭘까요?\"" },
+    mon: { name: "월요일", short: "월", role: "문제 장면", note: "혼자 다 하는 책상 · 밤에 생각이 많아 지치는 순간" },
+    tue: { name: "화요일", short: "화", role: "자유 골든타임", note: "요일 리듬 없이 편한 콘티를 골라 올리는 날" },
+    wed: { name: "수요일", short: "수", role: "정리 과정", note: "메모 앱 정리 과정 · 생각을 문장으로 만드는 순간" },
+    thu: { name: "목요일", short: "목", role: "자유 골든타임", note: "요일 리듬 없이 편한 콘티를 골라 올리는 날" },
+    fri: { name: "금요일", short: "금", role: "이번 주 결과", note: "밤마다 앱 만드는 엄마 · 이번 주에 남은 결과물" },
+    sat: { name: "토요일", short: "토", role: "자유 골든타임", note: "요일 리듬 없이 편한 콘티를 골라 올리는 날" }
+  };
+  var FREE_DAYS = { tue: 1, thu: 1, sat: 1 };
+
+  function rhythmBlock(){
+    try { return (DATA.shortsIdeas && DATA.shortsIdeas.rhythm) || {}; } catch(e){ return {}; }
+  }
+  function rhythmDays(){
+    var r = rhythmBlock();
+    return (r.days && typeof r.days === "object") ? r.days : DAY_FALLBACK;
+  }
+  function dayMeta(key){
+    var d = rhythmDays()[key];
+    return (d && d.short) ? d : (DAY_FALLBACK[key] || {});
+  }
+  function isFreeDay(key){
+    var r = rhythmBlock();
+    if(r.free && r.free.length) return r.free.indexOf(key) >= 0;
+    if(r.file && r.file.length) return r.file.indexOf(key) < 0;
+    return !!FREE_DAYS[key];
+  }
+  /* 카드에 붙는 짧은 요일 태그 — 월·문제장면 / 수·정리과정 / 금·이번주결과 / 일·질문잡담 */
+  function dayTagOf(key){
+    var m = dayMeta(key);
+    if(!m || !m.short || !m.role) return "";
+    return m.short + "·" + String(m.role).replace(/\s+/g, "").replace(/·/g, "");
+  }
+  function dayIdeas(key){
+    var list = [];
+    try { list = shortsIdeaList(); } catch(e){ return []; }
+    var out = [], i;
+    for(i = 0; i < list.length; i++){ if(list[i] && list[i].dayRole === key) out.push(list[i]); }
+    return out;
+  }
+  function uploadedAny(id){
+    var o = {};
+    try { o = (typeof readUploads === "function") ? readUploads() : {}; } catch(e){ o = {}; }
+    for(var k in o){ if(o.hasOwnProperty(k) && k.indexOf(id + "|") === 0) return true; }
+    return false;
+  }
+  function freePicks(){
+    var list = [];
+    try { list = shortsIdeaList(); } catch(e){ return []; }
+    var out = [], i;
+    for(i = 0; i < list.length && out.length < 2; i++){
+      if(list[i] && !uploadedAny(list[i].id)) out.push(list[i]);
+    }
+    return out.length ? out : list.slice(0, 2);
+  }
+  function rhythmHtml(){
+    var today = DAY_KEYS[new Date().getDay()];
+    var m = dayMeta(today);
+    var free = isFreeDay(today);
+    var picks = free ? freePicks() : dayIdeas(today);
+    var badge = free
+      ? "✨ 자유 골든타임 · 오늘 편한 콘티 고르기"
+      : "📅 " + (m.name || "오늘") + " 리듬 · " + (m.role || "");
+    var html = '<div class="drt' + (free ? " is-free" : "") + '" data-drt-day="' + esc(today) + '">' +
+      '<div class="drt-top"><span class="drt-badge">' + esc(badge) + "</span>" +
+      '<span class="drt-note">' + esc(m.note || "") + "</span></div>";
+    if(picks.length){
+      html += '<div class="drt-picks">';
+      picks.forEach(function(it){
+        var on = (typeof sel !== "undefined" && sel && sel.kind === "idea" && sel.id === it.id) ? " on" : "";
+        html += '<button class="drt-pick' + on + '" type="button" data-drt-idea="' + esc(it.id) + '">' +
+          '<span class="drt-tag">' + esc(dayTagOf(it.dayRole)) + "</span>" +
+          '<span class="drt-t">' + esc(String(it.title || "")) + "</span><i>›</i></button>";
+      });
+      html += "</div>";
+    } else {
+      html += '<p class="drt-note">이 요일에 배정된 콘티가 아직 없어요 — 아래 시간대 중 편한 때에 골라 올려 주세요.</p>';
+    }
+    return html + "</div>";
+  }
+
+  /* 요일 리듬 콘티를 골라 2단계(대본)로 — 영상/이미지는 그다음에 만들면 된다 */
+  function rhythmPick(ideaId){
+    if(!ideaId) return;
+    var it = (typeof findIdea === "function") ? findIdea(ideaId) : null;
+    if(!it) return;
+    try {
+      if(typeof setTab === "function") setTab("shorts");
+      if(typeof selectScript === "function") selectScript("idea", ideaId, true);
+      renderGolden();
+      setTimeout(function(){
+        var el = $("scriptView");
+        if(el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      toast((dayTagOf(it.dayRole) || "오늘의 콘티") + " · 대본을 열었어요");
+    } catch(e){}
+  }
+
   function renderGolden(){
     var hosts = document.querySelectorAll(".gt-host");
     if(!hosts.length) return;
     if(typeof DATA === "undefined" || !DATA) return;   /* 데이터가 아직 없으면 그리지 않는다 */
     var html = '<div class="gt-head">' +
       '<b>오늘의 골든타임</b><span>유입 많은 시간 · 누르면 바로 업로드 준비</span></div>' +
+      rhythmHtml() +
       '<div class="gt-rows">';
     GOLDEN.forEach(function(g){
       var p = P(g.plat);
@@ -7556,6 +7692,8 @@ var AiriaMp4 = (function(){
   document.addEventListener("click", function(ev){
     var t = ev.target;
     if(!t || !t.closest) return;
+    var d = t.closest("[data-drt-idea]");
+    if(d){ ev.preventDefault(); rhythmPick(d.getAttribute("data-drt-idea")); return; }
     var b = t.closest("[data-gt-go]");
     if(!b) return;
     var row = b.closest(".gt-row");
@@ -7583,7 +7721,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.8.2";
-  var OTA_APP_BUILD = 16;
+  var OTA_APP_BUILD = 17;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
