@@ -4254,12 +4254,15 @@
 
   function renderScriptThread(box, v){
     var card = String((v.image && v.image.card) || "");
-    var paras = threadBody(v).split(/\n{2,}/);
+    var bodyTxt = threadBody(v);
+    var paras = bodyTxt.split(/\n{2,}/);
+    /* 본문 첫 문단이 이미 '첫 줄'과 같으면 두 번 보여주지 않는다 */
+    var showHook = !!v.hook && bodyTxt.replace(/\s+/g, " ").indexOf(String(v.hook).replace(/\s+/g, " ").slice(0, 14)) !== 0;
     box.innerHTML =
       '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip("threads") + "</div>" +
       '<p class="sv-meta">' + esc(v.length || "글 1편 · 이미지 1장") + " · " + esc(v.toneLabel || "솔직 반말") +
         (v.audience ? " · " + esc(v.audience) : "") + "</p>" +
-      (v.hook ? '<p class="sv-hook"><b>첫 줄</b>' + esc(v.hook) + "</p>" : "") +
+      (showHook ? '<p class="sv-hook"><b>첫 줄</b>' + esc(v.hook) + "</p>" : "") +
       '<div class="th-body">' + paras.map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("") + "</div>" +
       (card ? '<p class="th-cardline"><b>카드 한 줄</b>' + esc(card) + "</p>" : "") +
       ((v.hashtags || []).length ? '<div class="sv-tags">' + v.hashtags.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
