@@ -5883,7 +5883,7 @@ var AiriaMp4 = (function(){
       g.textAlign = "left";
 
       /* 자막 — 위쪽 여백에만 */
-      var fit = fitLines(g, "600", cutAt(v, cidx).line, CW - 120, 60, 44, 4);
+      var fit = fitLines(g, "600", cutAt(v, cidx).line, CW - 120, 52, 40, 3);
       var inA = easeOut(Math.min(1, Math.max(0, cu - (cidx > 0 ? 0.09 : 0)) * 4.2));
       g.globalAlpha = inA;
       g.shadowBlur = 0; g.shadowOffsetY = 0;
@@ -6022,7 +6022,7 @@ var AiriaMp4 = (function(){
     g.fillText((idx + 1 < 10 ? "0" : "") + (idx + 1) + " / " + (durs.length < 10 ? "0" : "") + durs.length, CW - 64, 96);
 
     /* 자막 — 위쪽 여백 중심, 얼굴을 가리지 않는다 */
-    var fit = fitLines(g, "600", cutAt(v, idx).line, CW - 120, 62, 46, 4);
+    var fit = fitLines(g, "600", cutAt(v, idx).line, CW - 120, 54, 42, 3);
     g.globalAlpha = inA;
     g.shadowBlur = 0;
     g.shadowOffsetY = 0;
