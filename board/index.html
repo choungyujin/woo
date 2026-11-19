@@ -5516,6 +5516,7 @@ var AiriaMp4 = (function(){
     }
     try { updateStep3(); } catch(e){}
     try { renderIdeas(); } catch(e){}
+    try { if(typeof renderGolden === "function") renderGolden(); } catch(e){}
   }
   function scheduleEditRefresh(kind, oldPlan){
     if(kind) EDIT_PENDING = kind;
@@ -9849,7 +9850,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.8.5";
-  var OTA_APP_BUILD = 28;
+  var OTA_APP_BUILD = 29;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
