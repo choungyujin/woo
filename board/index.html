@@ -5491,6 +5491,9 @@ var AiriaMp4 = (function(){
     var v = viewOfSel();
     if(!v) return;
     var p = v.plat || plat, img = (p === "threads" || p === "feed");
+    /* 고친 것이 생기면 ‘↺ 원래 대본으로’를 바로 켠다(다시 그리지 않고도) */
+    var rb = document.querySelector("#scriptView [data-edit-reset]");
+    if(rb) rb.disabled = !hasEdits(v.id, p);
     if(img){
       if(kind === "body"){ clearThreadSavedText(v.id); TH.key = ""; }
       TH.dataUrl = "";
