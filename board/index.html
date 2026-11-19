@@ -993,7 +993,7 @@
   .v16-gal-hd span{font-size:11.5px;color:var(--muted)}
   .v16-auto{margin-left:auto;font-size:11.5px;font-weight:500;color:#6F63C4;background:#fff;border:1px solid #DCD6F3;border-radius:999px;padding:4px 9px;cursor:pointer;line-height:1.3}
   .v16-gal-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch}
-  .v16-sc{flex:none;width:62px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:pointer;line-height:0}
+  .v16-sc{position:relative;flex:none;width:62px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:pointer;line-height:0}
   .v16-sc img{display:block;width:100%;aspect-ratio:9 / 16;height:auto;object-fit:cover}
   .v16-sc span{display:block;font-size:10.5px;font-weight:500;color:var(--muted);padding:4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;line-height:1.4}
   .v16-sc.on{border-color:#7E6FD0;box-shadow:0 0 0 2px rgba(126,111,208,.20)}
@@ -1137,6 +1137,7 @@
     .gt-time{grid-area:time}
     .gt-topic{grid-area:topic;font-size:12px;-webkit-line-clamp:2}
     .gt-topic i{display:none}
+    .gt-topic .gt-done,.gt-topic .gt-next{display:inline-block;margin-left:4px}
     .gt-go{grid-area:go;padding:8px 11px}
   }
 
@@ -1308,6 +1309,23 @@
   @media (max-width:360px){
     .wp-day{grid-template-columns:80px minmax(0,1fr) auto}
   }
+
+  /* v1.9 — 올린 대본은 목록에서 빠지고 ‘올린 기록’에만 · 이미 올린 장면 잠금 */
+  .upf-link{border:0;background:#15332A;color:#fff;border-radius:999px;font-family:inherit;
+    font-size:11px;font-weight:600;padding:5px 11px;margin-left:8px;cursor:pointer;vertical-align:1px}
+  .upf-link:focus-visible{outline:2px solid #9FE9C6;outline-offset:2px}
+  .v16-sc.v16-used{opacity:.62}
+  .v16-lock{position:absolute;top:4px;left:4px;display:block;font-style:normal;font-size:8px;
+    font-weight:700;color:#0B5F3E;background:rgba(217,247,231,.95);border-radius:6px;padding:1px 4px;line-height:1.3}
+  .gt-next{display:inline-block;margin-left:5px;padding:1px 6px;border-radius:999px;background:#EEEAFA;color:#5B4B8A;
+    font-size:10.5px;font-weight:600;font-style:normal;vertical-align:1px}
+  .wp-done{font-size:8.5px;font-weight:700;color:#0B5F3E;background:#D9F7E7;border-radius:999px;padding:1px 5px}
+  .wp-next{border:0;background:#EEEAFA;color:#5B4B8A;border-radius:999px;font-family:inherit;
+    font-size:8.5px;font-weight:700;padding:1px 6px;cursor:pointer;line-height:1.3}
+  .wp-next:focus-visible{outline:2px solid #B9AEDD;outline-offset:1px}
+  .tp-done{font-size:10px;font-weight:600;color:#0B5F3E;background:#DAF8E8;border-radius:999px;padding:1px 7px;margin-left:6px}
+  .v16-cut.v16-cut-new{border-color:#9B8BE0}
+  .v16-cut.v16-cut-new .v16-k{color:#5B4B8A}
 </style>
 </head>
 <body class="locked">
@@ -1634,11 +1652,11 @@
           <select id="vidPick"></select>
         </label>
 
-        <!-- v1.8.4: 올림 표시 필터 (전체 / 아직 안 올린 것만) -->
+        <!-- v1.9: 올린 대본은 기본 목록에서 빠지고 ‘올린 기록’에만 남는다 -->
         <div class="up-filter" id="upFilter" role="group" aria-label="올림 표시 필터">
-          <button class="upf on" type="button" data-upf="all" aria-pressed="true">전체 <b id="upfAll">0</b></button>
-          <button class="upf" type="button" data-upf="todo" aria-pressed="false">안 올린 것만 <b id="upfTodo">0</b></button>
-          <span class="upf-note" id="upfNote">카드의 ✅ 를 누르면 바로 올림 표시</span>
+          <button class="upf on" type="button" data-upf="todo" aria-pressed="true">안 올린 대본 <b id="upfTodo">0</b></button>
+          <button class="upf" type="button" data-upf="done" aria-pressed="false">올린 기록 <b id="upfDone">0</b></button>
+          <span class="upf-note" id="upfNote">카드의 ＋ 올림 체크를 누르면 목록에서 빠지고 기록에 남습니다</span>
         </div>
 
         <ul class="idea-list" id="ideaList"></ul>
@@ -4673,8 +4691,10 @@ var AiriaMp4 = (function(){
 
   function threadSceneDefault(v){
     var s0 = (v && v.image && v.image.scene) ? v.image.scene : "";
-    if(s0 && sceneDef(s0)) return s0;
-    var r = sceneRank(v, 0);
+    if(s0 && sceneDef(s0)) return sceneLockedFor(v, s0) ? (sceneFreeFor(v, 0, s0) || s0) : s0;
+    var r = sceneRank(v, 0), lock = {};
+    try { lock = upSceneLock(v && v.plat ? v.plat : plat); } catch(e){ lock = {}; }
+    for(var i = 0; i < r.length; i++){ if(r[i] && !lock[r[i].key]) return r[i].key; }
     return (r && r.length) ? r[0].key : SC_ORDER[0];
   }
   function threadCfg(v){
@@ -5128,31 +5148,41 @@ var AiriaMp4 = (function(){
   function renderIdeas(){
     var box = $("ideaList");
     if(!box) return;
-    var all = shortsIdeaList(), list = all;
-    if(typeof upFilter !== "undefined" && upFilter === "todo"){
+    var all = shortsIdeaList(), list = all, done = (typeof upFilter !== "undefined" && upFilter === "done");
+    if(typeof upFilter !== "undefined"){
       list = all.filter(function(i){
         var vv = viewOf(i, plat);
-        return !((typeof uploadAt === "function") && uploadAt(vv.id, vv.plat || plat));
+        var up = (typeof uploadAt === "function") && !!uploadAt(vv.id, vv.plat || plat);
+        return done ? up : !up;
       });
+      if(done){
+        /* ‘올린 기록’은 최근에 올린 것이 위로 — 기록처럼 읽히게 */
+        list = list.slice().sort(function(a, b){
+          return String(uploadAt(b.id, plat) || "").localeCompare(String(uploadAt(a.id, plat) || ""));
+        });
+      }
     }
     box.innerHTML = list.length
       ? list.map(function(i, k){ return ideaRow(i, k); }).join("")
       : '<li class="draft-empty">' + (all.length
-          ? "이 플랫폼은 9편 모두 올림 표시돼 있어요 ✅ · ‘전체’를 누르면 다시 볼 수 있습니다"
+          ? (done
+              ? "아직 올린 기록이 없어요 — 카드의 ＋ 올림 체크나 올리기를 누르면 여기에 날짜와 함께 남습니다"
+              : "이 플랫폼은 9편 모두 올렸어요 ✅ <button class=\"upf-link\" type=\"button\" data-upf=\"done\">올린 기록 보기</button>")
           : "데이터의 shortsIdeas 블록에 아이디어를 넣으면 여기에 표시됩니다.") + "</li>";
     if(typeof paintUpFilter === "function") paintUpFilter();
     if(typeof paintWeekAll === "function"){ try { paintWeekAll(); } catch(e){} }
   }
 
   function cutsHtml(v){
-    return (v.cuts || []).map(function(c){
+    return (v.cuts || []).map(function(c, idx){
+      var scr = cutScreenText(v, idx, c);
       return "<li>" +
         '<div class="cut-h"><b>' + esc(String(c.no) + "컷 · " + (c.role || "")) + "</b><span>" + esc(c.time || "") + "</span></div>" +
         (c.line ? '<p class="cut-t">' + esc(c.line) + "</p>" : "") +
         (c.a || c.b ? '<p class="cut-x">겉 · ' + esc(c.a || "") + " &nbsp;↔&nbsp; 속 · " + esc(c.b || "") + "</p>" : "") +
         (c.node ? '<p class="cut-x">단계 · ' + esc(c.node) + (c.branches && c.branches.length ? " → " + esc(c.branches.join(" · ")) : "") + "</p>" : "") +
         (c.chip ? '<p class="cut-x">키워드 칩 · ' + esc(c.chip) + "</p>" : "") +
-        (c.screen ? '<p class="cut-s">화면 · ' + esc(c.screen) + "</p>" : "") +
+        (scr ? '<p class="cut-s">화면 · ' + esc(scr) + "</p>" : "") +
       "</li>";
     }).join("");
   }
@@ -5616,6 +5646,65 @@ var AiriaMp4 = (function(){
     for(var i = 0; i < SCENE_LIST.length; i++){ if(SCENE_LIST[i].key === key) return SCENE_LIST[i]; }
     return null;
   }
+
+  /* ==========================================================================
+     v1.9 — ‘이미 올린 장면’ 잠금
+       · ✅ 올림으로 표시된 대본이 쓴 장면은 같은 플랫폼의 다른 대본에서 다시 쓰지 않는다.
+       · 대본에 장면이 지정되지 않은 경우(생성 대본·자동 고르기)는 잠긴 장면을 건너뛰고
+         아직 안 쓴 장면 중 가장 어울리는 것을 고른다.
+     ========================================================================== */
+  var __lockVer = 0, __lockCache = {}, __lockBusy = false;
+  function upSceneLockReset(){ __lockVer++; __lockCache = {}; }
+  function upSceneLock(p){
+    var pp = p || plat;
+    var c = __lockCache[pp];
+    if(c && c.v === __lockVer) return c.set;
+    var set = {};
+    __lockCache[pp] = { v: __lockVer, set: set };   /* 먼저 넣어 두어 재귀를 끊는다 */
+    if(typeof isUploaded !== "function" || __lockBusy) return set;
+    __lockBusy = true;
+    try {
+      var list = shortsIdeaList(), i, j, v, arr, kk;
+      for(i = 0; i < list.length; i++){
+        var it = list[i];
+        if(!it || !isUploaded(it.id, pp)) continue;
+        v = viewOf(it, pp);
+        if(!v) continue;
+        arr = v.cuts || [];
+        for(j = 0; j < arr.length; j++){ kk = sceneKeyFor(v, j); if(kk && kk !== "__user__") set[kk] = 1; }
+        arr = v.slides || [];
+        for(j = 0; j < arr.length; j++){ if(arr[j] && arr[j].scene) set[arr[j].scene] = 1; }
+        if(v.image && v.image.scene) set[v.image.scene] = 1;
+      }
+    } catch(e){}
+    __lockBusy = false;
+    return set;
+  }
+  function sceneLocked(key, p){
+    if(!key || key === "__user__") return false;
+    var o = {};
+    try { o = upSceneLock(p); } catch(e){ return false; }
+    return !!o[key];
+  }
+  /* 이 대본이 이미 올린 장면인가 — 자기 대본이 올린 것이면 그대로 쓴다 */
+  function sceneLockedFor(v, key){
+    if(!key || key === "__user__") return false;
+    var pp = (v && v.plat) || plat;
+    try { if(typeof isUploaded === "function" && v && v.id && isUploaded(v.id, pp)) return false; } catch(e){}
+    return sceneLocked(key, pp);
+  }
+  /* 잠긴(이미 올린) 장면 대신 쓸, 대본에 맞는 안 쓴 장면 */
+  function sceneFreeFor(v, i, avoidKey){
+    var r = sceneRank(v, i), lock = {}, used = {}, k, j, key;
+    try { lock = upSceneLock((v && v.plat) || plat); } catch(e){ lock = {}; }
+    for(j = 0; j < i; j++){ try { used[sceneKeyFor(v, j)] = true; } catch(e){} }
+    for(k = 0; k < r.length; k++){
+      key = r[k].key;
+      if(key === avoidKey || used[key] || lock[key]) continue;
+      return key;
+    }
+    return "";
+  }
   function sceneImg(key){
     if(key === "__user__") return null;
     var im = SC_IMG[key];
@@ -5709,24 +5798,43 @@ var AiriaMp4 = (function(){
   function sceneKeyFor(v, i){
     if(!v) return SC_ORDER[0];
     var cut = cutAt(v, i);
-    if(cut && cut.scene && sceneDef(cut.scene)) return cut.scene;
+    if(cut && cut.scene && sceneDef(cut.scene)){
+      /* v1.9 — 이미 올린 대본이 쓴 장면이면, 이 대본에 맞는 안 쓴 장면으로 바꿔 쓴다 */
+      if(!sceneLockedFor(v, cut.scene)) return cut.scene;
+      var alt = sceneFreeFor(v, i, cut.scene);
+      return alt || cut.scene;
+    }
     var ov = sceneOverride(v, i);
     if(ov && ov.scene) return ov.scene;
     if(ov && ov.data) return "__user__";
     var list = sceneRank(v, i);
+    /* v1.9 — 이미 올린 대본이 쓴 장면은 건너뛴다(그 플랫폼 기준) */
+    var lock = {};
+    try { if(typeof upSceneLock === "function") lock = upSceneLock(v.plat || plat); } catch(e){ lock = {}; }
     /* 이 영상에서 이미 쓴 장면은 최대한 피한다 — 15초 안에 같은 장면이 두 번 나오지 않게 */
     var used = {};
     for(var j = 0; j < i; j++){
       try { used[sceneKeyFor(v, j)] = true; } catch(e){}
     }
     for(var k = 0; k < list.length; k++){
-      if(!used[list[k].key]) return list[k].key;
+      if(!used[list[k].key] && !lock[list[k].key]) return list[k].key;
+    }
+    for(var k1 = 0; k1 < list.length; k1++){
+      if(!used[list[k1].key]) return list[k1].key;
     }
     var prev = (i > 0) ? sceneKeyFor(v, i - 1) : null;
     for(var k2 = 0; k2 < list.length; k2++){
       if(list[k2].key !== prev) return list[k2].key;
     }
     return list[0].key;
+  }
+  /* 화면 지시문 — 이미 올린 장면과 겹쳐 다른 장면을 골랐으면 그 장면의 설명으로 보여 준다 */
+  function cutScreenText(v, i, cut){
+    cut = cut || cutAt(v, i);
+    var base = String((cut && cut.screen) || "");
+    var key = sceneKeyFor(v, i), d = sceneDef(key);
+    if(!d || !cut || !cut.scene || cut.scene === key) return base;
+    return (d.name + " — " + d.desc) || base;
   }
   function sceneDarkOf(key){
     if(key === "__user__") return false;
@@ -7746,11 +7854,12 @@ var AiriaMp4 = (function(){
       var key = sceneKeyFor(v, i);
       var ov = sceneOverride(v, i);
       var name = (ov && ov.data) ? "내 사진" : (sceneDef(key) ? sceneDef(key).name : "장면");
+      var swapped = !ov && v.cuts && v.cuts[i] && v.cuts[i].scene && v.cuts[i].scene !== key;
       var src = sceneSrcFor(v, i) || "";
-      html += '<button class="v16-cut' + (sceneOpen === i ? " on" : "") + '" type="button" data-scene-cut="' + i + '" aria-pressed="' + (sceneOpen === i ? "true" : "false") + '">' +
+      html += '<button class="v16-cut' + (sceneOpen === i ? " on" : "") + (swapped ? " v16-cut-new" : "") + '" type="button" data-scene-cut="' + i + '" aria-pressed="' + (sceneOpen === i ? "true" : "false") + '">' +
         '<img src="' + src + '" alt="">' +
         '<span class="v16-n">' + (i + 1 < 10 ? "0" : "") + (i + 1) + "</span>" +
-        '<span class="v16-k">' + esc(name) + "</span>" +
+        '<span class="v16-k">' + esc(name) + (swapped ? " · 새 장면" : "") + "</span>" +
         (ov ? '<span class="v16-dot"></span>' : "") +
       "</button>";
     }
@@ -7758,14 +7867,24 @@ var AiriaMp4 = (function(){
 
     if(sceneOpen >= 0 && sceneOpen < n){
       var cur = sceneKeyFor(v, sceneOpen);
+      var lock = {};
+      try { lock = upSceneLock(plat); } catch(e){ lock = {}; }
       var g2 = '<div class="v16-gal-hd"><b>' + (sceneOpen + 1) + "컷 장면</b><span>고른 장면은 이 컷에만 · 옆으로 넘기면 ‘📷 내 사진’까지</span>";
       if(sceneOverride(v, sceneOpen)) g2 += '<button class="v16-auto" type="button" data-scene-reset="1">↺ 자동으로</button>';
       g2 += '</div><div class="v16-gal-row">';
-      for(i = 0; i < SCENE_LIST.length; i++){
-        var s = SCENE_LIST[i];
-        g2 += '<button class="v16-sc' + (cur === s.key ? " on" : "") + '" type="button" data-scene-pick="' + s.key + '" title="' + esc(s.desc) + '">' +
+      /* v1.9 — 이미 올린 대본이 쓴 장면은 뒤로 보내고 ‘✅ 이미 올림’으로 표시(다시 쓰지 않게) */
+      var free = [], locked = [], i2, s2;
+      for(i2 = 0; i2 < SCENE_LIST.length; i2++){
+        s2 = SCENE_LIST[i2];
+        (lock[s2.key] ? locked : free).push(s2);
+      }
+      var all2 = free.concat(locked);
+      for(i2 = 0; i2 < all2.length; i2++){
+        var s = all2[i2], used = !!lock[s.key];
+        g2 += '<button class="v16-sc' + (cur === s.key ? " on" : "") + (used ? " v16-used" : "") + '" type="button" data-scene-pick="' + s.key + '" title="' + esc(s.desc) + (used ? " · 이미 올린 대본에 쓴 장면" : "") + '">' +
           '<img src="' + s.src + '" alt="">' +
           '<span>' + esc(s.name) + "</span>" +
+          (used ? '<i class="v16-lock">✅ 이미 올림</i>' : "") +
         "</button>";
       }
       g2 += '<button class="v16-sc v16-file" type="button" data-scene-file="1">' +
@@ -8018,8 +8137,8 @@ var AiriaMp4 = (function(){
   }
   function isUploaded(id, p){ return !!uploadAt(id, p); }
   function markUpload(id, p, on){
-    if(!id || !p) return;
-    var o = readUploads(), k = String(id) + "|" + String(p);
+    if(!id || !p) return "";
+    var o = readUploads(), k = String(id) + "|" + String(p), had = !!o[k], cl = "";
     if(on){
       var d = new Date();
       o[k] = { at: d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) +
@@ -8028,6 +8147,66 @@ var AiriaMp4 = (function(){
       delete o[k];
     }
     writeUploads(o);
+    /* v1.9 — 올린 대본의 사진·영상 설정은 지운다. 다음엔 대본에 맞춰 새로 만든다 */
+    if(on && !had) cl = cleanTempFor(id, p);
+    __upCleanMsg = cl;
+    try { if(typeof upSceneLockReset === "function") upSceneLockReset(); } catch(e){}
+    return cl;
+  }
+
+  /* ---------------------------------------------------------------- 임시 저장본 정리
+     ✅ 올림으로 표시한 대본+플랫폼의 '이미 만든 것'을 지운다.
+       · 컷 장면·내 사진(arisia949_scene_v1)  · 스레드·피드 이미지 설정과 고친 글
+       · 내 저장본(arisia949_shorts_v1) 레코드에 붙은 영상·이미지 데이터
+     대본 글(콘티·대본·캡션)은 건드리지 않는다 — 지우는 건 사진·영상 쪽만.
+     ---------------------------------------------------------------------------- */
+  var TEMP_MEDIA_FIELDS = ["video", "videoData", "videoUrl", "videoName", "image", "imageData", "imageUrl",
+    "photo", "photoData", "data", "thumb", "thumbData", "blob", "media", "srcData", "img"];
+  var __upCleanMsg = "";
+  function cleanTempFor(id, p){
+    var k = String(id) + "|" + String(p), nSc = 0, nImg = 0, nTxt = 0, nDraft = 0, key, i, j;
+    /* 1) 컷 장면·내 사진 — 키가 'id|plat|컷번호' */
+    try {
+      var sc = JSON.parse(localStorage.getItem("arisia949_scene_v1") || "{}") || {};
+      for(key in sc){ if(sc.hasOwnProperty(key) && key.indexOf(k + "|") === 0){ delete sc[key]; nSc++; } }
+      if(nSc) localStorage.setItem("arisia949_scene_v1", JSON.stringify(sc));
+    } catch(e){}
+    /* 2) 스레드·피드 이미지 설정(내 사진·장면·카드 한 줄)과 고친 글 — 플랫폼별 저장소 */
+    if(p === "threads" || p === "feed"){
+      var ik = (p === "feed") ? "arisia949_feed_v1" : "arisia949_thread_v1";
+      var tk = (p === "feed") ? "arisia949_feedtext_v1" : "arisia949_threadtext_v1";
+      try {
+        var im = JSON.parse(localStorage.getItem(ik) || "{}") || {};
+        if(im[String(id)]){ delete im[String(id)]; localStorage.setItem(ik, JSON.stringify(im)); nImg++; }
+      } catch(e){}
+      try {
+        var tx = JSON.parse(localStorage.getItem(tk) || "{}") || {};
+        if(tx[String(id)]){ delete tx[String(id)]; localStorage.setItem(tk, JSON.stringify(tx)); nTxt++; }
+      } catch(e){}
+    }
+    /* 3) 내 저장본(대본 생성기) — 같은 대본 레코드에 붙은 영상·이미지 데이터만 제거 */
+    try {
+      var dr = JSON.parse(localStorage.getItem("arisia949_shorts_v1") || "[]");
+      if(Array.isArray(dr)){
+        for(i = 0; i < dr.length; i++){
+          var rec = dr[i];
+          if(!rec || String(rec.id) !== String(id)) continue;
+          var cut = false;
+          for(j = 0; j < TEMP_MEDIA_FIELDS.length; j++){
+            var f = TEMP_MEDIA_FIELDS[j];
+            if(rec[f] !== undefined && rec[f] !== null && rec[f] !== ""){ try { delete rec[f]; } catch(e2){} cut = true; }
+          }
+          if(cut) nDraft++;
+        }
+        if(nDraft) localStorage.setItem("arisia949_shorts_v1", JSON.stringify(dr));
+      }
+    } catch(e){}
+    var parts = [];
+    if(nSc) parts.push("장면 " + nSc + "곳");
+    if(nImg) parts.push("이미지 설정 " + nImg + "곳");
+    if(nTxt) parts.push("고친 글 " + nTxt + "곳");
+    if(nDraft) parts.push("내 저장본 " + nDraft + "개");
+    return parts.length ? (parts.join(" · ") + " 지웠어요") : "";
   }
   function uplatOf(p){
     for(var i = 0; i < UPLAT.length; i++){ if(UPLAT[i].key === p) return UPLAT[i]; }
@@ -8089,17 +8268,37 @@ var AiriaMp4 = (function(){
     if(!id || !p) return;
     var on = isUploaded(id, p);
     markUpload(id, p, !on);
+    var cl = __upCleanMsg; __upCleanMsg = "";
     var q = uplatOf(p);
     toast(on ? "‘올림’ 표시를 지웠어요 · " + q.label
-             : "✅ " + q.label + " 업로드 완료로 표시했어요");
+             : "✅ " + q.label + " 업로드 완료 · ‘올린 기록’에 남겼어요" + (cl ? "\n🧹 " + cl : ""));
     afterUploadChange();
     try { renderScript(); } catch(e){}
   }
-  /* 필터: 전체 / 안 올린 것만 */
-  var upFilter = "all";
+  /* 필터: 안 올린 대본(기본) / 올린 기록 — 올린 대본은 목록에서 빠지고 기록에만 남는다 */
+  var upFilter = "todo";
   function upFilterSet(m){
-    upFilter = (m === "todo") ? "todo" : "all";
+    upFilter = (m === "done") ? "done" : "todo";
     renderIdeas();
+  }
+  function upFilterIsDone(){ return upFilter === "done"; }
+  /* 아직 안 올린 대본 (현재 플랫폼 기준) — 골든타임·플래너·동향 추천이 '다음 것'을 고를 때 쓴다 */
+  function upTodoIdeas(p){
+    var pp = p || plat, list = [], out = [], i, v;
+    try { list = shortsIdeaList(); } catch(e){ return []; }
+    for(i = 0; i < list.length; i++){
+      v = viewOf(list[i], pp);
+      if(!isUploaded((v && v.id) || (list[i] || {}).id, pp)) out.push(list[i]);
+    }
+    return out;
+  }
+  /* 다음 후보 — 오늘 요일 리듬에 맞는 것을 먼저, 없으면 순서대로 */
+  function upNextIdea(p, skipId){
+    var list = upTodoIdeas(p), i, day = "";
+    try { day = (typeof todayKey === "function") ? todayKey() : ""; } catch(e){ day = ""; }
+    for(i = 0; i < list.length; i++) if(list[i].id !== skipId && day && list[i].dayRole === day) return list[i];
+    for(i = 0; i < list.length; i++) if(list[i].id !== skipId) return list[i];
+    return null;
   }
   function upFilterCounts(){
     var list = shortsIdeaList(), done = 0, i, v;
@@ -8115,11 +8314,11 @@ var AiriaMp4 = (function(){
       b.classList.toggle("on", on);
       b.setAttribute("aria-pressed", on ? "true" : "false");
     });
-    if($("upfAll")) $("upfAll").textContent = String(c.all);
     if($("upfTodo")) $("upfTodo").textContent = String(c.todo);
+    if($("upfDone")) $("upfDone").textContent = String(c.done);
     if($("upfNote")) $("upfNote").textContent = c.todo === 0
-      ? "이 플랫폼은 전부 올렸어요 · 카드의 ✅ 를 누르면 해제"
-      : "카드의 ✅ 를 누르면 바로 올림 표시";
+      ? "이 플랫폼은 모두 올렸어요 · ‘올린 기록’에서 확인"
+      : "카드의 ＋ 올림 체크를 누르면 목록에서 빠지고 기록에 남습니다";
   }
   function markCurrentUploaded(){
     var v = viewOfSel();
@@ -8133,6 +8332,7 @@ var AiriaMp4 = (function(){
     toggleUploadFor(v.id, plat);
   }
   function afterUploadChange(){
+    if(__upCleanMsg){ try { toast("🧹 올렸던 사진·영상 설정을 지웠어요 · " + __upCleanMsg); } catch(e){} __upCleanMsg = ""; }
     try { renderIdeas(); } catch(e){}
     try { paintUpFilter(); } catch(e){}
     try { if(typeof renderGolden === "function") renderGolden(); } catch(e){}
@@ -8750,8 +8950,16 @@ var AiriaMp4 = (function(){
     var rank = trendRank();
     var today = todayKey(), plan = readPlan();
     var planned = plan[today] || "";
-    var best = rank[0] || null;
-    return { best: best, planned: planned, today: today, plan: plan, rank: rank };
+    var pp = (typeof plat === "string" && plat) ? plat : "reels";
+    var todo = [], done = [], i;
+    for(i = 0; i < rank.length; i++){
+      if((typeof isUploaded === "function") && isUploaded(rank[i].id, pp)) done.push(rank[i]);
+      else todo.push(rank[i]);
+    }
+    /* v1.9 — 이미 올린 대본은 건너뛰고, 아직 안 올린 것 중 가장 맞는 대본을 띄한다 */
+    var best = todo[0] || done[0] || null;
+    return { best: best, planned: planned, today: today, plan: plan, rank: rank,
+      topDone: (rank[0] && done.length && done[0] === rank[0]) ? rank[0] : null };
   }
   function trendReason(t){
     if(!t || !t.best) return "";
@@ -8770,6 +8978,7 @@ var AiriaMp4 = (function(){
   function paintWeekPlan(){
     var host = $("weekPlan");
     if(!host) return;
+    var pp = (typeof plat === "string" && plat) ? plat : "reels";
     var plan = readPlan(), today = todayKey(), free = weekFree(), notes = weekNotes();
     var it = trendPick();
     var list = shortsIdeaList();
@@ -8778,6 +8987,9 @@ var AiriaMp4 = (function(){
       var pid = plan[d.k] || "";
       var idea = pid ? findIdea(pid) : null;
       var isToday = (d.k === today);
+      /* v1.9 — 오늘 플랫폼에 이미 올린 대본은 ✅로 표시하고, 다음 안 올린 대본을 곁들인다 */
+      var up = !!(pid && (typeof isUploaded === "function") && isUploaded(pid, pp));
+      var nx = (isToday && up && typeof upNextIdea === "function") ? upNextIdea(pp, pid) : null;
       var opts = '<option value="">— 비움 (자유) —</option>';
       list.forEach(function(i){
         opts += '<option value="' + esc(i.id) + '"' + (i.id === pid ? " selected" : "") + ">" +
@@ -8787,6 +8999,8 @@ var AiriaMp4 = (function(){
       if(isToday) badge += '<span class="wp-today">오늘</span>';
       if(pid && isToday) badge += '<span class="wp-pick">내가 고른 오늘</span>';
       if(!pid && it.best && isToday) badge += '<span class="wp-auto">동향 추천</span>';
+      if(up) badge += '<span class="wp-done">✅ 올림</span>';
+      if(nx) badge += '<button class="wp-next" type="button" data-wp-open="' + esc(nx.id) + '">다음 ' + esc(nx.id) + '</button>';
       html += '<div class="wp-day' + (isToday ? " is-today" : "") + (pid ? " has" : "") + '" data-day="' + d.k + '">' +
         '<div class="wp-top"><b>' + d.s + "</b><i>" + esc(free.indexOf(d.k) >= 0 ? "자유" : (notes[d.k].role || "")) + "</i>" + badge + "</div>" +
         '<select class="wp-sel" data-wp-day="' + d.k + '" aria-label="' + d.name + ' 대본">' + opts + "</select>" +
@@ -8800,7 +9014,7 @@ var AiriaMp4 = (function(){
     host.innerHTML = html;
     var foot = $("weekPlanNote");
     if(foot){
-      foot.textContent = "월·수·금·일은 요일 리듬 기본값 · 화·목·토는 비워 두면 그날 동향 추천을 씁니다. 바꾼 요일은 이 기기에 저장(OTA 뒤에도 유지)됩니다.";
+      foot.textContent = "월·수·금·일은 요일 리듬 기본값 · 화·목·토는 비워 두면 그날 동향 추천을 씁니다. 올린 대본은 ✅로 표시되고 다음 안 올린 대본을 먼저 권합니다(이 기기에 저장 · OTA 뒤에도 유지).";
     }
   }
 
@@ -8819,7 +9033,8 @@ var AiriaMp4 = (function(){
           : '<span class="tp-plan">오늘 계획은 ' + esc(t.planned) + ' — 그대로 가도 좋아요</span>')
       : "";
     host.innerHTML =
-      '<div class="tp-head"><b>🔥 오늘 동향 추천</b><span class="tp-score">동향 일치 ' + t.best.hits + "곳</span></div>" +
+      '<div class="tp-head"><b>🔥 오늘 동향 추천</b><span class="tp-score">동향 일치 ' + t.best.hits + "곳</span>" +
+        (t.topDone && t.topDone.id !== t.best.id ? '<span class="tp-done">' + esc(t.topDone.id) + " ✅ 올림</span>" : "") + "</div>" +
       '<p class="tp-pick">' + esc(t.best.id) + " · " + esc(shortTitle(v || { title: t.best.title })) + plannedNote + "</p>" +
       '<p class="tp-why">' + esc(trendReason(t)) + "</p>" +
       '<button class="tp-open" type="button" data-wp-open="' + esc(t.best.id) + '">이 대본 열기</button>';
@@ -8971,17 +9186,40 @@ var AiriaMp4 = (function(){
   function freePicks(){
     var list = [];
     try { list = shortsIdeaList(); } catch(e){ return []; }
+    var pp = (typeof plat === "string" && plat) ? plat : "reels";
     var out = [], i;
     for(i = 0; i < list.length && out.length < 2; i++){
-      if(list[i] && !uploadedAny(list[i].id)) out.push(list[i]);
+      if(list[i] && !((typeof isUploaded === "function") && isUploaded(list[i].id, pp))) out.push(list[i]);
     }
+    if(out.length) return out;
+    /* 모두 올렸으면 안 올린 플랫폼 기준으로라도 고른다 */
+    for(i = 0; i < list.length && out.length < 2; i++){ if(list[i] && !uploadedAny(list[i].id)) out.push(list[i]); }
     return out.length ? out : list.slice(0, 2);
+  }
+  /* 오늘 골든타임 추천 콘티 — 이미 올린 대본이면 다음 안 올린 대본을 띄운다 */
+  function goldenRowIdea(g){
+    var fixed = goldenIdea(g.idea);
+    var up = (typeof isUploaded === "function") && isUploaded(g.idea, g.plat);
+    if(!up) return { idea: fixed, id: g.idea, up: false, next: false };
+    var nx = (typeof upNextIdea === "function") ? upNextIdea(g.plat, g.idea) : null;
+    if(nx) return { idea: goldenIdea(nx.id) || nx, id: nx.id, up: true, next: true };
+    return { idea: fixed, id: g.idea, up: true, next: false };
   }
   function rhythmHtml(){
     var today = DAY_KEYS[new Date().getDay()];
     var m = dayMeta(today);
     var free = isFreeDay(today);
+    var pp = (typeof plat === "string" && plat) ? plat : "reels";
     var picks = free ? freePicks() : dayIdeas(today);
+    /* v1.9 — 오늘 플랫폼에 아직 안 올린 콘티를 먼저, 올린 것은 ✅ 표시하고 뒤로 */
+    if(picks.length){
+      var todo = [], done = [];
+      picks.forEach(function(it){
+        var up = (typeof isUploaded === "function") && isUploaded(it.id, pp);
+        (up ? done : todo).push(it);
+      });
+      picks = todo.concat(done);
+    }
     var badge = free
       ? "✨ 자유 골든타임 · 오늘 편한 콘티 고르기"
       : "📅 " + (m.name || "오늘") + " 리듬 · " + (m.role || "");
@@ -8992,9 +9230,10 @@ var AiriaMp4 = (function(){
       html += '<div class="drt-picks">';
       picks.forEach(function(it){
         var on = (typeof sel !== "undefined" && sel && sel.kind === "idea" && sel.id === it.id) ? " on" : "";
+        var up = (typeof isUploaded === "function") && isUploaded(it.id, pp);
         html += '<button class="drt-pick' + on + '" type="button" data-drt-idea="' + esc(it.id) + '">' +
           '<span class="drt-tag">' + esc(dayTagOf(it.dayRole)) + "</span>" +
-          '<span class="drt-t">' + esc(String(it.title || "")) + "</span><i>›</i></button>";
+          '<span class="drt-t">' + esc(String(it.title || "")) + (up ? '<i class="gt-done">✅ 올림</i>' : "") + "</span><i>›</i></button>";
       });
       html += "</div>";
     } else {
@@ -9030,14 +9269,18 @@ var AiriaMp4 = (function(){
       '<div class="gt-rows">';
     GOLDEN.forEach(function(g){
       var p = P(g.plat);
-      var idea = goldenIdea(g.idea);
+      var row = goldenRowIdea(g);
+      var idea = row.idea;
       var line = idea ? String(idea.title || "") : "";
       var now = goldenNow(g.plat);
+      var mark = row.up
+        ? '<i class="gt-done">✅ ' + esc(g.idea) + " 올림" + (row.next ? " → 다음" : "") + "</i>"
+        : "";
       html += '<div class="gt-row' + (now ? " is-now" : "") + '" data-gt-plat="' + esc(g.plat) +
-        '" data-gt-idea="' + esc(g.idea) + '">' +
+        '" data-gt-idea="' + esc(row.id) + '">' +
         '<span class="pchip pchip-' + p.key + '">' + p.icon + " " + esc(p.short) + "</span>" +
         '<span class="gt-time">' + esc(g.time) + (now ? '<i class="gt-now">지금</i>' : "") + "</span>" +
-        '<span class="gt-topic">' + esc(line) + (isUploaded(g.idea, g.plat) ? '<i class="gt-done">✅ 올림</i>' : "") + "<i>" + esc(g.note) + "</i></span>" +
+        '<span class="gt-topic">' + esc(line) + mark + "<i>" + esc(g.note) + "</i></span>" +
         '<button class="gt-go" type="button" data-gt-go="1">바로 올리기 →</button>' +
         "</div>";
     });
@@ -9103,7 +9346,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.8.5";
-  var OTA_APP_BUILD = 25;
+  var OTA_APP_BUILD = 26;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
