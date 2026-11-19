@@ -1326,6 +1326,38 @@
   .tp-done{font-size:10px;font-weight:600;color:#0B5F3E;background:#DAF8E8;border-radius:999px;padding:1px 7px;margin-left:6px}
   .v16-cut.v16-cut-new{border-color:#9B8BE0}
   .v16-cut.v16-cut-new .v16-k{color:#5B4B8A}
+
+  /* ===== v1.9(빌드 27) — ✏️ 대본·자막 직접 수정 ===== */
+  .ed-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 4px;
+    padding:9px 11px;background:#FFFDF8;border:1px solid #EDE7DA;border-radius:12px}
+  .ed-bar.on{background:linear-gradient(180deg,#F4FBF7,#EDF7F1);border-color:#BFE3D0}
+  .ed-bar .ed-note{font-size:10.5px;color:#8A8579;line-height:1.45;flex:1 1 140px;min-width:0;word-break:keep-all}
+  .ed-bar.on .ed-note{color:#3D6B55;font-weight:600}
+  .ed-bar .btn{padding:6px 12px;font-size:11.5px}
+  .ed-chip{display:inline-block;font-size:9.5px;font-weight:700;color:#8A3E14;background:#FDEDDD;
+    border:1px solid #F2C9A6;border-radius:999px;padding:1px 6px;margin-right:5px;vertical-align:1px}
+  .ed-wrap{margin:8px 0 0}
+  .ed-hd{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:6px 0 8px}
+  .ed-hd b{font-size:13.5px;font-weight:700;color:#221E18;letter-spacing:-.02em}
+  .ed-hd span{font-size:10.5px;color:#8A8579}
+  .ed-f{display:block;margin:9px 0}
+  .ed-l{display:block;font-size:11px;font-weight:700;color:#3A352C;margin-bottom:4px;word-break:keep-all}
+  .ed-l i{font-style:normal;font-weight:500;font-size:10px;color:#9A9488;margin-left:6px}
+  .ed-i,.ed-a{width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;line-height:1.55;
+    color:#221E18;background:#FFFFFF;border:1px solid #E0DACD;border-radius:10px;padding:8px 10px}
+  .ed-a{resize:vertical;min-height:44px}
+  .ed-i:focus-visible,.ed-a:focus-visible{outline:2px solid #B9D6C7;outline-offset:1px}
+  .ed-cut{border:1px solid #EDE7DA;background:#FCFAF4;border-radius:12px;padding:9px 11px;margin:9px 0}
+  .ed-cut-h{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+  .ed-cut-h b{font-size:12px;font-weight:700;color:#3A352C}
+  .ed-time{font-size:10.5px;font-weight:600;color:#8A5A10;background:#FFF3DC;border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .ed-slides{margin:12px 0 2px}
+  .ed-slides > b{font-size:12px;font-weight:700;color:#3A352C}
+  .ed-foot{font-size:10.5px;color:#8A8579;line-height:1.5;margin:12px 0 0;word-break:keep-all}
+  @media (max-width:420px){
+    .ed-bar .ed-note{flex-basis:100%}
+    .ed-cut{padding:8px 9px}
+  }
 </style>
 </head>
 <body class="locked">
@@ -4361,7 +4393,7 @@ var AiriaMp4 = (function(){
   var shortsLast = null;          /* 방금 만든 대본 */
   var sel = null;                 /* { kind:"idea"|"draft", id:"…" } */
   var plat = "reels";             /* reels | shorts | threads | feed */
-  var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0, textKey:"" };
+  var VIDEO = { busy:false, blob:null, url:null, name:"", mime:"", size:0, plat:"", view:null, secs:0, textKey:"", stale:false };
 
   var PLAT = {
     reels: {
@@ -4457,6 +4489,163 @@ var AiriaMp4 = (function(){
     return null;
   }
 
+  /* ==========================================================================
+     v1.9(빌드 27) — ✏️ 대본·자막 직접 수정
+       · 2단계에서 고친 제목·훅·컷 자막(겉/속·단계·화면 지시문)·캡션·CTA·해시태그,
+         스레드·피드의 본문·카드 한 줄·카드뉴스 문구를 (대본 id | 플랫폼) 별로 저장한다.
+         저장 키: arisia949_script_edits_v1  → 새로고침·OTA 업데이트 뒤에도 그대로 남는다.
+       · viewOf() 가 읽을 때마다 고친 값을 덮어쓰므로, 2단계 미리보기 · 영상 자막 ·
+         cutDurs(글자 수 기반 길이) · 피드/스레드 카드 이미지 · 복사·공유 문구가
+         모두 '같은 대본'을 읽는다(따로 맞출 필요 없음).
+     ========================================================================== */
+  var EDIT_KEY = "arisia949_script_edits_v1";
+  var EDIT_CACHE = null;
+  var EDIT_TEXT_FIELDS = ["title", "hook", "caption", "cta", "body", "card", "length"];
+  var EDIT_CUT_FIELDS = ["line", "a", "b", "node", "chip", "screen"];
+  var EDIT_SLIDE_FIELDS = ["line", "sub"];
+
+  function readEdits(){
+    if(EDIT_CACHE) return EDIT_CACHE;
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem(EDIT_KEY) || "{}"); } catch(e){ o = null; }
+    EDIT_CACHE = (o && typeof o === "object") ? o : {};
+    return EDIT_CACHE;
+  }
+  function writeEdits(o){
+    EDIT_CACHE = (o && typeof o === "object") ? o : {};
+    try { localStorage.setItem(EDIT_KEY, JSON.stringify(EDIT_CACHE)); }
+    catch(e){ toast("고친 대본을 저장하지 못했어요 — 이 기기의 저장 공간을 조금 비워 주세요"); }
+  }
+  function editKeyOf(id, p){ return String(id == null ? "" : id) + "|" + String(p || "reels"); }
+  function editOf(id, p){ return readEdits()[editKeyOf(id, p)] || null; }
+  function hasEdits(id, p){ var e = editOf(id, p); return !!(e && e.at); }
+  function editStamp(){
+    var d = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()) + " " + p2(d.getHours()) + ":" + p2(d.getMinutes());
+  }
+  function patchEdit(id, p, patch){
+    if(!id) return null;
+    var all = readEdits(), k = editKeyOf(id, p), rec = all[k] || {}, f;
+    for(f in patch){ if(patch.hasOwnProperty(f)) rec[f] = patch[f]; }
+    rec.at = editStamp();
+    all[k] = rec;
+    writeEdits(all);
+    return rec;
+  }
+  function cloneRec(o){
+    var c = {}, k;
+    for(k in (o || {})){ if(o.hasOwnProperty(k)) c[k] = o[k]; }
+    return c;
+  }
+  function patchCutEdit(id, p, i, field, val){
+    var rec = editOf(id, p) || {}, cuts = (rec.cuts || []).slice();
+    var c = cloneRec(cuts[i]);
+    c[field] = String(val == null ? "" : val);
+    cuts[i] = c;
+    return patchEdit(id, p, { cuts: cuts });
+  }
+  function patchSlideEdit(id, p, i, field, val){
+    var rec = editOf(id, p) || {}, slides = (rec.slides || []).slice();
+    var s = cloneRec(slides[i]);
+    s[field] = String(val == null ? "" : val);
+    slides[i] = s;
+    return patchEdit(id, p, { slides: slides });
+  }
+  function clearEdit(id, p){
+    var all = readEdits(), k = editKeyOf(id, p);
+    if(!all[k]) return false;
+    delete all[k];
+    writeEdits(all);
+    return true;
+  }
+  function splitTags(t){
+    return String(t == null ? "" : t).split(/[\s,]+/)
+      .map(function(x){ return x.replace(/\s+/g, ""); })
+      .filter(function(x){ return !!x; })
+      .map(function(x){ return x.charAt(0) === "#" ? x : "#" + x; });
+  }
+  function fmtSec(x){
+    var n = Math.round((x || 0) * 10) / 10;
+    return String(n);
+  }
+  /* 고친 길이에 맞춰 컷 시간 표기(0~4.5초 …)를 다시 계산한다 */
+  function retimeCuts(v, durs){
+    var cuts = (v && v.cuts) || [], acc = 0, i;
+    for(i = 0; i < cuts.length; i++){
+      var d = (durs && durs[Math.min(i, durs.length - 1)]) || 0;
+      cuts[i].time = fmtSec(acc) + "~" + fmtSec(acc + d) + "초";
+      acc += d;
+    }
+    return v;
+  }
+  /* 대본 하나(id·플랫폼)에 저장된 수정값을 덮어쓴 새 객체를 돌려준다 */
+  function applyEdits(v){
+    if(!v) return v;
+    var e = editOf(v.id, v.plat);
+    if(!e) return v;
+    var out = {}, f, i;
+    for(f in v){ if(v.hasOwnProperty(f)) out[f] = v[f]; }
+    for(i = 0; i < EDIT_TEXT_FIELDS.length; i++){
+      f = EDIT_TEXT_FIELDS[i];
+      if(e[f] !== undefined && e[f] !== null) out[f] = String(e[f]);
+    }
+    if(Object.prototype.toString.call(e.hashtags) === "[object Array]") out.hashtags = e.hashtags.slice();
+    if(e.card !== undefined && e.card !== null){
+      var img = cloneRec(v.image);
+      img.card = String(e.card);
+      out.image = img;
+    }
+    if(e.cuts && e.cuts.length && out.cuts && out.cuts.length){
+      out.cuts = out.cuts.map(function(c, idx){
+        /* 수정이 없는 컷도 복사본을 만든다 — 시간 표기를 다시 계산하면서 원본 데이터를 건드리지 않는다 */
+        var cc = cloneRec(c);
+        var ec = e.cuts[idx];
+        if(ec){
+          EDIT_CUT_FIELDS.forEach(function(k){
+            if(ec[k] !== undefined && ec[k] !== null) cc[k] = String(ec[k]);
+          });
+        }
+        return cc;
+      });
+      retimeCuts(out, cutDurs(out));
+      /* 나레이션(통으로 읽기)도 고친 자막으로 다시 잏는다 */
+      if(out.narration){
+        var parts = [];
+        if(out.hook) parts.push(String(out.hook).replace(/\s+$/, ""));
+        (out.cuts || []).forEach(function(c){ if(c && c.line) parts.push(String(c.line)); });
+        if(parts.length) out.narration = parts.join(" ");
+      }
+      out.lengthLabel = fmtSec(sumDur(cutDurs(out))) + "초";
+    }
+    if(e.slides && e.slides.length && out.slides && out.slides.length){
+      var mark = {};
+      out.slides = out.slides.map(function(s, idx){
+        var es = e.slides[idx];
+        if(!es) return s;
+        var ss = cloneRec(s), mk = {};
+        EDIT_SLIDE_FIELDS.forEach(function(k){
+          if(es[k] !== undefined && es[k] !== null){ ss[k] = String(es[k]); mk[k] = true; }
+        });
+        mark[String(idx)] = mk;
+        return ss;
+      });
+      /* 어느 장의 어느 문구를 고쳤는지 — 피드 카드가 예전 저장값 대신 고친 값을 읽는다 */
+      out.slideEdited = mark;
+    }
+    out.edited = true;
+    return out;
+  }
+  /* 화면·영상·이미지가 함께 읽는 단 하나의 창구 — 수정값이 반영된 대본 */
+  function getEffectiveIdea(id, p){
+    var pp = p || "reels";
+    var o = findIdea(id);
+    if(o) return viewOf(o, pp);
+    var d = findDraft(id);
+    if(d && (!p || (d.plat || "reels") === pp)) return draftView(d);
+    return null;
+  }
+
   /* ---------- 아이디어 → 플랫폼별 대본 ---------- */
   function viewOf(o, p){
     if(!o) return null;
@@ -4474,12 +4663,12 @@ var AiriaMp4 = (function(){
       template: o.template || "", templateLabel: o.templateLabel || "", concept: o.concept || ""
     };
     if(v){ for(var k in v){ if(v[k] !== undefined && v[k] !== null) base[k] = v[k]; } base.plat = use; }
-    return base;
+    return applyEdits(base);
   }
   function draftView(d){ return viewOf(d, d.plat || "reels"); }
   function viewOfSel(){
     if(!sel) return null;
-    if(sel.kind === "idea") return viewOf(findIdea(sel.id), plat);
+    if(sel.kind === "idea") return getEffectiveIdea(sel.id, plat);
     var d = findDraft(sel.id);
     return d ? draftView(d) : null;
   }
@@ -4568,7 +4757,7 @@ var AiriaMp4 = (function(){
     var L = [];
     L.push("[몽글노트 · " + p.name + " 대본]");
     L.push("제목: " + String(o.title || o.topic || ""));
-    L.push("길이: " + String(o.length || "15초") + " · 톤: " + String(o.toneLabel || toneName(o.tone)));
+    L.push("길이: " + String(o.lengthLabel || o.length || "15초") + " · 톤: " + String(o.toneLabel || toneName(o.tone)));
     if(o.audience) L.push("타깃: " + o.audience);
     if(o.source) L.push("참고: " + o.source);
     L.push("");
@@ -5091,15 +5280,137 @@ var AiriaMp4 = (function(){
     openOut(P(plat).upload.url);
   }
 
-  function renderScriptThread(box, v){
+  /* ---------- ✏️ 대본 수정 모드 (v1.9 · 빌드 27) ---------- */
+  var EDIT = { on: false, key: "" };
+  var EDIT_T = null, EDIT_PENDING = "", EDIT_OLDPLAN = "";
+
+  function editKeyCur(v){ return v ? (String(v.id) + "|" + String(v.plat || plat)) : ""; }
+  function isEditing(v){ return !!(v && EDIT.on && EDIT.key === editKeyCur(v)); }
+  function setEditMode(on){
+    var v = viewOfSel();
+    EDIT.on = !!on;
+    EDIT.key = v ? editKeyCur(v) : "";
+    renderScript();
+    if(on && v){
+      toast("✏️ 대본 수정 — 고치면 영상 자막·길이·카드 이미지에 바로 반영되고 이 기기에 저장됩니다");
+      var el = $("scriptView");
+      if(el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+  function editDurText(v){
+    if(!v) return "";
+    var p = v.plat || plat;
+    if(p === "threads" || p === "feed"){
+      var n = String(threadBody(v)).replace(/\s+/g, " ").trim().length;
+      return "📝 본문 " + n + "자 · " + (p === "feed" ? "카드뉴스 " + feedSlideCount(v) + "장" : "이미지 1장");
+    }
+    var d = cutDurs(v);
+    return "🎬 " + d.length + "컷 · " + fmtSec(sumDur(d)) + "초 · 자막 글자 수에 맞춰 자동";
+  }
+  function edInput(label, attrs, val, hint){
+    return '<label class="ed-f"><span class="ed-l">' + esc(label) +
+      (hint ? '<i>' + esc(hint) + '</i>' : '') + '</span>' +
+      '<input class="ed-i" type="text" ' + attrs + ' value="' + esc(val) + '" spellcheck="false" autocomplete="off"></label>';
+  }
+  function edArea(label, attrs, val, rows, hint){
+    return '<label class="ed-f"><span class="ed-l">' + esc(label) +
+      (hint ? '<i>' + esc(hint) + '</i>' : '') + '</span>' +
+      '<textarea class="ed-a" rows="' + (rows || 2) + '" ' + attrs + ' spellcheck="false" autocomplete="off">' +
+      esc(val) + '</textarea></label>';
+  }
+  function editBarHtml(v){
+    var on = isEditing(v), ed = hasEdits(v.id, v.plat || plat);
+    if(on){
+      return '<div class="ed-bar on">' +
+        '<button class="btn primary" type="button" data-edit-toggle="0">✓ 수정 끝내기</button>' +
+        '<button class="btn ghost" type="button" data-edit-reset="1"' + (ed ? "" : " disabled") + '>↺ 원래 대본으로</button>' +
+        '<span class="ed-note" id="edDur">' + esc(editDurText(v)) + '</span>' +
+      '</div>';
+    }
+    return '<div class="ed-bar">' +
+      '<button class="btn" type="button" data-edit-toggle="1">✏️ 대본 수정</button>' +
+      (ed ? '<span class="ed-chip">고친 대본</span>' : "") +
+      '<span class="ed-note">' + (ed
+        ? "고친 대본으로 영상·카드가 그려집니다 — ‘↺ 원래 대본으로’ 되돌릴 수 있어요"
+        : "고치면 영상 자막·길이·카드 이미지와 올라갈 글이 바로 바뀝니다 · 이 기기에 저장") + '</span>' +
+    '</div>';
+  }
+  function videoEditHtml(v){
+    var h = '<div class="ed-wrap">';
+    h += '<div class="ed-hd"><b>✏️ 대본 고치기</b><span>' + esc(tplLabelOf(v)) + ' · ' + esc(curP().name) + '</span></div>';
+    h += edInput("제목", 'data-edit-field="title"', v.title || "", "대본 카드·복사에 쓰입니다");
+    h += edArea("0~3초 훅", 'data-edit-field="hook"', v.hook || "", 2, "첫 문장");
+    (v.cuts || []).forEach(function(c, i){
+      var extra = "";
+      if(c.a !== undefined || c.b !== undefined){
+        extra += edInput("겉", 'data-edit-cut="' + i + '" data-edit-cfield="a"', c.a || "", "");
+        extra += edInput("속", 'data-edit-cut="' + i + '" data-edit-cfield="b"', c.b || "", "");
+      }
+      if(c.node !== undefined || c.branches !== undefined){
+        extra += edInput("단계 이름", 'data-edit-cut="' + i + '" data-edit-cfield="node"', c.node || "", "");
+      }
+      if(c.chip !== undefined){
+        extra += edInput("키워드 칩", 'data-edit-cut="' + i + '" data-edit-cfield="chip"', c.chip || "", "");
+      }
+      h += '<div class="ed-cut">' +
+        '<div class="ed-cut-h"><b>' + esc(String(c.no || (i + 1)) + "컷 · " + (c.role || "")) + '</b>' +
+          '<span class="ed-time" data-edit-time="' + i + '">' + esc(c.time || "") + '</span></div>' +
+        edArea("자막", 'data-edit-cut="' + i + '" data-edit-cfield="line"', c.line || "", 2, "영상에 그대로 나옵니다 · 3줄 이내") +
+        extra +
+        edInput("화면 지시문", 'data-edit-cut="' + i + '" data-edit-cfield="screen"', c.screen || "", "장면 참고용") +
+      '</div>';
+    });
+    h += edArea(v.plat === "shorts" ? "영상 제목·설명" : "캡션", 'data-edit-field="caption"', v.caption || "", 4, "올라갈 글(해시태그 제외)");
+    h += edInput("CTA", 'data-edit-field="cta"', v.cta || "", "마지막 한 줄");
+    h += edInput("해시태그", 'data-edit-field="hashtags"', (v.hashtags || []).join(" "), "공백으로 구분");
+    h += '<p class="ed-foot">고친 값은 이 기기에만 저장됩니다. 영상은 ‘다시 만들기’를 누르면 새 자막·길이로 다시 그려요.</p>';
+    h += "</div>";
+    return h;
+  }
+  function imgEditHtml(v){
+    var feed = (v.plat || plat) === "feed";
+    var h = '<div class="ed-wrap">';
+    h += '<div class="ed-hd"><b>✏️ ' + (feed ? "피드 글·카드 문구 고치기" : "스레드 글·한 줄 고치기") + '</b><span>' + esc(v.title || "") + '</span></div>';
+    h += edInput("제목", 'data-edit-field="title"', v.title || "", "");
+    h += edArea("본문", 'data-edit-field="body"', threadBody(v), 8, "올라갈 " + (feed ? "피드" : "스레드") + " 글 · 복사·공유에 그대로");
+    if(!feed) h += edInput("카드 한 줄", 'data-edit-field="card"', (v.image && v.image.card) || "", "이미지 아래 한 줄");
+    if(feed){
+      h += '<div class="ed-slides"><b>📸 카드뉴스 ' + feedSlideCount(v) + '장 문구</b>';
+      var cfg = threadCfg(v);
+      for(var i = 0; i < feedSlideCount(v); i++){
+        var s = feedSlideAt(v, cfg, i) || {};
+        h += '<div class="ed-cut"><div class="ed-cut-h"><b>' + (i + 1) + '장 · ' + esc(s.role || "") + '</b></div>' +
+          edArea("헤드라인", 'data-edit-slide="' + i + '" data-edit-sfield="line"', s.line || "", 2, "") +
+          edInput("서브 문구", 'data-edit-slide="' + i + '" data-edit-sfield="sub"', s.sub || "", "") +
+        '</div>';
+      }
+      h += "</div>";
+    }
+    h += edArea("첫 줄(훅)", 'data-edit-field="hook"', v.hook || "", 2, "");
+    h += edInput("CTA", 'data-edit-field="cta"', v.cta || "", "");
+    h += edInput("해시태그", 'data-edit-field="hashtags"', (v.hashtags || []).join(" "), "공백으로 구분");
+    h += '<p class="ed-foot">고친 본문·카드 문구가 이미지와 복사·공유 문구에 바로 반영됩니다 · 이 기기에 저장</p>';
+    h += "</div>";
+    return h;
+  }
+
+  /* ---------- 공통 배지 ---------- */
+  function platChip(p){
+    var q = P(p);
+    return '<span class="pchip pchip-' + q.key + '">' + q.icon + " " + esc(q.short) + "</span>";
+  }
+  function tplChip(v){
+    var t = tplOf(v);
+    return '<span class="tchip t-' + t + '">' + esc(tplLabelOf(v)) + "</span>";
+  }
+
+  function scriptThreadHtml(v){
     var card = String((v.image && v.image.card) || "");
     var bodyTxt = threadBody(v);
     var paras = bodyTxt.split(/\n{2,}/);
     /* 본문 첫 문단이 이미 '첫 줄'과 같으면 두 번 보여주지 않는다 */
     var showHook = !!v.hook && bodyTxt.replace(/\s+/g, " ").indexOf(String(v.hook).replace(/\s+/g, " ").slice(0, 14)) !== 0;
-    box.innerHTML =
-      ((typeof upBannerHtml === "function") ? upBannerHtml(v, v.plat || plat) : "") +
-      '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip("threads") + "</div>" +
+    return '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip("threads") + "</div>" +
       '<p class="sv-meta">' + esc(v.length || "글 1편 · 이미지 1장") + " · " + esc(v.toneLabel || "솔직 반말") +
         (v.audience ? " · " + esc(v.audience) : "") + "</p>" +
       (showHook ? '<p class="sv-hook"><b>첫 줄</b>' + esc(v.hook) + "</p>" : "") +
@@ -5111,16 +5422,168 @@ var AiriaMp4 = (function(){
         '<button class="btn primary" type="button" data-to-thread="1">📷 이 글로 이미지 만들기</button>' +
       "</div>";
   }
-
-  /* ---------- 화면: 아이디어 목록 ---------- */
-  function platChip(p){
-    var q = P(p);
-    return '<span class="pchip pchip-' + q.key + '">' + q.icon + " " + esc(q.short) + "</span>";
+  function scriptVideoHtml(v){
+    return '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip(v.plat) + "</div>" +
+      '<p class="sv-tpl">' + esc(tplLabelOf(v)) + (v.concept ? " · " + esc(v.concept) : "") + '</p>' +
+      '<p class="sv-meta">' + esc(v.lengthLabel || v.length || "15초") + " · " + esc(v.toneLabel || toneName(v.tone)) +
+        (v.audience ? " · " + esc(v.audience) : "") + "</p>" +
+      (v.hook ? '<p class="sv-hook"><b>0~3초 훅</b>' + esc(v.hook) + "</p>" : "") +
+      '<ol class="cut-list">' + cutsHtml(v) + "</ol>" +
+      (v.caption ? '<div class="sv-cap"><b>' + (v.plat === "shorts" ? "영상 제목·설명" : "캡션") + "</b>" + esc(v.caption) + "</div>" : "") +
+      (v.cta ? '<p class="cut-s" style="margin-top:10px"><b>CTA</b> ' + esc(v.cta) + "</p>" : "") +
+      ((v.hashtags || []).length ? '<div class="sv-tags">' + v.hashtags.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
+      '<div class="sv-actions">' +
+        '<button class="btn" type="button" data-copy="1">대본 전체 복사</button>' +
+        '<button class="btn primary" type="button" data-to-video="1">🎬 이 대본으로 영상 만들기</button>' +
+      "</div>";
   }
 
-  function tplChip(v){
-    var t = tplOf(v);
-    return '<span class="tchip t-' + t + '">' + esc(tplLabelOf(v)) + "</span>";
+  function renderScript(){
+    var box = $("scriptView");
+    if(!box) return;
+    var v = viewOfSel();
+    if(!v){
+      box.innerHTML = "";
+      box.className = "script-view";
+      if(isImgPost()) renderThreadAll(); else renderSceneBar();
+      return;
+    }
+    var p = v.plat || plat;
+    var img = (p === "threads" || p === "feed");
+    var on = isEditing(v);
+    box.className = "script-view" + (on ? " is-editing" : "");
+    /* ✅ 올림 배너는 늘 맨 위에 (수정 모드에서도 보이게) */
+    var banner = (typeof upBannerHtml === "function") ? upBannerHtml(v, p) : "";
+    box.innerHTML = banner + editBarHtml(v) + (on
+      ? (img ? imgEditHtml(v) : videoEditHtml(v))
+      : (img ? scriptThreadHtml(v) : scriptVideoHtml(v)));
+    if(img) renderThreadAll();
+    renderSceneBar();
+  }
+
+  /* ---------- ✏️ 수정 입력 → 저장 → 화면·영상·이미지 다시 그리기 ---------- */
+  function clearThreadSavedText(id){
+    var all = readThreadTexts();
+    if(all[String(id)] !== undefined){ delete all[String(id)]; writeThreadTexts(all); }
+  }
+  function dropThreadLine(v){
+    var all = readThreadCfg(), rec = all[String(v.id)];
+    if(rec && rec.line !== undefined){ delete rec.line; writeThreadCfg(all); }
+  }
+  function dropDeckField(v, i, field){
+    var cfg = threadCfg(v), deck = cfg.deck || {}, cell = deck[String(i)];
+    if(cell && cell[field] !== undefined){ delete cell[field]; deck[String(i)] = cell; patchThreadCfg(v, { deck: deck }); }
+  }
+  function resyncShare(oldPlan){
+    var v = viewOfSel();
+    var box = $("shareText");
+    if(!v || !box) return;
+    var plan = uploadPlan(v);
+    if(!plan) return;
+    var now = normShare(box.value), was = normShare(oldPlan || "");
+    if(now && (!was || now !== was)) return;   /* 사용자가 직접 고친 글은 건드리지 않는다 */
+    box.value = normShare(plan.text);
+    VIDEO.textKey = String(v.plat || plat) + "|" + String(v.id || v.title || "");
+    var c = $("shareChars");
+    if(c) c.textContent = box.value.length + "자";
+  }
+  function refreshAfterEdit(kind, oldPlan){
+    var v = viewOfSel();
+    if(!v) return;
+    var p = v.plat || plat, img = (p === "threads" || p === "feed");
+    if(img){
+      if(kind === "body"){ clearThreadSavedText(v.id); TH.key = ""; }
+      TH.dataUrl = "";
+      renderThreadAll();
+    } else {
+      try { drawThumb(); } catch(e){}
+      var dur = $("edDur");
+      if(dur) dur.textContent = editDurText(v);
+      var times = document.querySelectorAll("#scriptView [data-edit-time]");
+      var durs = cutDurs(v), acc = 0, i;
+      for(i = 0; i < times.length; i++){
+        var d2 = durs[Math.min(i, durs.length - 1)] || 0;
+        times[i].textContent = fmtSec(acc) + "~" + fmtSec(acc + d2) + "초";
+        acc += d2;
+      }
+      if(VIDEO.blob && VIDEO.plat === p) VIDEO.stale = true;
+    }
+    if(kind === "caption" || kind === "cta" || kind === "hashtags" || kind === "body" || kind === "title"){
+      resyncShare(oldPlan);
+    }
+    try { updateStep3(); } catch(e){}
+    try { renderIdeas(); } catch(e){}
+  }
+  function scheduleEditRefresh(kind, oldPlan){
+    if(kind) EDIT_PENDING = kind;
+    if(oldPlan !== undefined && oldPlan !== null) EDIT_OLDPLAN = oldPlan;
+    if(EDIT_T) clearTimeout(EDIT_T);
+    EDIT_T = setTimeout(function(){
+      EDIT_T = null;
+      refreshAfterEdit(EDIT_PENDING, EDIT_OLDPLAN);
+      EDIT_OLDPLAN = "";
+    }, 160);
+  }
+  function onEditInput(el){
+    var v = viewOfSel();
+    if(!v) return;
+    var p = v.plat || plat;
+    var val = String(el.value == null ? "" : el.value);
+    var cf = el.getAttribute("data-edit-cfield"), ci = el.getAttribute("data-edit-cut");
+    var sf = el.getAttribute("data-edit-sfield"), si = el.getAttribute("data-edit-slide");
+    var f = el.getAttribute("data-edit-field");
+    var oldPlan = null;
+    if(f === "caption" || f === "cta" || f === "hashtags" || f === "body" || f === "title"){
+      try { oldPlan = (uploadPlan(v) || {}).text || ""; } catch(e){ oldPlan = ""; }
+    }
+    if(cf && ci !== null && ci !== undefined){
+      patchCutEdit(v.id, p, parseInt(ci, 10), cf, val);
+      scheduleEditRefresh("cut");
+      return;
+    }
+    if(sf && si !== null && si !== undefined){
+      if(isFeed()) dropDeckField(v, parseInt(si, 10), sf);
+      patchSlideEdit(v.id, p, parseInt(si, 10), sf, val);
+      scheduleEditRefresh("slide");
+      return;
+    }
+    if(!f) return;
+    if(f === "hashtags"){ patchEdit(v.id, p, { hashtags: splitTags(val) }); }
+    else if(f === "card"){ dropThreadLine(v); patchEdit(v.id, p, { card: val }); }
+    else { var one = {}; one[f] = val; patchEdit(v.id, p, one); }
+    scheduleEditRefresh(f, oldPlan);
+  }
+  function resetEditsCur(){
+    var v = viewOfSel();
+    if(!v) return;
+    var p = v.plat || plat, id = v.id, had = false;
+    if(clearEdit(id, p)) had = true;
+    /* 스레드·피드: 이 대본에 저장된 고친 글·카드 한 줄도 함께 되돌린다 */
+    if(p === "threads" || p === "feed"){
+      var tx = readThreadTexts();
+      if(tx[String(id)] !== undefined){ delete tx[String(id)]; writeThreadTexts(tx); had = true; }
+      var cfgs = readThreadCfg(), rec = cfgs[String(id)];
+      if(rec){
+        var cut = false, k;
+        if(rec.line !== undefined){ delete rec.line; cut = true; }
+        if(rec.deck){
+          for(k in rec.deck){
+            if(!rec.deck[k]) continue;
+            if(rec.deck[k].line !== undefined){ delete rec.deck[k].line; cut = true; }
+            if(rec.deck[k].sub !== undefined){ delete rec.deck[k].sub; cut = true; }
+          }
+        }
+        if(cut){ writeThreadCfg(cfgs); had = true; }
+      }
+      TH.key = ""; TH.dataUrl = "";
+    }
+    VIDEO.textKey = "";
+    VIDEO.stale = false;
+    renderScript();
+    try { updateStep3(); } catch(e){}
+    try { drawThumb(); } catch(e){}
+    if(isImgPost()) renderThreadAll();
+    toast(had ? "↺ 원래 대본으로 되돌렸어요" : "고친 내용이 없어요 — 지금이 원래 대본입니다");
   }
 
   function ideaRow(i, idx){
@@ -5134,7 +5597,8 @@ var AiriaMp4 = (function(){
         "<h4>" + tplChip(i) + ((typeof trendChipHtml === "function") ? trendChipHtml(v.id) : "") +
           (i.dayRole && typeof dayTagOf === "function" && dayTagOf(i.dayRole) ? '<span class="dchip">' + esc(dayTagOf(i.dayRole)) + "</span>" : "") +
           (i.group ? '<span class="gchip ' + (i.group === "mongle" ? "g-mg" : "g-dl") + '">' +
-          (i.group === "mongle" ? "몽글노트" : "일상") + "</span>" : "") + esc(v.title) + "</h4>" +
+          (i.group === "mongle" ? "몽글노트" : "일상") + "</span>" : "") +
+          (hasEdits(v.id, v.plat || plat) ? '<span class="ed-chip">✏️ 고침</span>' : "") + esc(v.title) + "</h4>" +
         '<p class="hook">“' + esc(v.hook) + '”</p>' +
         '<div class="bl">' +
           "<span><b>상위노출</b>" + esc(rankOf(v)) + "</span>" +
@@ -5187,38 +5651,6 @@ var AiriaMp4 = (function(){
     }).join("");
   }
 
-  function renderScript(){
-    var box = $("scriptView");
-    if(!box) return;
-    var v = viewOfSel();
-    if(!v){
-      box.innerHTML = "";
-      if(isImgPost()) renderThreadAll(); else renderSceneBar();
-      return;
-    }
-    if((v.plat || plat) === "threads" || (v.plat || plat) === "feed"){
-      renderScriptThread(box, v);
-      renderSceneBar();
-      renderThreadAll();
-      return;
-    }
-    box.innerHTML =
-      ((typeof upBannerHtml === "function") ? upBannerHtml(v, v.plat || plat) : "") +
-      '<div class="sv-top"><h4>' + esc(v.title) + "</h4>" + platChip(v.plat) + "</div>" +
-      '<p class="sv-tpl">' + esc(tplLabelOf(v)) + (v.concept ? " · " + esc(v.concept) : "") + "</p>" +
-      '<p class="sv-meta">' + esc(v.length || "15초") + " · " + esc(v.toneLabel || toneName(v.tone)) +
-        (v.audience ? " · " + esc(v.audience) : "") + "</p>" +
-      (v.hook ? '<p class="sv-hook"><b>0~3초 훅</b>' + esc(v.hook) + "</p>" : "") +
-      '<ol class="cut-list">' + cutsHtml(v) + "</ol>" +
-      (v.caption ? '<div class="sv-cap"><b>' + (v.plat === "shorts" ? "영상 제목·설명" : "캡션") + "</b>" + esc(v.caption) + "</div>" : "") +
-      (v.cta ? '<p class="cut-s" style="margin-top:10px"><b>CTA</b> ' + esc(v.cta) + "</p>" : "") +
-      ((v.hashtags || []).length ? '<div class="sv-tags">' + v.hashtags.map(function(t){ return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" : "") +
-      '<div class="sv-actions">' +
-        '<button class="btn" type="button" data-copy="1">대본 전체 복사</button>' +
-        '<button class="btn primary" type="button" data-to-video="1">🎬 이 대본으로 영상 만들기</button>' +
-      "</div>";
-    renderSceneBar();
-  }
 
   /* ---------- 화면: 3단계 ---------- */
   function updateStep3(){
@@ -5229,7 +5661,7 @@ var AiriaMp4 = (function(){
     var q = curP();
     if(pick){
       pick.innerHTML = v
-        ? (tplChip(v) + " <b>" + esc(v.title) + "</b> · " + esc(v.length || "15초") + " · " + esc(q.name) + " 720×1280")
+        ? (tplChip(v) + " <b>" + esc(v.title) + "</b> · " + esc(v.lengthLabel || v.length || "15초") + " · " + esc(q.name) + " 720×1280")
         : "대본을 먼저 골라 주세요.";
     }
     if(go && !VIDEO.busy) go.textContent = "🎬 " + q.short + " 영상 만들기";
@@ -5241,7 +5673,9 @@ var AiriaMp4 = (function(){
     if(out && !VIDEO.busy) out.hidden = !(VIDEO.blob && VIDEO.plat === plat);
     var hint = $("vidHint");
     if(hint && !VIDEO.busy && VIDEO.blob && VIDEO.plat === plat){
-      hint.textContent = "‘영상 저장’은 휴대폰에, ‘" + q.short + " 올리기’는 " + (q.key === "shorts" ? "유튜브" : "인스타") + "로 바로 갑니다. 올릴 글은 자동으로 복사돼요.";
+      hint.textContent = VIDEO.stale
+        ? "✏️ 대본을 고쳐서 지금 영상과 달라요 — ‘다시 만들기’를 누르면 새 자막·길이로 다시 그립니다."
+        : ("‘영상 저장’은 휴대폰에, ‘" + q.short + " 올리기’는 " + (q.key === "shorts" ? "유튜브" : "인스타") + "로 바로 갑니다. 올릴 글은 자동으로 복사돼요.");
     }
     if(meta && !VIDEO.blob) meta.textContent = "—";
     var mus = $("vidMusic");
@@ -5288,6 +5722,7 @@ var AiriaMp4 = (function(){
       }
       TH.key = "";
       TH.slide = 0;
+      if(EDIT.on) EDIT.key = editKeyCur(viewOfSel());
       renderPlatform();
       renderIdeas();
       renderScript();
@@ -5306,6 +5741,7 @@ var AiriaMp4 = (function(){
     VIDEO.textKey = "";
     TH.key = "";
     TH.slide = 0;
+    if(EDIT.on) EDIT.key = editKeyCur(viewOfSel());
     var s = $("vidPick");
     if(s) s.value = kind + ":" + id;
     renderIdeas();
@@ -7401,6 +7837,7 @@ var AiriaMp4 = (function(){
         VIDEO.plat = p;
         VIDEO.view = v;
         VIDEO.secs = res.secs;
+        VIDEO.stale = false;
         VIDEO.name = "몽글노트_" + P(p).short + "_" + stampName() + extOf(res.mime);
         if(VIDEO.url){ try { URL.revokeObjectURL(VIDEO.url); } catch(e){} }
         VIDEO.url = URL.createObjectURL(blob);
@@ -7976,6 +8413,11 @@ var AiriaMp4 = (function(){
       var upF = t.getAttribute("data-upf");
       if(upF){ upFilterSet(upF); return; }
 
+      /* ✏️ 대본 수정 모드 */
+      var edT = t.getAttribute("data-edit-toggle");
+      if(edT !== null && edT !== undefined){ setEditMode(edT === "1"); return; }
+      if(t.getAttribute("data-edit-reset") !== null){ resetEditsCur(); return; }
+
       var scCut = t.getAttribute("data-scene-cut");
       if(scCut !== null && scCut !== undefined){ scenePickCut(parseInt(scCut, 10)); return; }
       var scPick = t.getAttribute("data-scene-pick");
@@ -8036,6 +8478,11 @@ var AiriaMp4 = (function(){
 
     panel.addEventListener("input", function(e){
       if(!e.target) return;
+      /* ✏️ 대본·자막 수정 입력 (제목·훅·컷 자막·본문·카드 문구·해시태그) */
+      if(e.target.hasAttribute && (e.target.hasAttribute("data-edit-field") ||
+          e.target.hasAttribute("data-edit-cut") || e.target.hasAttribute("data-edit-slide"))){
+        onEditInput(e.target); return;
+      }
       if(e.target.id === "shareText"){
         var c = $("shareChars");
         if(c) c.textContent = (e.target.value.length || 0) + "자";
@@ -8059,15 +8506,16 @@ var AiriaMp4 = (function(){
       if(e.target.id === "thLine"){
         var vl = viewOfSel();
         if(vl){
+          /* ✏️ 3단계의 카드 한 줄도 2단계 수정과 같은 저장소에 쌓는다 (문구는 한 곳에만) */
           if(isFeed()){
-            var cfgL = threadCfg(vl), deckL = cfgL.deck || {}, iL = String(TH.slide || 0);
-            var cellL = deckL[iL] || {};
-            cellL.line = String(e.target.value || "");
-            deckL[iL] = cellL;
-            patchThreadCfg(vl, { deck: deckL });
+            var iL = Math.max(0, Math.min(feedSlideCount(vl) - 1, TH.slide || 0));
+            dropDeckField(vl, iL, "line");
+            patchSlideEdit(vl.id, plat, iL, "line", String(e.target.value || ""));
           } else {
-            patchThreadCfg(vl, { line: String(e.target.value || "") });
+            dropThreadLine(vl);
+            patchEdit(vl.id, plat, { card: String(e.target.value || "") });
           }
+          if(EDIT.on) renderScript();
           renderThreadAll();
         }
       }
@@ -8108,6 +8556,54 @@ var AiriaMp4 = (function(){
     updateStep3();
     if(isImgPost()) renderThreadAll();
   }
+
+  /* ==========================================================================
+     🧪 점검구 — 테스트·검수용 읽기 창구(앱 동작에는 쓰지 않는다)
+       · 화면과 영상이 실제로 '고친 대본'을 읽는지 확인할 때만 쓴다.
+     ========================================================================== */
+  try {
+    window.AriaEdit = {
+      edits: function(){ return readEdits(); },
+      view: function(id, p){
+        var v = getEffectiveIdea(id, p || plat);
+        if(!v) return null;
+        return {
+          id: v.id, plat: v.plat, title: v.title, hook: v.hook, caption: v.caption, cta: v.cta,
+          body: threadBody(v), card: String((v.image && v.image.card) || ""),
+          hashtags: (v.hashtags || []).slice(), edited: !!v.edited,
+          cuts: (v.cuts || []).map(function(c){
+            return { no: c.no, time: c.time, role: c.role, line: c.line, a: c.a, b: c.b, node: c.node, chip: c.chip, screen: c.screen };
+          }),
+          slides: (v.slides || []).map(function(s){ return { no: s.no, role: s.role, line: s.line, sub: s.sub }; })
+        };
+      },
+      durs: function(id, p){
+        var v = getEffectiveIdea(id, p || plat);
+        if(!v) return null;
+        var d = cutDurs(v);
+        return { durs: d, total: sumDur(d) };
+      },
+      /* 영상 렌더러(recordStandardMp4·recordWithMediaRecorder 가 쓰는 바로 그 함수)로 한 프레임 */
+      frame: function(id, p, t){
+        var v = getEffectiveIdea(id, p || plat);
+        if(!v) return "";
+        var c = document.createElement("canvas");
+        c.width = CW; c.height = CH;
+        try { drawVideoFrame(c.getContext("2d"), v, v.plat, (t === undefined ? 1 : t)); } catch(e){ return ""; }
+        try { return c.toDataURL("image/jpeg", 0.82); } catch(e){ return ""; }
+      },
+      /* 자막 줄바꿈이 3줄을 넘지 않는지 — 영상과 같은 fitLines 로 확인 */
+      fit: function(text, maxW, sizeStart, sizeMin, maxLines){
+        var c = document.createElement("canvas");
+        c.width = CW; c.height = CH;
+        var g = c.getContext("2d");
+        var r = fitLines(g, "600", String(text == null ? "" : text),
+          maxW || 600, sizeStart || 52, sizeMin || 40, maxLines || 3);
+        return { n: r.lines.length, size: r.size,
+          lines: r.lines.map(function(l){ return l.text; }) };
+      }
+    };
+  } catch(e){}
 
 /* ==========================================================================
    v1.8.1 — 📸 인스타 피드 4장 카드뉴스(캐러셀) · 🧵 스레드 일상 스냅 · ✅ 업로드 완료 표시
@@ -8381,10 +8877,12 @@ var AiriaMp4 = (function(){
     var n = Math.max(0, Math.min(list.length - 1, i || 0));
     var s = list[n];
     var o = ((cfg && cfg.deck) || {})[String(n)] || {};
+    /* ✏️ 대본 수정으로 고친 문구가 있으면 그것이 가장 최신 — 그 장의 예전 저장값보다 우선한다 */
+    var ed = (v && v.slideEdited && v.slideEdited[String(n)]) || {};
     return {
       no: s.no, role: s.role,
-      line: (o.line !== undefined && o.line !== null) ? String(o.line) : s.line,
-      sub: (o.sub !== undefined && o.sub !== null) ? String(o.sub) : s.sub,
+      line: ed.line ? s.line : ((o.line !== undefined && o.line !== null) ? String(o.line) : s.line),
+      sub: ed.sub ? s.sub : ((o.sub !== undefined && o.sub !== null) ? String(o.sub) : s.sub),
       scene: o.scene || s.scene,
       data: o.data || ""
     };
@@ -9346,7 +9844,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.8.5";
-  var OTA_APP_BUILD = 26;
+  var OTA_APP_BUILD = 27;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
