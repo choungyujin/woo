@@ -5652,7 +5652,7 @@ var AiriaMp4 = (function(){
       '<span class="no">' + (idx + 1) + "</span>" +
       "<div>" +
         ((typeof uploadFlags === "function") ? uploadFlags(v.id) : "") +
-        "<h4>" + tplChip(i) + ((typeof trendChipHtml === "function") ? trendChipHtml(v.id) : "") +
+        "<h4>" + tplChip(v) + ((typeof trendChipHtml === "function") ? trendChipHtml(v.id) : "") +
           (i.dayRole && typeof dayTagOf === "function" && dayTagOf(i.dayRole) ? '<span class="dchip">' + esc(dayTagOf(i.dayRole)) + "</span>" : "") +
           (i.group ? '<span class="gchip ' + (i.group === "mongle" ? "g-mg" : "g-dl") + '">' +
           (i.group === "mongle" ? "몽글노트" : "일상") + "</span>" : "") +
@@ -11196,7 +11196,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 33;
+  var OTA_APP_BUILD = 34;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
