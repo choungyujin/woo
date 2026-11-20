@@ -7074,6 +7074,12 @@ var AiriaMp4 = (function(){
     g.fillStyle = sc;
     g.fillRect(0, CH * 0.40, CW, CH * 0.60);
 
+    if(x.typeCard){
+      fontFam(g, "mono", "500", 300, "-16px");
+      g.textAlign = "right";
+      g.fillStyle = "rgba(255,255,255,.05)";
+      g.fillText("0" + (idx + 1), CW - 30, 420);
+    }
     /* 얇은 챕터 숫자만 (배지 아님) */
     fontFam(g, "mono", "500", 20, "3px");
     g.textAlign = "left";
@@ -7087,14 +7093,19 @@ var AiriaMp4 = (function(){
 
     var tx = 40, maxW = CW - 84;
     var big = x.typeCard;
+    var baseY = big ? 780 : 1010;
     softShadow(g, true);
-    var body = lineBlock(g, "600", CUR.fam, x.line, tx, big ? 900 : 1010, maxW,
-                         big ? 58 : 50, big ? 40 : 34, big ? 4 : 3, "#FFFFFF", 1.34, "-0.8px", ACC);
+    var body = lineBlock(g, "600", CUR.fam, x.line, tx, baseY, maxW,
+                         big ? 62 : 50, big ? 42 : 34, big ? 4 : 3, "#FFFFFF", 1.34, "-0.8px", ACC);
     softShadow(g, false);
-    if(x.role && !x.typeCard){
+    if(x.role){
       fontFam(g, "mono", "500", 18, "1.6px");
-      g.fillStyle = withAlpha(ACC, .92);
-      g.fillText(String(x.role), tx, 1010 - body.h - 26);
+      g.fillStyle = withAlpha("#FFFFFF", .70);
+      g.fillText(String(x.role), tx, baseY - body.h - 30);
+    }
+    if(big){
+      g.fillStyle = withAlpha(ACC, .9);
+      g.fillRect(tx, baseY + 34, 52, 3);
     }
     drawProgress(g, t, durs, 34, CW - 34, CH - 44, withAlpha(ACC, .92));
     g.restore();
@@ -7160,6 +7171,16 @@ var AiriaMp4 = (function(){
     var cx = photoLeft ? (pw > 0 ? 376 : 34) : 34;
     var cw = photoLeft ? (pw > 0 ? CW - 376 - 24 : CW - 68) : (pw > 0 ? CW - 376 - 24 : CW - 68);
     var lastY = x.typeCard ? 760 : 1120;
+    /* 글자만 있는 장 — 여백이 허전하지 않게 아주 큰 타이포 + 옅은 번호 */
+    if(x.typeCard){
+      cw = CW - 68;
+      var tchars = String(x.line || "").replace(/\s/g, "").length;
+      fontFam(g, "mono", "500", 300, "-14px");
+      g.textAlign = "right";
+      g.fillStyle = dark ? "rgba(255,255,255,.06)" : "rgba(21,18,14,.05)";
+      g.fillText(no, CW - 30, 1140);
+      lastY = 760;
+    }
     var lineTxt = String(x.line || "").trim();
     var bigText = lineTxt.replace(/\s/g, "").length <= 14;
     var arr = [lineTxt], size, step, firstY;
@@ -7175,7 +7196,8 @@ var AiriaMp4 = (function(){
         arr = [best.a, best.b];
       }
       var longest = arr[0].length >= arr[arr.length - 1].length ? arr[0] : arr[arr.length - 1];
-      size = fitWordSize(g, CUR.fam, "600", longest, cw, x.typeCard ? 108 : 92, 44);
+      var maxBig = x.typeCard ? (tchars <= 2 ? 210 : (tchars <= 6 ? 150 : 96)) : 92;
+      size = fitWordSize(g, CUR.fam, "600", longest, cw, maxBig, 44);
       step = Math.round(size * 1.14);
       firstY = lastY - (arr.length - 1) * step;
       if(x.role){
@@ -7448,12 +7470,22 @@ var AiriaMp4 = (function(){
     g.rect(-iw / 2, -cardH / 2 + 20, iw, ih);
     g.clip();
     if(x.typeCard){
-      g.fillStyle = dark ? "#242028" : "#EFE9DC";
+      g.fillStyle = dark ? "#242028" : "#F4ECDC";
       g.fillRect(-iw / 2, -cardH / 2 + 20, iw, ih);
-      fontFam(g, "mono", "500", 15, "2px");
-      g.fillStyle = dark ? "rgba(255,255,255,.4)" : "rgba(30,24,18,.36)";
+      g.strokeStyle = dark ? "rgba(255,255,255,.10)" : "rgba(40,32,24,.12)";
+      g.lineWidth = 1.5;
+      for(var ny = -cardH / 2 + 120; ny < -cardH / 2 + 20 + ih - 20; ny += 62){
+        g.beginPath(); g.moveTo(-iw / 2 + 30, ny); g.lineTo(iw / 2 - 30, ny); g.stroke();
+      }
+      var nf = fitLines(g, "500", x.line, iw - 96, 52, 32, 5);
+      var nstep = Math.round(nf.size * 1.5);
+      var nTop = -cardH / 2 + 20 + Math.round((ih - (nf.lines.length - 1) * nstep - nf.size) / 2) + nf.size;
+      fontFam(g, "mono", "500", nf.size, "-0.2px");
       g.textAlign = "center";
-      g.fillText("NOTE", 0, -cardH / 2 + 62);
+      g.fillStyle = dark ? "#F3EADB" : "#23201A";
+      for(var ni = 0; ni < nf.lines.length; ni++){
+        g.fillText(nf.lines[ni].text, 0, nTop + ni * nstep);
+      }
     } else {
       var im = sceneImgAt(v, idx);
       if(im && im.complete && im.naturalWidth){
@@ -7469,7 +7501,7 @@ var AiriaMp4 = (function(){
     g.restore();
 
     /* 인화지 아래 손글씨 캡션 */
-    var cap = x.line;
+    var cap = x.typeCard ? (x.role || "NOTE") : x.line;
     var capSize = cap.length <= 10 ? 40 : (cap.length <= 22 ? 32 : 27);
     var cf = fitLines(g, "500", cap, cardW - 70, capSize, 22, 2);
     var cstep = Math.round(cf.size * 1.35);
@@ -11164,7 +11196,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 32;
+  var OTA_APP_BUILD = 33;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
