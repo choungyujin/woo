@@ -9147,9 +9147,10 @@ var AiriaMp4 = (function(){
 
     /* 헤드라인 · 서브라인 (아래 정렬 조판) */
     var maxW = W - 192;
-    var fit = s.line ? fitLines(g, "500", s.line, maxW, 76, 48, 3) : null;
-    var sf = s.sub ? fitLines(g, "400", s.sub, maxW, 30, 23, 2) : null;
-    var subLast = 1186;
+    /* 글자만 있는 장은 더 크게 — 빈 여백이 크게 보이지 않게 */
+    var fit = s.line ? fitLines(g, "500", s.line, maxW, hasPhoto ? 76 : 104, hasPhoto ? 48 : 64, 3) : null;
+    var sf = s.sub ? fitLines(g, "400", s.sub, maxW, hasPhoto ? 30 : 38, hasPhoto ? 23 : 27, 2) : null;
+    var subLast = hasPhoto ? 1186 : 1010;
     var ss = sf ? Math.round(sf.size * 1.52) : 0;
     var subFirst = sf ? (subLast - (sf.lines.length - 1) * ss) : subLast;
     var headLast = sf ? (subFirst - sf.size - 48) : (subLast - 8);
@@ -10506,7 +10507,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 30;
+  var OTA_APP_BUILD = 31;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
