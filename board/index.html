@@ -10335,10 +10335,12 @@ var AiriaMp4 = (function(){
     g.textAlign = align || "left";
     for(var i = 0; i < L.lines.length; i++){
       var ty = y + i * L.step;
-      try { g.shadowColor = "rgba(158,231,255,.70)"; g.shadowBlur = 22; } catch(e){}
-      g.lineWidth = Math.max(2, L.size * .030); g.strokeStyle = "rgba(26,14,54,.60)";
-      g.strokeText(L.lines[i].text, tx, ty);
+      /* 1패스: 아이스 글로우 + 어두운 밑글자(외곽선 대신 깊이를 만든다) */
+      try { g.shadowColor = "rgba(158,231,255,.75)"; g.shadowBlur = 26; } catch(e){}
+      g.fillStyle = "rgba(24,12,50,.92)";
+      g.fillText(L.lines[i].text, tx, ty);
       g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)";
+      /* 2패스: 실버 그라데이션 */
       g.fillStyle = gr;
       g.fillText(L.lines[i].text, tx, ty);
     }
@@ -10366,8 +10368,8 @@ var AiriaMp4 = (function(){
     bg.addColorStop(0, "#1B1613"); bg.addColorStop(.55, "#0B0908"); bg.addColorStop(1, "#2A1A12");
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
     g.save(); fbFont(g, "700", 620, "-34px", "serif"); g.textAlign = "right";
-    g.lineWidth = 3; g.strokeStyle = withAlpha(accent, .22);
-    g.strokeText(fbIdx(idx), W - 10, H - 40); g.restore();
+    g.fillStyle = withAlpha(accent, .16);
+    g.fillText(fbIdx(idx), W - 10, H - 40); g.restore();
     fbRule(g, 84, 300, W - 168, "rgba(244,238,227,.16)", 1);
   }
   function fbDarkMag(g, v, cfg, s, idx, total){
@@ -10794,8 +10796,8 @@ var AiriaMp4 = (function(){
         g.strokeStyle = "rgba(16,16,16,.55)"; g.lineWidth = 1.5; g.strokeRect(46, H - 320 + i * 46, 34, 34);
       }
       g.save(); fbFont(g, "900", 320, "-16px", "gothic"); g.textAlign = "right";
-      g.lineWidth = 5; g.strokeStyle = "rgba(27,43,224,.75)";
-      g.strokeText(fbIdx(idx), W - 20, H - 170); g.restore();
+      g.fillStyle = "rgba(27,43,224,.22)";
+      g.fillText(fbIdx(idx), W - 20, H - 170); g.restore();
       ticker(H - 82, BG, COB);
       g.restore(); return;
     }
@@ -10847,8 +10849,8 @@ var AiriaMp4 = (function(){
       g.fillText("REPORT  ·  " + fbStamp(), 64, 118);
       g.textAlign = "right"; g.fillStyle = SUB; g.fillText(fbNum(idx, total), W - 64, 118); g.textAlign = "left";
       g.save(); fbFont(g, "900", 380, "-18px", "gothic"); g.textAlign = "right";
-      g.lineWidth = 4; g.strokeStyle = "rgba(204,255,77,.28)";
-      g.strokeText(fbIdx(idx), W - 20, H - 360); g.restore();
+      g.fillStyle = "rgba(204,255,77,.16)";
+      g.fillText(fbIdx(idx), W - 20, H - 360); g.restore();
       fbPill(g, fbRole(s) || "CHECK", 64, 214, 22, LIME, BG, 24, 13, "gothic", "800");
       var Lt = fbFitBox(g, "900", s.line, W - 130, 560, 140, 60, 4, 1.06, "gothic", true);
       fbDraw(g, Lt, 64, 356, IV, "left", "-2px", "900", "gothic", W - 130);
@@ -11110,8 +11112,8 @@ var AiriaMp4 = (function(){
       if(s.sub) fbText(g, "600", s.sub, 52, ty + Lt.h + 46, W - 250, 30, 23, 2, "rgba(244,244,242,.82)", "left", 1.45);
       /* 아래 초대형 외곽선 번호 + 좌표 라벨로 하단을 채운다 */
       g.save(); fbFont(g, "900", 420, "-24px", "gothic");
-      g.lineWidth = 5; g.strokeStyle = "rgba(255,59,0,.85)";
-      g.strokeText(fbIdx(idx), 34, H + 40); g.restore();
+      g.fillStyle = "rgba(255,59,0,.20)";
+      g.fillText(fbIdx(idx), 34, H + 40); g.restore();
       fbFont(g, "600", 16, "3px", "mono"); g.fillStyle = GREY; g.textAlign = "right";
       g.fillText("SCROLL  ↓", W - 50, H - 44); g.textAlign = "left";
       fbFont(g, "600", 16, "3px", "mono"); g.fillStyle = "rgba(244,244,242,.32)";
