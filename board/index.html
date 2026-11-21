@@ -10751,9 +10751,17 @@ var AiriaMp4 = (function(){
     var list = [];
     try { list = shortsIdeaList(); } catch(e){ return null; }
     if(!list.length) return null;
+    /* v1.12(빌드 35) — 외부 대본을 '오늘'로 배정했으면 그 플랫폼 슬롯에 먼저 끼운다 */
+    try {
+      if(typeof extRelayPick === "function"){
+        var ex = extRelayPick(plat);
+        if(ex) return ex;
+      }
+    } catch(err){}
     var dayKey = todayKeySafe(), i;
     if(dayKey){
-      for(i = 0; i < list.length; i++) if(list[i] && list[i].dayRole === dayKey) return list[i];
+      /* 외부 대본은 플랫폼이 맞을 때만(위에서 처리) — 다른 슬롯을 덮지 않게 건너뛴다 */
+      for(i = 0; i < list.length; i++) if(list[i] && !list[i].ext && list[i].dayRole === dayKey) return list[i];
     }
     for(i = 0; i < list.length; i++) if(!uploadedAt(list[i].id, plat)) return list[i];
     return list[0];
@@ -11196,7 +11204,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 34;
+  var OTA_APP_BUILD = 35;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -11424,6 +11432,712 @@ var AiriaMp4 = (function(){
   } else {
     initOta(); initNotify();
   }
+
+/* ==========================================================================
+   v1.12 (빌드 35) — 외부 대본·이미지 끼워넣기
+     · ChatGPT 등에서 만든 대본(글)과 장면 이미지를 그대로 가져와
+       기존 대본(s01~s09)과 똑같이 목록·미리보기·수정·오늘의 4종 릴레이·
+       주간 플래너·업로드 체크(안 올린 대본 ↔ 올린 기록)·삭제까지 쓴다.
+     · 글은 localStorage(arisia949_ext_v1), 이미지는 IndexedDB(arisia949_ext_db)에
+       영구 보관한다 — 앱을 껐다 켜거나 OTA가 와도 사라지지 않는다.
+     · 기존 순서(12:30 스레드 → 19:00 피드 → 20:30 릴스 → 21:30 쇼츠)와
+       카드 배열 순서는 그대로 두고, 배정된 슬롯만 바꿔 끼운다.
+   ========================================================================== */
+(function(){
+  var EXT_KEY = "arisia949_ext_v1";
+  var DB_NAME = "arisia949_ext_db";
+  var DB_STORE = "img";
+  var MAX_W = 1080, QUALITY = 0.82;
+
+  var PLATS = [
+    { k: "reels",   label: "📱 인스타 릴스" },
+    { k: "shorts",  label: "▶ 유튜브 쇼츠" },
+    { k: "feed",    label: "📸 인스타 피드" },
+    { k: "threads", label: "🧵 스레드" }
+  ];
+  var DAYS = [
+    { k: "",      label: "배정 안 함" },
+    { k: "today", label: "오늘 (릴레이에 끼우기)" },
+    { k: "mon",   label: "월요일" }, { k: "tue", label: "화요일" },
+    { k: "wed",   label: "수요일" }, { k: "thu", label: "목요일" },
+    { k: "fri",   label: "금요일" }, { k: "sat", label: "토요일" },
+    { k: "sun",   label: "일요일" }
+  ];
+  var IMG_CACHE = {};      /* imgId → dataURL (메모리) */
+  var busy = false;
+
+  /* ---------------- 저장 ---------------- */
+  function readExt(){
+    try {
+      var o = JSON.parse(localStorage.getItem(EXT_KEY) || "[]");
+      return Array.isArray(o) ? o : [];
+    } catch(e){ return []; }
+  }
+  function writeExt(list){
+    try { localStorage.setItem(EXT_KEY, JSON.stringify(list.slice(0, 80))); return true; }
+    catch(e){ return false; }
+  }
+  function findExt(id){
+    var list = readExt();
+    for(var i = 0; i < list.length; i++) if(list[i] && String(list[i].id) === String(id)) return list[i];
+    return null;
+  }
+  function isExtId(id){ return !!findExt(id); }
+  function nowStr(){
+    var d = new Date(), p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function todayKeySafe(){
+    return ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][new Date().getDay()] || "";
+  }
+  /* 외부 대본 id — 기존 대본(s01~s09)과 겹치지 않는 다음 번호 */
+  function nextId(){
+    var max = 9, i, m;
+    var seen = function(id){
+      m = /^s(\d+)$/.exec(String(id || ""));
+      if(m) max = Math.max(max, parseInt(m[1], 10));
+    };
+    try { shortsIdeaList().forEach(function(it){ seen(it && it.id); }); } catch(e){}
+    readExt().forEach(function(it){ seen(it && it.id); });
+    var n = max + 1;
+    return "s" + (n < 10 ? "0" + n : String(n));
+  }
+
+  /* ---------------- IndexedDB (이미지 영구 보관) ---------------- */
+  function openDB(){
+    return new Promise(function(resolve){
+      var req;
+      try { req = indexedDB.open(DB_NAME, 1); } catch(e){ resolve(null); return; }
+      req.onupgradeneeded = function(){
+        try {
+          var db = req.result;
+          if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath: "id" });
+        } catch(e){}
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ resolve(null); };
+      req.onblocked = function(){ resolve(null); };
+    });
+  }
+  function idbPut(rec){
+    return openDB().then(function(db){
+      if(!db) return null;
+      return new Promise(function(resolve){
+        try {
+          var tx = db.transaction(DB_STORE, "readwrite");
+          tx.objectStore(DB_STORE).put(rec);
+          tx.oncomplete = function(){ resolve(true); };
+          tx.onerror = function(){ resolve(null); };
+          tx.onabort = function(){ resolve(null); };
+        } catch(e){ resolve(null); }
+      });
+    });
+  }
+  function idbGet(id){
+    return openDB().then(function(db){
+      if(!db) return null;
+      return new Promise(function(resolve){
+        try {
+          var tx = db.transaction(DB_STORE, "readonly");
+          var rq = tx.objectStore(DB_STORE).get(String(id));
+          rq.onsuccess = function(){ resolve(rq.result || null); };
+          rq.onerror = function(){ resolve(null); };
+        } catch(e){ resolve(null); }
+      });
+    });
+  }
+  function idbDel(id){
+    return openDB().then(function(db){
+      if(!db) return null;
+      return new Promise(function(resolve){
+        try {
+          var tx = db.transaction(DB_STORE, "readwrite");
+          tx.objectStore(DB_STORE).delete(String(id));
+          tx.oncomplete = function(){ resolve(true); };
+          tx.onerror = function(){ resolve(null); };
+        } catch(e){ resolve(null); }
+      });
+    });
+  }
+
+  /* ---------------- 이미지 압축 ---------------- */
+  function compressDataUrl(src, cb){
+    var img = new Image();
+    img.onload = function(){
+      try {
+        var scale = Math.min(1, MAX_W / (img.naturalWidth || MAX_W));
+        var w = Math.max(1, Math.round((img.naturalWidth || MAX_W) * scale));
+        var h = Math.max(1, Math.round((img.naturalHeight || MAX_W) * scale));
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        var g = c.getContext("2d");
+        g.fillStyle = "#ffffff"; g.fillRect(0, 0, w, h);
+        g.drawImage(img, 0, 0, w, h);
+        var data = c.toDataURL("image/jpeg", QUALITY);
+        cb({ data: data, w: w, h: h });
+      } catch(e){ cb({ data: src, w: 0, h: 0 }); }
+    };
+    img.onerror = function(){ cb(null); };
+    img.src = src;
+  }
+  function fileToData(file, cb){
+    var fr = new FileReader();
+    fr.onload = function(){ compressDataUrl(String(fr.result || ""), function(r){
+      if(!r) { cb(null); return; }
+      r.name = file.name || "image";
+      cb(r);
+    }); };
+    fr.onerror = function(){ cb(null); };
+    fr.readAsDataURL(file);
+  }
+
+  /* ---------------- 컷 장면에 첨부 이미지 연결 ----------------
+     영상·카드 렌더러는 컷별 장면을 localStorage(arisia949_scene_v1)에서 읽는다.
+     같은 값을 IDB에서 다시 채워 넣어 OTA·기기 저장소 정리 뒤에도 살아나게 한다. */
+  function sceneKeysFor(idea, platKey){
+    var out = [];
+    for(var i = 0; i < 4; i++) out.push(String(idea.id) + "|" + platKey + "|" + i);
+    return out;
+  }
+  function applyScenes(idea){
+    if(!idea || !idea.imgs || !idea.imgs.length) return false;
+    var store;
+    try { store = readScenePick(); } catch(e){ return false; }
+    if(!store || typeof store !== "object") store = {};
+    var keys = sceneKeysFor(idea, idea.plat || "reels");
+    var changed = false;
+    for(var i = 0; i < keys.length; i++){
+      var im = IMG_CACHE[idea.imgs[i % idea.imgs.length].id];
+      if(im && (!store[keys[i]] || store[keys[i]].data !== im)){
+        store[keys[i]] = { data: im };
+        changed = true;
+      }
+    }
+    if(changed){ try { writeScenePick(store); } catch(e){ return false; } }
+    return changed;
+  }
+  /* IDB → 메모리 캐시 → 컷 장면 (비동기) */
+  function ensureImages(idea, cb){
+    if(!idea || !idea.imgs || !idea.imgs.length){ if(cb) cb(); return; }
+    var missing = idea.imgs.filter(function(im){ return im && !IMG_CACHE[im.id]; });
+    if(!missing.length){ applyScenes(idea); if(cb) cb(); return; }
+    Promise.all(missing.map(function(im){
+      return idbGet(im.id).then(function(rec){
+        if(rec && rec.data) IMG_CACHE[im.id] = rec.data;
+      });
+    })).then(function(){ applyScenes(idea); if(cb) cb(); }).catch(function(){ if(cb) cb(); });
+  }
+  function ensureAll(){
+    readExt().forEach(function(it){ ensureImages(it); });
+  }
+
+  /* ---------------- 대본 객체 만들기 ---------------- */
+  function linesOf(text){
+    return String(text || "").split(/\r?\n/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length; });
+  }
+  function tagList(text){
+    var out = [];
+    String(text || "").split(/[\s,]+/).forEach(function(t){
+      t = t.trim();
+      if(!t) return;
+      if(t.charAt(0) !== "#") t = "#" + t.replace(/^#+/, "");
+      out.push(t);
+    });
+    return out.slice(0, 20);
+  }
+  function buildIdea(p){
+    var platKey = p.plat || "reels";
+    var lines = linesOf(p.body);
+    var hook = lines[0] || p.title || "";
+    var roles = ["첫 줄", "이야기", "핵심", "마무리"];
+    var cuts = [];
+    var n = (platKey === "threads" || platKey === "feed") ? Math.min(lines.length, 4) : 4;
+    for(var i = 0; i < n; i++){
+      cuts.push({
+        no: i + 1,
+        role: roles[Math.min(i, 3)],
+        time: "",
+        line: lines[i] || "",
+        screen: p.imgNote || "외부에서 가져온 컷 — 첨부한 이미지"
+      });
+    }
+    var sc = {
+      title: p.title || hook,
+      length: (platKey === "threads" || platKey === "feed") ? "글 1편" : "18~22초",
+      toneLabel: "외부 대본",
+      hook: hook,
+      cuts: cuts,
+      narration: lines.join(" "),
+      caption: p.caption || "",
+      cta: "",
+      hashtags: tagList(p.tags),
+      template: p.template || "editorial",
+      templateLabel: ""
+    };
+    if(platKey === "threads" || platKey === "feed"){
+      sc.body = String(p.body || "");
+      sc.image = { scene: "", card: hook };
+    }
+    var idea = {
+      id: p.id || nextId(),
+      ext: true,
+      group: "ext",
+      source: "외부 대본 · 직접 붙여넣음",
+      context: "ChatGPT 등 외부에서 만든 대본을 그대로 가져옴",
+      title: p.title || hook,
+      tone: "ext",
+      plat: platKey,
+      dayRole: p.dayRole || "",
+      at: p.at || nowStr(),
+      hook: hook,
+      cuts: cuts,
+      caption: p.caption || "",
+      hashtags: tagList(p.tags),
+      imgs: p.imgs || [],
+      trendKeys: [],
+      scripts: {}
+    };
+    idea.scripts[platKey] = sc;
+    return idea;
+  }
+
+  /* ---------------- 기존 대본 목록에 합치기 ---------------- */
+  function patchLists(){
+    if(patchLists.done) return;
+    patchLists.done = true;
+    var _list = shortsIdeaList, _find = findIdea;
+    shortsIdeaList = function(){
+      var base = [];
+      try { base = _list.apply(null, arguments) || []; } catch(e){ base = []; }
+      var ext = readExt().filter(function(e){
+        for(var i = 0; i < base.length; i++) if(String(base[i].id) === String(e.id)) return false;
+        return true;
+      });
+      return base.concat(ext);
+    };
+    findIdea = function(id){
+      var o = null;
+      try { o = _find.call(null, id); } catch(e){ o = null; }
+      return o || findExt(id);
+    };
+  }
+
+  function refreshUI(selId){
+    try { if(typeof renderIdeas === "function") renderIdeas(); } catch(e){}
+    try { if(typeof paintWeekAll === "function") paintWeekAll(); } catch(e){}
+    try { if(typeof renderGolden === "function") renderGolden(); } catch(e){}
+    try { if(typeof fillPicks === "function") fillPicks(); } catch(e){}
+    if(selId){
+      try { selectScript("idea", selId, true); } catch(e){}
+    }
+  }
+
+  /* ---------------- CSS ---------------- */
+  function css(){
+    if(document.getElementById("v200-css")) return;
+    var st = document.createElement("style");
+    st.id = "v200-css";
+    st.textContent = [
+      ".ext-pick{display:flex;align-items:center;gap:8px;margin:10px 0 12px;flex-wrap:wrap}",
+      ".ext-add{font:inherit;font-size:13px;font-weight:600;border-radius:12px;padding:10px 14px;cursor:pointer;",
+      "  border:1px dashed #C9C2B4;background:#FCFBF8;color:#3A342C}",
+      ".ext-add:active{transform:translateY(1px)}",
+      ".ext-note{font-size:11.5px;color:#8A8378;line-height:1.5}",
+      ".ext-chip{display:inline-block;margin-right:6px;padding:1px 7px;border-radius:999px;background:#F1EAFB;color:#6B47A8;",
+      "  font-size:10.5px;font-weight:700;letter-spacing:.2px}",
+      ".ext-del{margin-left:auto;border:1px solid #EADFD8;background:#fff;color:#A8503C;border-radius:10px;",
+      "  font:inherit;font-size:11.5px;padding:5px 9px;cursor:pointer;white-space:nowrap}",
+      ".ext-row-wrap{display:flex;align-items:center;gap:6px}",
+      "#extModal{position:fixed;inset:0;z-index:1200;display:none;align-items:flex-end;justify-content:center;",
+      "  background:rgba(24,20,16,.44);padding:0}",
+      "#extModal.on{display:flex}",
+      "#extModal .ext-sheet{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:#F7F4EE;",
+      "  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));",
+      "  box-shadow:0 -8px 40px rgba(0,0,0,.22)}",
+      "#extModal h3{margin:0 0 4px;font-size:17px;letter-spacing:-.3px}",
+      "#extModal .ext-sub{margin:0 0 14px;font-size:12px;color:#7A736A;line-height:1.6}",
+      ".ext-f{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}",
+      ".ext-f > span{font-size:12px;font-weight:600;color:#4A443B}",
+      ".ext-f input[type=text],.ext-f textarea,.ext-f select{font:inherit;font-size:13.5px;width:100%;box-sizing:border-box;",
+      "  border:1px solid #E0DACE;border-radius:12px;padding:11px 12px;background:#fff;color:#231F1A}",
+      ".ext-f textarea{min-height:96px;line-height:1.55;resize:vertical}",
+      ".ext-f textarea.small{min-height:62px}",
+      ".ext-f small{font-size:11px;color:#8A8378;line-height:1.5}",
+      ".ext-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}",
+      ".ext-thumbs figure{margin:0;width:76px;position:relative}",
+      ".ext-thumbs img{width:76px;height:96px;object-fit:cover;border-radius:10px;border:1px solid #E4DED3}",
+      ".ext-thumbs figcaption{font-size:10px;color:#8A8378;text-align:center;margin-top:3px}",
+      ".ext-acts{display:flex;gap:8px;margin-top:6px}",
+      ".ext-acts button{flex:1;font:inherit;font-size:14px;font-weight:600;border-radius:13px;padding:13px 10px;cursor:pointer}",
+      ".ext-save{border:0;background:#231F1A;color:#fff}",
+      ".ext-cancel{border:1px solid #E0DACE;background:#fff;color:#3A342C}",
+      ".ext-err{margin:0 0 10px;font-size:12px;color:#B23B28;min-height:0}",
+      ".ext-runday{display:flex;gap:6px;align-items:center}",
+      "@media(min-width:720px){#extModal{align-items:center;padding:24px}",
+      "  #extModal .ext-sheet{border-radius:20px;max-height:86vh}}"
+    ].join("\n");
+    document.head.appendChild(st);
+  }
+
+  /* ---------------- 버튼 배치 ---------------- */
+  function addButtons(){
+    var list = document.getElementById("ideaList");
+    if(list && !document.getElementById("extAddMain")){
+      var box = document.createElement("div");
+      box.className = "ext-pick";
+      box.innerHTML = '<button class="ext-add" id="extAddMain" type="button">＋ 외부 대본·이미지 끼워넣기</button>' +
+        '<span class="ext-note">ChatGPT 등에서 만든 대본 글과 장면 사진을 그대로 넣으면 목록·릴레이·업로드 체크에 함께 잡혀요</span>';
+      list.parentNode.insertBefore(box, list);
+    }
+    var relay = document.getElementById("relayCard");
+    if(relay && !document.getElementById("extAddRelay")){
+      var head = relay.querySelector(".rl-head");
+      if(head){
+        var b = document.createElement("button");
+        b.className = "ext-add";
+        b.id = "extAddRelay";
+        b.type = "button";
+        b.style.marginTop = "2px";
+        b.textContent = "＋ 외부 대본 끼워넣기";
+        head.appendChild(b);
+      }
+    }
+  }
+
+  /* ---------------- 목록 카드 장식(외부 배지·삭제) ---------------- */
+  function decorate(){
+    var list = document.getElementById("ideaList");
+    if(!list) return;
+    var rows = list.querySelectorAll("li.idea-row[data-idea]");
+    for(var i = 0; i < rows.length; i++){
+      var li = rows[i];
+      var id = li.getAttribute("data-idea");
+      if(!isExtId(id)) continue;
+      if(li.querySelector(".ext-del")) continue;
+      var h4 = li.querySelector("h4");
+      if(h4 && !h4.querySelector(".ext-chip")){
+        var chip = document.createElement("span");
+        chip.className = "ext-chip";
+        chip.textContent = "외부";
+        h4.insertBefore(chip, h4.firstChild);
+      }
+      var host = li.querySelector("div") || li;
+      var del = document.createElement("button");
+      del.className = "ext-del";
+      del.type = "button";
+      del.setAttribute("data-ext-del", id);
+      del.textContent = "🗑 삭제";
+      li.appendChild(del);
+    }
+  }
+
+  /* ---------------- 모달 폼 ---------------- */
+  function ensureModal(){
+    if(document.getElementById("extModal")) return document.getElementById("extModal");
+    var m = document.createElement("div");
+    m.id = "extModal";
+    m.innerHTML = [
+      '<div class="ext-sheet" role="dialog" aria-modal="true" aria-labelledby="extTitle">',
+      '  <h3 id="extTitle">외부 대본·이미지 끼워넣기</h3>',
+      '  <p class="ext-sub">ChatGPT 등에서 만든 글과 장면 사진을 그대로 넣으면 기존 대본처럼 미리보기·수정·릴레이·업로드 체크가 돼요. 사진은 이 기기에만 저장되고 OTA 뒤에도 남습니다.</p>',
+      '  <p class="ext-err" id="extErr"></p>',
+      '  <label class="ext-f"><span>플랫폼</span><select id="extPlat">',
+      PLATS.map(function(p){ return '<option value="' + p.k + '">' + p.label + '</option>'; }).join(""),
+      '  </select></label>',
+      '  <label class="ext-f"><span>제목</span><input type="text" id="extName" placeholder="예: 새벽 두 시 반, 이 엄마가 하는 일"></label>',
+      '  <label class="ext-f"><span>대본 · 글 <small>(줄바꿈 = 컷 하나 / 스레드·피드는 그대로 본문)</small></span>',
+      '    <textarea id="extBody" placeholder="첫 줄은 훅으로 쓰여요.&#10;두 번째 줄&#10;세 번째 줄&#10;마지막 줄"></textarea></label>',
+      '  <label class="ext-f"><span>캡션 · 해시태그 <small>(비워도 돼요)</small></span>',
+      '    <textarea class="small" id="extCap" placeholder="올릴 때 붙는 글 · #릴스 #육아일상"></textarea></label>',
+      '  <div class="ext-f"><span>장면 이미지 <small>(여러 장 고르면 컷 순서대로 들어가요 · 1080px로 줄여서 보관)</small></span>',
+      '    <input type="file" id="extFiles" accept="image/*" multiple>',
+      '    <div class="ext-thumbs" id="extThumbs"></div></div>',
+      '  <label class="ext-f"><span>릴레이 · 주간 플래너 배정</span><select id="extDay">',
+      DAYS.map(function(d){ return '<option value="' + d.k + '">' + d.label + '</option>'; }).join(""),
+      '  </select></label>',
+      '  <div class="ext-acts">',
+      '    <button class="ext-save" type="button" id="extSave">저장하고 목록에 넣기</button>',
+      '    <button class="ext-cancel" type="button" id="extCancel">취소</button>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
+    document.body.appendChild(m);
+    m.addEventListener("click", function(e){ if(e.target === m) closeForm(); });
+    m.querySelector("#extCancel").addEventListener("click", closeForm);
+    m.querySelector("#extSave").addEventListener("click", onSave);
+    m.querySelector("#extFiles").addEventListener("change", onFilesPicked);
+    m.querySelector("#extPlat").addEventListener("change", function(){
+      var p = m.querySelector("#extPlat").value;
+      if(formState.editId){ /* 편집 중에는 플랫폼을 바꾸면 새 플랫폼 대본으로 다시 만든다 */ }
+      var t = m.querySelector("#extBody");
+      if(p === "threads" || p === "feed") t.placeholder = "첫 줄이 첫 문장이 돼요. 줄바꿈 그대로 글 본문으로 들어갑니다.";
+      else t.placeholder = "첫 줄은 훅으로 쓰여요.\n두 번째 줄\n세 번째 줄\n마지막 줄";
+    });
+    return m;
+  }
+  var formState = { editId: "", picked: [] };
+
+  function openForm(editId){
+    var m = ensureModal();
+    formState = { editId: editId || "", picked: [] };
+    var ed = editId ? findExt(editId) : null;
+    var sel = m.querySelector("#extPlat");
+    var name = m.querySelector("#extName");
+    var body = m.querySelector("#extBody");
+    var cap = m.querySelector("#extCap");
+    var day = m.querySelector("#extDay");
+    m.querySelector("#extErr").textContent = "";
+    if(ed){
+      sel.value = ed.plat || "reels";
+      name.value = ed.title || "";
+      var v = ed.scripts && ed.scripts[ed.plat] ? ed.scripts[ed.plat] : null;
+      body.value = (v && v.body) || (ed.cuts || []).map(function(c){ return c.line || ""; }).filter(function(s){ return s.length; }).join("\n");
+      cap.value = (ed.caption || "") + ((ed.hashtags && ed.hashtags.length) ? "\n" + ed.hashtags.join(" ") : "");
+      day.value = ed.dayRole || "";
+      renderThumbs((ed.imgs || []).map(function(im){ return { name: im.name || "이미지", src: IMG_CACHE[im.id] || "" }; }));
+      m.querySelector("#extSave").textContent = "수정 저장";
+      m.querySelector("#extTitle").textContent = "외부 대본 수정";
+    } else {
+      sel.value = (typeof plat === "string" && plat) ? plat : "reels";
+      name.value = ""; body.value = ""; cap.value = "";
+      day.value = "";
+      renderThumbs([]);
+      m.querySelector("#extSave").textContent = "저장하고 목록에 넣기";
+      m.querySelector("#extTitle").textContent = "외부 대본·이미지 끼워넣기";
+    }
+    m.classList.add("on");
+    setTimeout(function(){ try { name.focus(); } catch(e){} }, 80);
+  }
+  function closeForm(){
+    var m = document.getElementById("extModal");
+    if(m) m.classList.remove("on");
+    formState.picked = [];
+  }
+  function renderThumbs(list){
+    var host = document.querySelector("#extThumbs");
+    if(!host) return;
+    host.innerHTML = list.map(function(it, i){
+      return '<figure><img src="' + esc(it.src || "") + '" alt=""><figcaption>' + esc(String(i + 1)) + "번 컷" + (it.name ? " · " + esc(String(it.name).slice(0, 12)) : "") + "</figcaption></figure>";
+    }).join("");
+  }
+  function onFilesPicked(e){
+    var files = e.target.files ? Array.prototype.slice.call(e.target.files) : [];
+    if(!files.length) return;
+    formState.picked = [];
+    var pending = files.length;
+    files.forEach(function(f, idx){
+      fileToData(f, function(r){
+        pending--;
+        if(r) formState.picked[idx] = r;
+        if(pending === 0){
+          formState.picked = formState.picked.filter(function(x){ return !!x; });
+          renderThumbs(formState.picked.map(function(x){ return { name: x.name, src: x.data }; }));
+        }
+      });
+    });
+  }
+
+  function onSave(){
+    if(busy) return;
+    var m = document.getElementById("extModal");
+    var err = m.querySelector("#extErr");
+    var p = {
+      plat: m.querySelector("#extPlat").value,
+      title: m.querySelector("#extName").value.trim(),
+      body: m.querySelector("#extBody").value.trim(),
+      caption: m.querySelector("#extCap").value.trim(),
+      day: m.querySelector("#extDay").value,
+      editId: formState.editId,
+      picked: formState.picked.slice()
+    };
+    if(!p.title && !p.body){ err.textContent = "제목이나 대본 글을 하나는 넣어 주세요."; return; }
+    if(!p.body){ err.textContent = "대본 글을 넣어 주세요 — 첫 줄이 훅이 돼요."; return; }
+    var tags = (p.caption.split(/\r?\n/).filter(function(s){ return s.trim().charAt(0) === "#"; })[0] || "");
+    var capLines = p.caption.split(/\r?\n/).filter(function(s){ return s.trim().charAt(0) !== "#"; });
+    busy = true;
+    err.textContent = "";
+    saveIdea({
+      id: p.editId || "",
+      plat: p.plat,
+      title: p.title,
+      body: p.body,
+      caption: capLines.join("\n").trim(),
+      tags: tags,
+      dayRole: p.day === "today" ? todayKeySafe() : p.day,
+      dayLabel: p.day,
+      picked: p.picked
+    }).then(function(id){
+      busy = false;
+      closeForm();
+      refreshUI(id);
+      toast(p.editId ? "외부 대본을 고쳤어요" : "외부 대본을 목록에 넣었어요 — 사진은 이 기기에만 저장돼요");
+    }).catch(function(){
+      busy = false;
+      err.textContent = "저장하지 못했어요 — 사진 용량을 줄이거나 한 장씩 넣어 다시 해 보세요.";
+    });
+  }
+
+  /* ---------------- 저장 실행 ---------------- */
+  function saveIdea(p){
+    var list = readExt();
+    var prev = p.id ? findExt(p.id) : null;
+    var idea = prev || null;
+    var imgRecs = [];
+    if(p.picked && p.picked.length){
+      p.picked.forEach(function(r, i){
+        var iid = (p.id || "ext") + "_" + Date.now() + "_" + i;
+        IMG_CACHE[iid] = r.data;
+        imgRecs.push({ id: iid, name: r.name || "image", w: r.w, h: r.h, data: r.data });
+      });
+    }
+    var base = buildIdea({
+      id: p.id || nextId(),
+      plat: p.plat,
+      title: p.title,
+      body: p.body,
+      caption: p.caption,
+      tags: p.tags,
+      dayRole: p.dayRole,
+      at: prev ? prev.at : nowStr()
+    });
+    if(prev){
+      base.id = prev.id;
+      base.at = prev.at || nowStr();
+      /* 이전 사진 유지 + 새로 고른 사진이 있으면 교체 */
+      base.imgs = imgRecs.length
+        ? imgRecs.map(function(r){ return { id: r.id, name: r.name, w: r.w, h: r.h }; })
+        : (prev.imgs || []);
+      base.scripts = prev.scripts || {};
+      base.scripts[p.plat] = buildIdea({ id: prev.id, plat: p.plat, title: p.title, body: p.body, caption: p.caption, tags: p.tags }).scripts[p.plat];
+    }
+    if(imgRecs.length){ base.imgs = imgRecs.map(function(r){ return { id: r.id, name: r.name, w: r.w, h: r.h }; }); }
+    /* 저장 목록 갱신 */
+    var replaced = false;
+    for(var i = 0; i < list.length; i++){
+      if(String(list[i].id) === String(base.id)){ list[i] = base; replaced = true; break; }
+    }
+    if(!replaced) list.push(base);
+    var ok = writeExt(list);
+    var chain = Promise.resolve();
+    imgRecs.forEach(function(r){ chain = chain.then(function(){ return idbPut(r); }); });
+    return chain.then(function(){
+      if(!ok) throw new Error("storage");
+      applyScenes(base);
+      return base.id;
+    });
+  }
+
+  function doRemove(id){
+    var idea = findExt(id);
+    if(!idea) return false;
+    var list = readExt().filter(function(it){ return String(it.id) !== String(id); });
+    writeExt(list);
+    try {
+      var store = readScenePick();
+      sceneKeysFor(idea, idea.plat || "reels").forEach(function(k){ delete store[k]; });
+      writeScenePick(store);
+    } catch(e){}
+    (idea.imgs || []).forEach(function(im){ idbDel(im.id); delete IMG_CACHE[im.id]; });
+    /* 올림 기록도 함께 정리 */
+    try {
+      if(typeof readUploads === "function" && typeof writeUploads === "function"){
+        var up = readUploads(), keep = {}, changed = false;
+        for(var k in up){
+          if(!Object.prototype.hasOwnProperty.call(up, k)) continue;
+          if(k.indexOf(String(id) + "|") === 0){ changed = true; continue; }
+          keep[k] = up[k];
+        }
+        if(changed) writeUploads(keep);
+      }
+    } catch(e){}
+    refreshUI("");
+    toast("외부 대본을 지웠어요");
+    return true;
+  }
+  function removeIdea(id){
+    if(!findExt(id)) return;
+    if(!window.confirm("이 외부 대본을 지울까요? 목록·릴레이에서도 빠집니다.")) return;
+    doRemove(id);
+  }
+
+  /* ---------------- 연결 ---------------- */
+  patchLists();
+  css();
+  addButtons();
+  ensureAll();
+
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var del = t.closest("[data-ext-del]");
+    if(del){ e.preventDefault(); removeIdea(del.getAttribute("data-ext-del")); return; }
+    if(t.closest("#extAddMain") || t.closest("#extAddRelay")){ e.preventDefault(); openForm(""); return; }
+    var row = t.closest("li.idea-row[data-idea]");
+    if(row && t.closest(".ext-del")) return;
+  }, true);
+
+  /* 목록·릴레이가 다시 그려질 때마다 버튼·장식을 다시 붙인다 */
+  var obs = null;
+  function watch(){
+    if(obs) return;
+    if(typeof MutationObserver !== "function") return;
+    obs = new MutationObserver(function(){ addButtons(); decorate(); });
+    var l = document.getElementById("ideaList");
+    if(l && l.parentNode) obs.observe(l.parentNode, { childList: true });
+    var relay = document.getElementById("relayCard");
+    if(relay) obs.observe(relay, { childList: true });
+  }
+  setTimeout(function(){ addButtons(); decorate(); watch(); }, 120);
+  setTimeout(function(){ addButtons(); decorate(); }, 900);
+
+  /* 고른 대본의 사진이 아직 안 붙었으면 붙인다(업로드 후 정리 뒤에도 복구) */
+  try {
+    if(typeof selectScript === "function"){
+      var _sel = selectScript;
+      selectScript = function(kind, id, quiet){
+        var r = _sel.apply(null, arguments);
+        try {
+          var it = findExt(id);
+          if(it) ensureImages(it, function(){ try { drawThumb(); } catch(e){} try { if(isImgPost()) renderThreadAll(); } catch(e){} });
+        } catch(e){}
+        return r;
+      };
+    }
+  } catch(e){}
+
+  /* 오늘의 4종 릴레이 — '오늘'로 배정된 외부 대본을 그 플랫폼 슬롯에 끼운다 */
+  window.extRelayPick = function(slotPlat){
+    var list = readExt(), today = todayKeySafe();
+    for(var i = 0; i < list.length; i++){
+      var it = list[i];
+      if(it && it.dayRole === today && (it.plat || "reels") === slotPlat) return it;
+    }
+    return null;
+  };
+
+  /* 점검구(테스트용) */
+  window.AriaExt = {
+    list: function(){ return readExt(); },
+    count: function(){ try { return shortsIdeaList().length; } catch(e){ return -1; } },
+    ids: function(){ try { return shortsIdeaList().map(function(i){ return i.id; }); } catch(e){ return []; } },
+    select: function(id){ try { selectScript("idea", id, true); } catch(e){} },
+    mark: function(id, p, on){ try { markUpload(id, p, on); afterUploadChange(); } catch(e){} },
+    filter: function(m){ try { upFilterSet(m); renderIdeas(); paintUpFilter(); } catch(e){} },
+    add: function(p){
+      return saveIdea({
+        id: "", plat: p.plat || "reels", title: p.title || "", body: p.body || "",
+        caption: p.caption || "", tags: p.tags || "",
+        dayRole: p.day === "today" ? todayKeySafe() : (p.day || ""),
+        picked: (p.images || []).map(function(src, i){ return { data: src, name: "img" + (i + 1), w: 0, h: 0 }; })
+      }).then(function(id){ refreshUI(id); return id; });
+    },
+    remove: function(id){ return doRemove(id); },
+    open: function(id){ openForm(id || ""); },
+    close: closeForm,
+    nextId: nextId,
+    ensureAll: ensureAll
+  };
+})();
 
   /* ---------- export / import ---------- */
   function exportData(){
