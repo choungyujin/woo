@@ -1395,6 +1395,7 @@
   body{background:transparent !important;color:var(--ink-2)}
   body::before{
     content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    transform:translateZ(0);
     background:
       radial-gradient(46% 40% at 4% 2%, rgba(172,142,255,.72), rgba(172,142,255,0) 72%),
       radial-gradient(40% 36% at 94% 0%, rgba(255,176,148,.70), rgba(255,176,148,0) 74%),
@@ -1533,7 +1534,6 @@
     /* 본문 = 오른쪽 와이드 영역 */
     .wrap{margin-left:var(--side); max-width:1560px; padding:20px 30px 56px}
     footer{margin-left:var(--side); max-width:none; padding:12px 30px calc(28px + env(safe-area-inset-bottom,0px))}
-    .toast{left:calc(var(--side) + 50%); }
   }
   @media (min-width:1024px) and (max-width:1279px){ :root{--side:220px} .wrap{padding:20px 26px 56px} }
   @media (min-width:1280px){ :root{--side:248px} .wrap{padding:22px 34px 60px} }
@@ -2003,6 +2003,16 @@
   #feedThemeBar .ft-name{color:var(--ink) !important}
   #feedThemeBar .ft-cat-tag{color:var(--muted) !important}
   #feedThemeBar .ft-note{color:var(--muted) !important}
+
+  /* 비율 바 · 단계 배지 등 남은 포인트 색도 같은 파스텔로 */
+  .mix-real{background:linear-gradient(135deg,#5fc9a8,#8fe3cf) !important}
+  .mix-prod{background:linear-gradient(135deg,#8f6cf0,#e59ad8) !important}
+  .mix-bar{border-radius:12px}
+  .stage-badge{background:rgba(150,190,255,.28) !important; color:#3550a8 !important}
+  .stage-price{background:rgba(143,227,207,.38) !important; color:#157a5c !important}
+  .tip-num{background:rgba(167,139,250,.22) !important; color:#5b3fa8 !important}
+  .tip-quote{background:rgba(255,255,255,.55) !important; border:1px solid rgba(255,255,255,.8)}
+  .news-tag{background:rgba(150,190,255,.3) !important; color:#3550a8 !important}
 
   /* ---------- 자잘한 보정 ---------- */
   .fold{background:var(--glass-soft) !important; border-radius:18px !important; padding:2px 4px 4px}
