@@ -11723,6 +11723,10 @@ var AiriaMp4 = (function(){
   }
 
   function refreshUI(selId){
+    try {
+      var cnt = $("shortsCount");
+      if(cnt) cnt.textContent = num(shortsIdeaList().length) + (isImgPost() ? "편 글" : "개 대본");
+    } catch(e){}
     try { if(typeof renderIdeas === "function") renderIdeas(); } catch(e){}
     try { if(typeof paintWeekAll === "function") paintWeekAll(); } catch(e){}
     try { if(typeof renderGolden === "function") renderGolden(); } catch(e){}
