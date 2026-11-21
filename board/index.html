@@ -11204,7 +11204,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 36;
+  var OTA_APP_BUILD = 37;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -11434,6 +11434,18 @@ var AiriaMp4 = (function(){
   }
 
 /* ==========================================================================
+   v1.14 (빌드 37) — 외부 동영상 파일 첨부 · 바로 올리기/공유
+     · 폼에 '동영상' 칸(<input type=file accept="video/*,.mp4,.mov,.webm">)을 넣었다.
+       고른 파일은 캔버스로 줄이지 않고 **원본 Blob 그대로** IndexedDB에 넣는다
+       (레코드 {id, kind:"video", name, type, size, dur, blob} — 사진과 같은 저장소).
+       파일명·크기·길이를 보여 주고 교체·삭제할 수 있다.
+     · 대본·글이 비어 있어도 동영상만 붙이면 저장된다. 제목이 비어 있으면
+       파일명(확장자 제외)이 제목으로 들어가고 그 칸에서 고칠 수 있다.
+     · 동영상이 붙은 외부 항목은 카드와 미리보기에서 <video controls playsinline>으로
+       바로 재생되고, 카드에서 `📤 영상 올리기(공유)`(navigator.share 파일 공유 /
+       AiriaShare 브리지 / 안 되면 캡션 복사 + 원본 저장)와 `⬇ 영상 저장`을 누를 수 있다.
+     · 기존 통째로 붙여넣기 분리·장면 이미지·s01~s09 카드 배열·릴레이 순서 그대로.
+   --------------------------------------------------------------------------
    v1.13 (빌드 36) — 외부 대본 통째로 붙여넣기 자동 분리
      · 폼 맨 위(플랫폼 바로 아래) '통째로 붙여넣기' 칸에 ChatGPT 답변을 그대로
        붙여넣으면(paste/input 즉시) 제목 · 대본/글 · 캡션 · 해시태그로 나눠
@@ -11569,6 +11581,119 @@ var AiriaMp4 = (function(){
     });
   }
 
+  /* ---------------- 동영상 (원본 Blob 그대로 보관) ----------------
+     사진은 캔버스로 줄여 dataURL 로 넣지만, 동영상은 다시 인코딩하지 않고
+     고른 파일(Blob)을 IndexedDB(arisia949_ext_db / store img)에 그대로 넣는다.
+     레코드: { id, kind:"video", name, type, size, dur, blob } — 같은 저장소를
+     쓰되 kind 로 구분해 기존 사진 기록과 섞이지 않는다. */
+  var VID_CACHE = {};        /* vidId → { id, url, name, type, size, dur, blob } */
+  var VID_MAX_MB = 300;      /* 이보다 큰 파일은 기기 저장 공간을 위해 막는다 */
+
+  function fmtSize(n){
+    n = Number(n) || 0;
+    if(n >= 1024 * 1024) return (Math.round(n / 1024 / 1024 * 10) / 10) + "MB";
+    if(n >= 1024) return Math.round(n / 1024) + "KB";
+    return n + "B";
+  }
+  function fmtDur(s){
+    s = Math.min(5999, Math.max(0, Math.round(Number(s) || 0)));
+    var m = Math.floor(s / 60), r = s % 60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function baseName(name){
+    var n = String(name || "").replace(/^.*[\\\/]/, "");
+    var i = n.lastIndexOf(".");
+    if(i > 0) n = n.slice(0, i);
+    return n.trim() || "동영상";
+  }
+  function mimeOf(rec){
+    var m = String((rec && rec.type) || "").split(";")[0].trim().toLowerCase();
+    if(m.indexOf("video/") === 0) return m;
+    var n = String((rec && rec.name) || "").toLowerCase();
+    if(/\.webm$/.test(n)) return "video/webm";
+    if(/\.mov$/.test(n)) return "video/quicktime";
+    if(/\.m4v$/.test(n)) return "video/x-m4v";
+    return "video/mp4";
+  }
+  function isVideoFile(f){
+    if(!f) return false;
+    if(/^video\//i.test(String(f.type || ""))) return true;
+    return /\.(mp4|mov|m4v|webm|ogv)$/i.test(String(f.name || ""));
+  }
+  /* 공유 시트에 넘기는 이름 — 한글 이름을 싫어하는 앱이 있어 영문·숫자만 */
+  function shareNameForExt(rec){
+    var ext = mimeOf(rec).indexOf("webm") >= 0 ? ".webm" : ".mp4";
+    var base = String((rec && rec.name) || "");
+    if(/^[0-9A-Za-z._-]+$/.test(base) && /\.(mp4|webm|mov|m4v)$/i.test(base)) return base;
+    var d = new Date(), p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return "monglenote_ext_" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) +
+      "_" + p(d.getHours()) + p(d.getMinutes()) + ext;
+  }
+  /* 동영상 길이 — 메타데이터만 읽는다(재생 안 함) */
+  function probeVideo(url, cb){
+    var done = false, el = null;
+    function fin(d){
+      if(done) return;
+      done = true;
+      try { el.removeAttribute("src"); el.load(); } catch(e){}
+      cb(Math.round((Number(d) || 0) * 10) / 10);
+    }
+    try {
+      el = document.createElement("video");
+      el.preload = "metadata";
+      el.muted = true;
+      el.playsInline = true;
+      el.onloadedmetadata = function(){ fin(el.duration); };
+      el.onerror = function(){ fin(0); };
+      el.src = url;
+    } catch(e){ fin(0); return; }
+    setTimeout(function(){ fin(el && el.duration ? el.duration : 0); }, 3000);
+  }
+  /* IDB → 메모리 캐시(재생용 object URL) */
+  function withVideo(vid, cb){
+    if(!vid || !vid.id){ if(cb) cb(null); return; }
+    var c = VID_CACHE[vid.id];
+    if(c && c.url){ if(cb) cb(c); return; }
+    idbGet(vid.id).then(function(rec){
+      if(!rec || !rec.blob){ if(cb) cb(null); return; }
+      var url = "";
+      try { url = URL.createObjectURL(rec.blob); } catch(e){ url = ""; }
+      var out = {
+        id: vid.id,
+        url: url,
+        name: rec.name || vid.name || "동영상",
+        type: rec.type || vid.type || "",
+        size: rec.size || vid.size || 0,
+        dur: rec.dur || vid.dur || 0,
+        blob: rec.blob
+      };
+      VID_CACHE[vid.id] = out;
+      if(cb) cb(out);
+    }).catch(function(){ if(cb) cb(null); });
+  }
+  function putVideo(file, name, dur){
+    return new Promise(function(resolve){
+      var id = "v" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+      var rec = { id: id, kind: "video", name: String(name || file.name || "동영상"),
+                  type: String(file.type || ""), size: Number(file.size) || 0,
+                  dur: Number(dur) || 0, at: nowStr(), blob: file };
+      idbPut(rec).then(function(ok){
+        if(!ok){ resolve(null); return; }
+        var url = "";
+        try { url = URL.createObjectURL(file); } catch(e){ url = ""; }
+        VID_CACHE[id] = { id: id, url: url, name: rec.name, type: rec.type, size: rec.size, dur: rec.dur, blob: file };
+        resolve({ id: id, name: rec.name, type: rec.type, size: rec.size, dur: rec.dur });
+      }).catch(function(){ resolve(null); });
+    });
+  }
+  function dropVideo(vid){
+    if(!vid || !vid.id) return;
+    idbDel(vid.id);
+    var c = VID_CACHE[vid.id];
+    if(c && c.url){ try { URL.revokeObjectURL(c.url); } catch(e){} }
+    delete VID_CACHE[vid.id];
+  }
+
   /* ---------------- 이미지 압축 ---------------- */
   function compressDataUrl(src, cb){
     var img = new Image();
@@ -11660,7 +11785,10 @@ var AiriaMp4 = (function(){
     var hook = lines[0] || p.title || "";
     var roles = ["첫 줄", "이야기", "핵심", "마무리"];
     var cuts = [];
-    var n = (platKey === "threads" || platKey === "feed") ? Math.min(lines.length, 4) : 4;
+    /* 글 없이 동영상만 붙인 항목은 컷을 만들지 않는다(카드에서 영상으로 바로 올린다) */
+    var n = lines.length
+      ? ((platKey === "threads" || platKey === "feed") ? Math.min(lines.length, 4) : 4)
+      : 0;
     for(var i = 0; i < n; i++){
       cuts.push({
         no: i + 1,
@@ -12002,6 +12130,28 @@ var AiriaMp4 = (function(){
       ".ext-thumbs figure{margin:0;width:76px;position:relative}",
       ".ext-thumbs img{width:76px;height:96px;object-fit:cover;border-radius:10px;border:1px solid #E4DED3}",
       ".ext-thumbs figcaption{font-size:10px;color:#8A8378;text-align:center;margin-top:3px}",
+      /* --- 빌드 37: 동영상 첨부·바로 올리기 --- */
+      ".ext-vidbox figure{margin:8px 0 0;padding:8px;border:1px solid #E4DED3;border-radius:14px;background:#fff}",
+      ".ext-vidbox video{display:block;width:100%;max-width:320px;max-height:220px;border-radius:10px;background:#000}",
+      ".ext-vidbox figcaption{margin-top:6px;font-size:11.5px;color:#5A5348;line-height:1.5;word-break:break-all}",
+      ".ext-vidops{display:flex;gap:6px;margin-top:7px}",
+      ".ext-vidops button{font:inherit;font-size:12px;font-weight:600;border:1px solid #E0DACE;background:#fff;",
+      "  color:#3A342C;border-radius:9px;padding:6px 10px;cursor:pointer}",
+      ".ext-vidloading{display:flex;align-items:center;justify-content:center;min-height:96px;border-radius:10px;",
+      "  background:#F1EDE4;color:#8A8378;font-size:12px}",
+      ".ext-vidcard{margin:10px 0 2px}",
+      ".ext-vidcard video{display:block;width:100%;max-width:330px;max-height:240px;border-radius:12px;",
+      "  background:#000;border:1px solid #E4DED3}",
+      ".ext-vidmeta{margin:6px 0 0;font-size:11.5px;color:#7A736A;line-height:1.5;word-break:break-all}",
+      ".ext-vidbtns{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}",
+      ".ext-vidbtns button{font:inherit;font-size:12.5px;font-weight:700;border-radius:11px;padding:9px 12px;cursor:pointer;",
+      "  border:1px solid #C9C2B4;background:#FCFBF8;color:#3A342C}",
+      ".ext-vidbtns .ext-share{border:0;background:#231F1A;color:#fff}",
+      ".ext-vidbtns button:active{transform:translateY(1px)}",
+      ".ext-vidprev{margin:14px 0 0;padding:12px;border:1px dashed #D9D1C0;border-radius:14px;background:#FBFAF6}",
+      ".ext-vidprev-h{margin:0 0 8px;font-size:12.5px;font-weight:700;color:#3A342C}",
+      ".ext-vidprev-h small{font-weight:500;color:#8A8378}",
+      ".ext-vidprev video{display:block;width:100%;max-width:360px;border-radius:12px;background:#000}",
       ".ext-acts{display:flex;gap:8px;margin-top:6px}",
       ".ext-acts button{flex:1;font:inherit;font-size:14px;font-weight:600;border-radius:13px;padding:13px 10px;cursor:pointer}",
       ".ext-save{border:0;background:#231F1A;color:#fff}",
@@ -12027,8 +12177,8 @@ var AiriaMp4 = (function(){
     if(list && !document.getElementById("extAddMain")){
       var box = document.createElement("div");
       box.className = "ext-pick";
-      box.innerHTML = '<button class="ext-add" id="extAddMain" type="button">＋ 외부 대본·이미지 끼워넣기</button>' +
-        '<span class="ext-note">ChatGPT 등에서 만든 대본 글과 장면 사진을 그대로 넣으면 목록·릴레이·업로드 체크에 함께 잡혀요</span>';
+      box.innerHTML = '<button class="ext-add" id="extAddMain" type="button">＋ 외부 대본·이미지·동영상 끼워넣기</button>' +
+        '<span class="ext-note">ChatGPT 등에서 만든 대본·사진·동영상 파일을 그대로 넣으면 목록·릴레이·업로드 체크에 함께 잡혀요</span>';
       list.parentNode.insertBefore(box, list);
     }
     var relay = document.getElementById("relayCard");
@@ -12046,7 +12196,7 @@ var AiriaMp4 = (function(){
     }
   }
 
-  /* ---------------- 목록 카드 장식(외부 배지·삭제) ---------------- */
+  /* ---------------- 목록 카드 장식(외부 배지·삭제·동영상) ---------------- */
   function decorate(){
     var list = document.getElementById("ideaList");
     if(!list) return;
@@ -12055,22 +12205,65 @@ var AiriaMp4 = (function(){
       var li = rows[i];
       var id = li.getAttribute("data-idea");
       if(!isExtId(id)) continue;
-      if(li.querySelector(".ext-del")) continue;
-      var h4 = li.querySelector("h4");
-      if(h4 && !h4.querySelector(".ext-chip")){
-        var chip = document.createElement("span");
-        chip.className = "ext-chip";
-        chip.textContent = "외부";
-        h4.insertBefore(chip, h4.firstChild);
+      if(!li.querySelector(".ext-del")){
+        var h4 = li.querySelector("h4");
+        if(h4 && !h4.querySelector(".ext-chip")){
+          var chip = document.createElement("span");
+          chip.className = "ext-chip";
+          chip.textContent = "외부";
+          h4.insertBefore(chip, h4.firstChild);
+        }
+        var del = document.createElement("button");
+        del.className = "ext-del";
+        del.type = "button";
+        del.setAttribute("data-ext-del", id);
+        del.textContent = "🗑 삭제";
+        li.appendChild(del);
       }
-      var host = li.querySelector("div") || li;
-      var del = document.createElement("button");
-      del.className = "ext-del";
-      del.type = "button";
-      del.setAttribute("data-ext-del", id);
-      del.textContent = "🗑 삭제";
-      li.appendChild(del);
+      decorateVideoRow(li, findExt(id));
     }
+  }
+
+  /* 빌드 37 — 동영상이 붙은 카드: 바로 재생 + 영상 올리기(공유) · 영상 저장 */
+  function decorateVideoRow(li, idea){
+    if(!li || !idea) return;
+    var host = li.querySelector("div") || li;
+    var card = host.querySelector(".ext-vidcard");
+    if(!idea.video){
+      if(card) card.remove();
+      return;
+    }
+    if(card && card.getAttribute("data-vid") === String(idea.video.id)) return;
+    if(card) card.remove();
+    card = document.createElement("div");
+    card.className = "ext-vidcard";
+    card.setAttribute("data-vid", String(idea.video.id));
+    card.innerHTML = videoCardHtml(idea, "");
+    host.appendChild(card);
+    hookVideoGuard(card);
+    withVideo(idea.video, function(c){
+      if(!c || !c.url) return;
+      if(!card.parentNode) return;
+      var v = card.querySelector("video");
+      if(v){ v.src = c.url; }
+      else { var load = card.querySelector(".ext-vidloading"); if(load) load.outerHTML = '<video src="' + esc(c.url) + '" controls playsinline preload="metadata"></video>'; }
+      hookVideoGuard(card);
+    });
+  }
+  function videoCardHtml(idea, url){
+    var v = (idea && idea.video) || {};
+    var meta = "📹 " + (v.name || "동영상") + " · " + fmtSize(v.size) + (v.dur ? " · " + fmtDur(v.dur) : "");
+    return (url ? '<video src="' + esc(url) + '" controls playsinline preload="metadata"></video>'
+                : '<div class="ext-vidloading">동영상 불러오는 중…</div>') +
+      '<p class="ext-vidmeta">' + esc(meta) + '</p>' +
+      videoButtons(idea);
+  }
+  function videoButtons(idea){
+    var id = esc(idea.id);
+    return '<div class="ext-vidbtns">' +
+      '<button type="button" class="ext-share" data-ext-share="' + id + '">📤 영상 올리기(공유)</button>' +
+      '<button type="button" class="ext-vsave" data-ext-save="' + id + '">⬇ 영상 저장</button>' +
+      '</div>';
   }
 
   /* ---------------- 모달 폼 ---------------- */
@@ -12080,8 +12273,8 @@ var AiriaMp4 = (function(){
     m.id = "extModal";
     m.innerHTML = [
       '<div class="ext-sheet" role="dialog" aria-modal="true" aria-labelledby="extTitle">',
-      '  <h3 id="extTitle">외부 대본·이미지 끼워넣기</h3>',
-      '  <p class="ext-sub">ChatGPT 등에서 만든 글과 장면 사진을 그대로 넣으면 기존 대본처럼 미리보기·수정·릴레이·업로드 체크가 돼요. 사진은 이 기기에만 저장되고 OTA 뒤에도 남습니다.</p>',
+      '  <h3 id="extTitle">외부 대본·이미지·동영상 끼워넣기</h3>',
+      '  <p class="ext-sub">ChatGPT 등에서 만든 글·사진·동영상 파일을 그대로 넣으면 기존 대본처럼 미리보기·수정·릴레이·업로드 체크가 돼요. 동영상은 줄이지 않고 원본 그대로, 이 기기에만 저장되고 OTA 뒤에도 남습니다.</p>',
       '  <p class="ext-err" id="extErr"></p>',
       '  <label class="ext-f"><span>플랫폼</span><select id="extPlat">',
       PLATS.map(function(p){ return '<option value="' + p.k + '">' + p.label + '</option>'; }).join(""),
@@ -12096,6 +12289,9 @@ var AiriaMp4 = (function(){
       '    <textarea id="extBody" placeholder="첫 줄은 훅으로 쓰여요.&#10;두 번째 줄&#10;세 번째 줄&#10;마지막 줄"></textarea></label>',
       '  <label class="ext-f"><span>캡션 · 해시태그 <small>(비워도 돼요)</small></span>',
       '    <textarea class="small" id="extCap" placeholder="올릴 때 붙는 글 · #릴스 #육아일상"></textarea></label>',
+      '  <div class="ext-f"><span>동영상 <small>(mp4·mov·webm — 원본 그대로 보관, 대본 없이 이것만 붙여도 저장돼요)</small></span>',
+      '    <input type="file" id="extVideo" accept="video/*,.mp4,.mov,.webm,.m4v">',
+      '    <div class="ext-vidbox" id="extVidBox"></div></div>',
       '  <div class="ext-f"><span>장면 이미지 <small>(여러 장 고르면 컷 순서대로 들어가요 · 1080px로 줄여서 보관)</small></span>',
       '    <input type="file" id="extFiles" accept="image/*" multiple>',
       '    <div class="ext-thumbs" id="extThumbs"></div></div>',
@@ -12113,6 +12309,7 @@ var AiriaMp4 = (function(){
     m.querySelector("#extCancel").addEventListener("click", closeForm);
     m.querySelector("#extSave").addEventListener("click", onSave);
     m.querySelector("#extFiles").addEventListener("change", onFilesPicked);
+    m.querySelector("#extVideo").addEventListener("change", onVideoPicked);
     var pe = m.querySelector("#extPaste");
     if(pe){
       /* 붙여넣기(paste)는 값이 들어오기 전에 이벤트가 와서 다음 틱에 처리한다 */
@@ -12129,11 +12326,11 @@ var AiriaMp4 = (function(){
     });
     return m;
   }
-  var formState = { editId: "", picked: [] };
+  var formState = { editId: "", picked: [], video: null, dropVideo: false };
 
   function openForm(editId){
     var m = ensureModal();
-    formState = { editId: editId || "", picked: [] };
+    formState = { editId: editId || "", picked: [], video: null, dropVideo: false };
     var ed = editId ? findExt(editId) : null;
     var sel = m.querySelector("#extPlat");
     var name = m.querySelector("#extName");
@@ -12155,6 +12352,13 @@ var AiriaMp4 = (function(){
       cap.value = (ed.caption || "") + ((ed.hashtags && ed.hashtags.length) ? "\n" + ed.hashtags.join(" ") : "");
       day.value = ed.dayRole || "";
       renderThumbs((ed.imgs || []).map(function(im){ return { name: im.name || "이미지", src: IMG_CACHE[im.id] || "" }; }));
+      /* 동영상 — 편집 중에는 붙어 있던 원본을 그대로 보여 준다 */
+      if(ed.video){
+        formState.video = { existing: true, id: ed.video.id, name: ed.video.name || "동영상",
+                            size: ed.video.size || 0, type: ed.video.type || "", dur: ed.video.dur || 0,
+                            url: (VID_CACHE[ed.video.id] || {}).url || "" };
+      }
+      renderVideoBox(formState.video);
       m.querySelector("#extSave").textContent = "수정 저장";
       m.querySelector("#extTitle").textContent = "외부 대본 수정";
     } else {
@@ -12162,8 +12366,11 @@ var AiriaMp4 = (function(){
       name.value = ""; body.value = ""; cap.value = "";
       day.value = "";
       renderThumbs([]);
+      renderVideoBox(null);
+      var vin = m.querySelector("#extVideo");
+      if(vin) { try { vin.value = ""; } catch(e){} }
       m.querySelector("#extSave").textContent = "저장하고 목록에 넣기";
-      m.querySelector("#extTitle").textContent = "외부 대본·이미지 끼워넣기";
+      m.querySelector("#extTitle").textContent = "외부 대본·이미지·동영상 끼워넣기";
     }
     m.classList.add("on");
     setTimeout(function(){ try { name.focus(); } catch(e){} }, 80);
@@ -12172,6 +12379,8 @@ var AiriaMp4 = (function(){
     var m = document.getElementById("extModal");
     if(m) m.classList.remove("on");
     formState.picked = [];
+    formState.video = null;
+    formState.dropVideo = false;
   }
   function renderThumbs(list){
     var host = document.querySelector("#extThumbs");
@@ -12195,6 +12404,92 @@ var AiriaMp4 = (function(){
         }
       });
     });
+  }
+
+  /* ---------------- 빌드 37: 동영상 첨부 칸 ---------------- */
+  function renderVideoBox(v){
+    var host = document.querySelector("#extVidBox");
+    if(!host) return;
+    if(!v){ host.innerHTML = ""; return; }
+    var url = v.url || "";
+    var meta = "📹 " + (v.name || "동영상") + " · " + fmtSize(v.size) + (v.dur ? " · " + fmtDur(v.dur) : "");
+    host.innerHTML = '<figure>' +
+      (url ? '<video src="' + esc(url) + '" controls playsinline preload="metadata"></video>'
+           : '<div class="ext-vidloading">동영상 불러오는 중…</div>') +
+      '<figcaption>' + esc(meta) + '</figcaption>' +
+      '<div class="ext-vidops">' +
+        '<button type="button" data-ext-vid-pick="1">교체</button>' +
+        '<button type="button" data-ext-vid-del="1">삭제</button>' +
+      '</div></figure>';
+    hookVideoGuard(host);
+    if(!url && v.id){
+      /* 편집: 이미 붙어 있던 동영상의 미리보기를 IDB에서 채운다 */
+      withVideo({ id: v.id, name: v.name, size: v.size, type: v.type, dur: v.dur }, function(c){
+        if(!c || !c.url) return;
+        if(!formState.video || formState.video.id !== c.id) return;
+        formState.video.url = c.url;
+        formState.video.size = formState.video.size || c.size;
+        formState.video.dur = formState.video.dur || c.dur;
+        renderVideoBox(formState.video);
+      });
+    }
+  }
+  function onVideoPicked(e){
+    var input = e.target;
+    var f = input && input.files ? input.files[0] : null;
+    if(!f) return;
+    var m = document.getElementById("extModal");
+    var err = m ? m.querySelector("#extErr") : null;
+    if(!isVideoFile(f)){
+      if(err) err.textContent = "동영상 파일(mp4·mov·webm)만 붙일 수 있어요.";
+      try { input.value = ""; } catch(e2){}
+      return;
+    }
+    if(f.size > VID_MAX_MB * 1024 * 1024){
+      if(err) err.textContent = "동영상이 너무 커요 — " + VID_MAX_MB + "MB 이하로 넣어 주세요.";
+      try { input.value = ""; } catch(e2){}
+      return;
+    }
+    if(err) err.textContent = "";
+    var url = "";
+    try { url = URL.createObjectURL(f); } catch(e2){ url = ""; }
+    formState.video = { existing: false, id: "", file: f, url: url,
+                        name: f.name || "동영상", type: String(f.type || ""),
+                        size: Number(f.size) || 0, dur: 0 };
+    formState.dropVideo = false;
+    renderVideoBox(formState.video);
+    /* 제목이 비어 있으면 파일명(확장자 제외)이 기본 제목 — 칸에서 고칠 수 있다 */
+    var nameEl = m ? m.querySelector("#extName") : null;
+    if(nameEl && !String(nameEl.value || "").trim()) nameEl.value = baseName(f.name);
+    var picked = { name: formState.video.name, size: formState.video.size };
+    probeVideo(url, function(dur){
+      if(!formState.video || formState.video.existing) return;
+      if(formState.video.name !== picked.name) return;   /* 그새 바뀐 파일 */
+      formState.video.dur = dur;
+      renderVideoBox(formState.video);
+    });
+  }
+  function clearVideo(){
+    formState.video = null;
+    formState.dropVideo = true;
+    var m = document.getElementById("extModal");
+    var vin = m ? m.querySelector("#extVideo") : null;
+    if(vin){ try { vin.value = ""; } catch(e){} }
+    renderVideoBox(null);
+  }
+  /* 카드·미리보기 동영상은 재생만 하고 대본 선택이 되지 않도록 클릭을 가로채지 않는다 */
+  function hookVideoGuard(root){
+    if(!root || !root.querySelectorAll) return;
+    var vids = root.querySelectorAll("video");
+    for(var i = 0; i < vids.length; i++){
+      var v = vids[i];
+      if(v.__extGuard) continue;
+      v.__extGuard = 1;
+      var stop = function(e){ e.stopPropagation(); };
+      v.addEventListener("click", stop);
+      v.addEventListener("pointerdown", stop);
+      v.addEventListener("dblclick", stop);
+    }
   }
 
   function onSave(){
@@ -12225,8 +12520,11 @@ var AiriaMp4 = (function(){
         }
       }
     }
-    if(!p.title && !p.body){ err.textContent = "제목이나 대본 글을 하나는 넣어 주세요."; return; }
-    if(!p.body){ err.textContent = "대본 글을 넣어 주세요 — 첫 줄이 훅이 돼요."; return; }
+    /* 동영상만 붙인 항목도 저장된다 — 글이 비어도 영상이 있으면 통과 */
+    var hasVideo = !!(formState.video) && !formState.dropVideo;
+    if(hasVideo && !p.title) p.title = baseName(formState.video.name);
+    if(!p.title && !p.body && !hasVideo){ err.textContent = "제목이나 대본 글을 하나는 넣어 주세요 — 동영상만 붙여도 돼요."; return; }
+    if(!p.body && !hasVideo){ err.textContent = "대본 글을 넣어 주세요 — 첫 줄이 훅이 돼요."; return; }
     var tags = (p.caption.split(/\r?\n/).filter(function(s){ return s.trim().charAt(0) === "#"; })[0] || "");
     var capLines = p.caption.split(/\r?\n/).filter(function(s){ return s.trim().charAt(0) !== "#"; });
     busy = true;
@@ -12240,15 +12538,21 @@ var AiriaMp4 = (function(){
       tags: tags,
       dayRole: p.day === "today" ? todayKeySafe() : p.day,
       dayLabel: p.day,
-      picked: p.picked
+      picked: p.picked,
+      video: formState.video,
+      dropVideo: !!formState.dropVideo
     }).then(function(id){
       busy = false;
       closeForm();
       refreshUI(id);
-      toast(p.editId ? "외부 대본을 고쳤어요" : "외부 대본을 목록에 넣었어요 — 사진은 이 기기에만 저장돼요");
+      toast(p.editId ? "외부 대본을 고쳤어요"
+        : (hasVideo ? "동영상을 목록에 넣었어요 — 원본 그대로 이 기기에 저장됐어요"
+                    : "외부 대본을 목록에 넣었어요 — 사진은 이 기기에만 저장돼요"));
     }).catch(function(){
       busy = false;
-      err.textContent = "저장하지 못했어요 — 사진 용량을 줄이거나 한 장씩 넣어 다시 해 보세요.";
+      err.textContent = hasVideo
+        ? "저장하지 못했어요 — 동영상 용량을 확인하고 다시 해 보세요."
+        : "저장하지 못했어요 — 사진 용량을 줄이거나 한 장씩 넣어 다시 해 보세요.";
     });
   }
 
@@ -12286,19 +12590,43 @@ var AiriaMp4 = (function(){
       base.scripts[p.plat] = buildIdea({ id: prev.id, plat: p.plat, title: p.title, body: p.body, caption: p.caption, tags: p.tags }).scripts[p.plat];
     }
     if(imgRecs.length){ base.imgs = imgRecs.map(function(r){ return { id: r.id, name: r.name, w: r.w, h: r.h }; }); }
-    /* 저장 목록 갱신 */
-    var replaced = false;
-    for(var i = 0; i < list.length; i++){
-      if(String(list[i].id) === String(base.id)){ list[i] = base; replaced = true; break; }
-    }
-    if(!replaced) list.push(base);
-    var ok = writeExt(list);
-    var chain = Promise.resolve();
-    imgRecs.forEach(function(r){ chain = chain.then(function(){ return idbPut(r); }); });
-    return chain.then(function(){
-      if(!ok) throw new Error("storage");
-      applyScenes(base);
-      return base.id;
+    /* 동영상 — 새로 고른 파일은 원본 Blob 을 IDB에 넣고, 없으면 붙어 있던 것을 유지한다 */
+    var oldVid = (prev && prev.video) ? prev.video : null;
+    var vidPut = (p.video && !p.video.existing && p.video.file)
+      ? putVideo(p.video.file, p.video.name, p.video.dur)
+      : Promise.resolve(null);
+    return vidPut.then(function(vrec){
+      if(vrec){
+        base.video = vrec;
+      } else if(p.dropVideo){
+        base.video = null;
+      } else if(p.video && p.video.existing && p.video.id){
+        base.video = { id: p.video.id, name: p.video.name || "동영상", type: p.video.type || "",
+                       size: p.video.size || 0, dur: p.video.dur || 0 };
+      } else if(oldVid){
+        base.video = oldVid;
+      } else {
+        base.video = null;
+      }
+      /* 저장 목록 갱신 */
+      var replaced = false;
+      for(var i = 0; i < list.length; i++){
+        if(String(list[i].id) === String(base.id)){ list[i] = base; replaced = true; break; }
+      }
+      if(!replaced) list.push(base);
+      var ok = writeExt(list);
+      var chain = Promise.resolve();
+      imgRecs.forEach(function(r){ chain = chain.then(function(){ return idbPut(r); }); });
+      return chain.then(function(){
+        if(!ok){
+          if(vrec) dropVideo(vrec);      /* 저장 실패 — 방금 넣은 동영상 기록을 되돌린다 */
+          throw new Error("storage");
+        }
+        /* 교체·삭제된 옛 동영상 기록 정리 */
+        if(oldVid && oldVid.id && (!base.video || oldVid.id !== base.video.id)) dropVideo(oldVid);
+        applyScenes(base);
+        return base.id;
+      });
     });
   }
 
@@ -12313,6 +12641,7 @@ var AiriaMp4 = (function(){
       writeScenePick(store);
     } catch(e){}
     (idea.imgs || []).forEach(function(im){ idbDel(im.id); delete IMG_CACHE[im.id]; });
+    if(idea.video) dropVideo(idea.video);
     /* 올림 기록도 함께 정리 */
     try {
       if(typeof readUploads === "function" && typeof writeUploads === "function"){
@@ -12335,6 +12664,164 @@ var AiriaMp4 = (function(){
     doRemove(id);
   }
 
+  /* ==========================================================================
+     빌드 37 — 동영상 미리보기 · 바로 올리기(공유) · 영상 저장
+     ========================================================================== */
+  /* 올라갈 글 — 캡션·해시태그만(대본은 들어가지 않는다). 쇼츠는 제목을 앞에 */
+  function extShareText(idea){
+    if(!idea) return "";
+    var cap = String(idea.caption || "").trim();
+    var tags = (idea.hashtags || []).filter(function(t){ return !!t; }).join(" ").trim();
+    var head = String(idea.plat || "") === "shorts" ? String(idea.title || "").trim() : "";
+    var out = head;
+    if(cap) out = out ? out + "\n\n" + cap : cap;
+    if(tags) out = out ? out + "\n\n" + tags : tags;
+    return out.trim();
+  }
+
+  /* 대본 미리보기(#scriptView)에 붙는 동영상 블록 */
+  function decorateScript(){
+    var host = document.getElementById("scriptView");
+    if(!host) return;
+    var v = null;
+    try { v = viewOfSel(); } catch(e){ v = null; }
+    var idea = v ? findExt(v.id) : null;
+    var old = host.querySelector(".ext-vidprev");
+    if(!idea || !idea.video){
+      if(old) old.remove();
+      return;
+    }
+    if(old && old.getAttribute("data-ext-vid") === String(idea.id)) return;
+    if(old) old.remove();
+    var box = document.createElement("div");
+    box.className = "ext-vidprev";
+    box.setAttribute("data-ext-vid", String(idea.id));
+    box.innerHTML =
+      '<p class="ext-vidprev-h">📹 첨부한 동영상 <small>' + esc(idea.video.name || "") +
+        ' · ' + fmtSize(idea.video.size) + (idea.video.dur ? ' · ' + fmtDur(idea.video.dur) : '') + '</small></p>' +
+      '<div class="ext-vidwrap"><div class="ext-vidloading">동영상 불러오는 중…</div></div>' +
+      videoButtons(idea);
+    host.appendChild(box);
+    hookVideoGuard(box);
+    withVideo(idea.video, function(c){
+      var wrap = box.querySelector(".ext-vidwrap");
+      if(!wrap) return;
+      if(!c || !c.url){
+        wrap.innerHTML = '<p class="ext-vidmeta">동영상을 불러오지 못했어요 — 폼에서 다시 넣어 주세요.</p>';
+        return;
+      }
+      wrap.innerHTML = '<video src="' + esc(c.url) + '" controls playsinline preload="metadata"></video>';
+      hookVideoGuard(wrap);
+    });
+  }
+
+  /* 앱(WebView): AiriaShare 네이티브 브리지 — 원본 Blob 을 청크로 보내고 글은 네이티브 클립보드로 */
+  function nativeShareExt(rec, text){
+    if(!(window.AiriaShare && typeof window.AiriaShare.shareVideo === "function")) return false;
+    if(!rec || !rec.blob) return false;
+    var token = "";
+    try { token = String(window.AiriaShare.shareVideo(shareNameForExt(rec), mimeOf(rec), text) || ""); } catch(e){ token = ""; }
+    if(!token) return false;
+    var blob = rec.blob, CHUNK = 1024 * 1024, off = 0;
+    toast("영상을 공유 창으로 보내는 중…");
+    (function step(){
+      if(off >= blob.size){
+        try { window.AiriaShare.finishShare(token); } catch(e){ toast("공유 창을 열지 못했어요"); }
+        return;
+      }
+      var part = blob.slice(off, Math.min(blob.size, off + CHUNK));
+      var fr = new FileReader();
+      fr.onload = function(){
+        var s = String(fr.result || ""), i = s.indexOf(",");
+        var b64 = i >= 0 ? s.slice(i + 1) : s;
+        var ok2 = false;
+        try { ok2 = window.AiriaShare.shareChunk(token, b64); } catch(e){ ok2 = false; }
+        if(!ok2){
+          try { window.AiriaShare.cancelShare(token); } catch(e){}
+          toast("공유할 영상을 준비하지 못했어요 — ‘영상 저장’ 후 갤러리에서 올려 주세요");
+          return;
+        }
+        off += CHUNK;
+        step();
+      };
+      fr.onerror = function(){
+        try { window.AiriaShare.cancelShare(token); } catch(e){}
+        toast("공유할 영상을 읽지 못했어요 — ‘영상 저장’ 후 올려 주세요");
+      };
+      fr.readAsDataURL(part);
+    })();
+    return true;
+  }
+
+  /* 브라우저: 파일 + 글을 함께 공유할 수 있으면 그대로 공유 시트 */
+  function webShareExt(rec, text, onDone){
+    if(!(navigator.share && navigator.canShare && typeof File === "function")) return false;
+    if(!rec || !rec.blob) return false;
+    var file = null;
+    try { file = new File([rec.blob], shareNameForExt(rec), { type: mimeOf(rec) }); } catch(e){ file = null; }
+    if(!file) return false;
+    var can = false;
+    try { can = navigator.canShare({ files: [file] }); } catch(e){ can = false; }
+    if(!can) return false;
+    try {
+      navigator.share({ files: [file], text: text }).then(function(){ if(onDone) onDone(true); })
+        .catch(function(){ if(onDone) onDone(false); });
+    } catch(e){ return false; }
+    return true;
+  }
+
+  function saveVideoFile(rec){
+    if(!rec || !rec.blob) return false;
+    var name = String(rec.name || "동영상.mp4");
+    var url = (rec.id && VID_CACHE[rec.id] && VID_CACHE[rec.id].url) || "";
+    if(!url){ try { url = URL.createObjectURL(rec.blob); } catch(e){ url = ""; } }
+    if(!url) return false;
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.rel = "noopener";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ try { document.body.removeChild(a); } catch(e){} }, 600);
+    toast("영상을 저장했어요 · " + name);
+    return true;
+  }
+
+  function markUploaded(idea){
+    /* 기존 ‘바로 올리기’와 같게 — 올리기를 누르면 올림으로 남기고 목록에서 ‘올린 기록’으로 옮긴다 */
+    try { markUpload(idea.id, idea.plat || "reels", true); afterUploadChange(); } catch(e){}
+  }
+  function markShared(idea){
+    markUploaded(idea);
+    toast("공유 창에서 인스타(릴스)·유튜브를 골라 주세요");
+  }
+
+  /* 바로 올리기 — 공유 시트(앱·브라우저) → 안 되면 캡션 복사 + 원본 저장 */
+  function doShareVideo(id){
+    var idea = findExt(id);
+    if(!idea){ toast("외부 대본을 찾지 못했어요"); return; }
+    if(!idea.video){ toast("이 항목에는 동영상이 없어요"); return; }
+    var text = extShareText(idea);
+    withVideo(idea.video, function(rec){
+      if(!rec || !rec.blob){ toast("동영상을 불러오지 못했어요 — 폼에서 다시 넣어 주세요"); return; }
+      if(nativeShareExt(rec, text)){ markShared(idea); return; }
+      if(webShareExt(rec, text, function(ok){ if(ok) markShared(idea); })) return;
+      if(text) copyText(text, "올라갈 캡션·해시태그를 복사했어요");
+      saveVideoFile(rec);
+      markUploaded(idea);
+      toast("캡션을 복사하고 영상을 저장했어요 — 올린 기록에 남겨 뒀어요");
+    });
+  }
+  function doSaveVideo(id){
+    var idea = findExt(id);
+    if(!idea || !idea.video){ toast("이 항목에는 동영상이 없어요"); return false; }
+    var c = VID_CACHE[idea.video.id];
+    if(c && c.blob) return saveVideoFile(c);
+    withVideo(idea.video, function(rec){ if(rec) saveVideoFile(rec); });
+    return true;
+  }
+
   /* ---------------- 연결 ---------------- */
   patchLists();
   css();
@@ -12346,6 +12833,19 @@ var AiriaMp4 = (function(){
     if(!t || !t.closest) return;
     var del = t.closest("[data-ext-del]");
     if(del){ e.preventDefault(); removeIdea(del.getAttribute("data-ext-del")); return; }
+    var shareBtn = t.closest("[data-ext-share]");
+    if(shareBtn){ e.preventDefault(); e.stopPropagation(); doShareVideo(shareBtn.getAttribute("data-ext-share")); return; }
+    var saveBtn = t.closest("[data-ext-save]");
+    if(saveBtn){ e.preventDefault(); e.stopPropagation(); doSaveVideo(saveBtn.getAttribute("data-ext-save")); return; }
+    var vidPick = t.closest("[data-ext-vid-pick]");
+    if(vidPick){
+      e.preventDefault(); e.stopPropagation();
+      var vin = document.getElementById("extVideo");
+      if(vin) vin.click();
+      return;
+    }
+    var vidDel = t.closest("[data-ext-vid-del]");
+    if(vidDel){ e.preventDefault(); e.stopPropagation(); clearVideo(); return; }
     if(t.closest("#extAddMain") || t.closest("#extAddRelay")){ e.preventDefault(); openForm(""); return; }
     var row = t.closest("li.idea-row[data-idea]");
     if(row && t.closest(".ext-del")) return;
@@ -12377,6 +12877,20 @@ var AiriaMp4 = (function(){
         } catch(e){}
         return r;
       };
+    }
+  } catch(e){}
+
+  /* 목록·대본이 다시 그려질 때마다 동영상 블록을 함께 붙인다 */
+  try {
+    if(typeof renderIdeas === "function"){
+      var _ideas = renderIdeas;
+      renderIdeas = function(){ var r = _ideas.apply(null, arguments); try { decorate(); } catch(e){} return r; };
+    }
+  } catch(e){}
+  try {
+    if(typeof renderScript === "function"){
+      var _renderScript = renderScript;
+      renderScript = function(){ var r = _renderScript.apply(null, arguments); try { decorateScript(); } catch(e){} return r; };
     }
   } catch(e){}
 
@@ -12427,7 +12941,19 @@ var AiriaMp4 = (function(){
       var g = function(id){ var e = m.querySelector("#" + id); return e ? e.value : null; };
       return { title: g("extName"), body: g("extBody"), caption: g("extCap"), plat: g("extPlat"), day: g("extDay"), paste: g("extPaste") };
     },
-    save: function(){ onSave(); }
+    save: function(){ onSave(); },
+    /* 빌드 37 — 동영상 첨부·바로 올리기 점검구 */
+    video: function(id){ var it = findExt(id); return it ? (it.video || null) : null; },
+    shareText: function(id){ return extShareText(findExt(id)); },
+    shareVideo: function(id){ doShareVideo(id); },
+    saveVideo: function(id){ return doSaveVideo(id); },
+    videoSrc: function(sel){
+      var el = document.querySelector(sel || "#ideaList video");
+      return el ? String(el.getAttribute("src") || "") : "";
+    },
+    videoCount: function(){
+      return Object.keys(VID_CACHE).length;
+    }
   };
 })();
 
