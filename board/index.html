@@ -11125,16 +11125,14 @@ var AiriaMp4 = (function(){
 
     /* 본문 — 기운 오렌지 밴드 위에 글자도 같이 기울인다 */
     g.save();
-    g.translate(0, 560); g.rotate(-.13);
-    g.fillStyle = ORG; g.fillRect(-W, -170, W * 2, 340); g.restore();
+    g.translate(0, 630); g.rotate(-.10);
+    g.fillStyle = ORG; g.fillRect(-W, -250, W * 2, 520); g.restore();
     g.save();
-    g.translate(46, 500); g.rotate(-.13);
-    fbFont(g, "800", 20, "4px", "mono"); g.fillStyle = "#120700"; g.textAlign = "left";
-    g.fillText(fbRole(s) || "POINT " + fbIdx(idx), 0, 0);
-    var Lb = fbFitBox(g, "900", s.line, W - 130, 460, 130, 56, 4, 1.02, "gothic", true);
-    fbDraw(g, Lb, 0, 110, INK, "left", "-3px", "900", "gothic", W - 130);
+    g.translate(64, 560); g.rotate(-.10);
+    var Lb = fbFitBox(g, "900", s.line, W - 170, 400, 124, 54, 4, 1.08, "gothic", true);
+    fbDraw(g, Lb, 0, 0, INK, "left", "-2.5px", "900", "gothic", W - 170);
     g.restore();
-    if(s.sub) fbText(g, "600", s.sub, 48, 900, W - 180, 29, 22, 3, "rgba(244,244,242,.72)", "left", 1.45);
+    if(s.sub) fbText(g, "600", s.sub, 48, 960, W - 180, 29, 22, 3, "rgba(244,244,242,.72)", "left", 1.45);
     g.fillStyle = INK; g.fillRect(50, H - 130, 110, 46);
     fbFont(g, "800", 22, "2px", "mono"); g.fillStyle = BG; g.textAlign = "center";
     g.fillText(fbIdx(idx), 105, H - 98); g.textAlign = "left";
