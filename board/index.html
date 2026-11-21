@@ -11204,7 +11204,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 35;
+  var OTA_APP_BUILD = 36;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -11434,6 +11434,15 @@ var AiriaMp4 = (function(){
   }
 
 /* ==========================================================================
+   v1.13 (빌드 36) — 외부 대본 통째로 붙여넣기 자동 분리
+     · 폼 맨 위(플랫폼 바로 아래) '통째로 붙여넣기' 칸에 ChatGPT 답변을 그대로
+       붙여넣으면(paste/input 즉시) 제목 · 대본/글 · 캡션 · 해시태그로 나눠
+       아래 칸에 자동으로 채운다. 아래 칸에서 그대로 고칠 수도 있다.
+     · 라벨(제목:/[제목]/Title:)이 있으면 그 값을, 없으면 첫 의미 있는 줄을 제목으로.
+       캡션:/본문 캡션:/해시태그:/태그: 섹션과 #태그 줄은 캡션·해시태그로,
+       나머지 본문(대본:/내용:/스크립트: 접두 정리)은 대본 칸으로.
+     · 붙여넣기만 하고 아래 칸을 안 건드린 채 저장해도 정상 저장된다.
+   --------------------------------------------------------------------------
    v1.12 (빌드 35) — 외부 대본·이미지 끼워넣기
      · ChatGPT 등에서 만든 대본(글)과 장면 이미지를 그대로 가져와
        기존 대본(s01~s09)과 똑같이 목록·미리보기·수정·오늘의 4종 릴레이·
@@ -11736,6 +11745,228 @@ var AiriaMp4 = (function(){
     }
   }
 
+  /* ==========================================================================
+     통째로 붙여넣기 — 제목 · 대본/글 · 캡션 · 해시태그 자동 분리 (빌드 36)
+     ========================================================================== */
+  var PASTE_NOTE = "붙여넣는 즉시 아래 칸이 채워져요 · 아래 칸에서 고쳐도 됩니다";
+  var TAG_CH = "#([0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_]+)";
+  var TAG_RE = new RegExp(TAG_CH, "g");
+  var RE_TITLE = /^(?:\[\s*제목\s*\]\s*[:：]?|제목\s*[:：\-–]|title\s*[:：\-–])\s*(.*)$/i;
+  var RE_CAP = /^(?:\[\s*(?:본문\s*캡션|캡션)\s*\]\s*[:：]?|(?:본문\s*캡션|캡션)\s*[:：\-–]|caption\s*[:：\-–])\s*(.*)$/i;
+  var RE_BODY = /^(?:\[\s*(?:대본|내용|스크립트|본문)\s*\]\s*[:：]?|(?:대본|내용|스크립트|본문)\s*[:：\-–]|(?:script|body)\s*[:：\-–])\s*(.*)$/i;
+  var RE_TAGS = /^(?:\[\s*(?:해시\s*태그|태그)\s*\]\s*[:：]?|(?:해시\s*태그|태그)\s*[:：\-–]|(?:hashtags?|tags?)\s*[:：\-–])\s*(.*)$/i;
+  var RE_META = /^(?:플랫폼|platform|톤|tone|길이|분량|형식|format|스타일|style|카테고리|category|주제|theme)\s*[:：]/i;
+
+  /* 라벨 판별용 — 마크다운 강조·머리표시를 벗긴 문자열 */
+  function labelProbe(s){
+    var t = String(s == null ? "" : s).replace(/\u00A0/g, " ").trim();
+    t = t.replace(/^#{1,6}\s+/, "").trim();
+    t = t.replace(/^>+\s*/, "").trim();
+    t = t.replace(/\*\*/g, "").replace(/__/g, "").trim();
+    t = t.replace(/^[-•·▸▶]\s+/, "").trim();
+    return t;
+  }
+  function stripEmoji(s){
+    var t = String(s == null ? "" : s);
+    try {
+      t = t.replace(/^(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}\u{200D}\u{20E3}]+\s*)+/u, "");
+    } catch(e){
+      t = t.replace(/^[^\w가-힣#\[\(]+/, "");
+    }
+    return t;
+  }
+  /* 제목·본문 줄의 마크다운(#, **, 불릿, 번호, 이모지) 접두 정리 */
+  function stripDecor(s){
+    var t = String(s == null ? "" : s).replace(/\u00A0/g, " ").trim();
+    t = t.replace(/^>+\s*/, "");
+    t = t.replace(/^#{1,6}\s+/, "");
+    t = t.replace(/^(?:[-*•·▸▶◆◇●◦]\s*)+/, "");
+    t = t.replace(/^\d{1,2}[.)]\s+/, "");
+    t = t.replace(/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]\s*/, "");
+    t = stripEmoji(t);
+    t = t.replace(/\*+$/g, "").replace(/^\*+|\*+$/g, "");
+    return t.trim();
+  }
+  function cleanTitle(s){
+    var t = stripDecor(String(s == null ? "" : s));
+    var m = /^[\[\(（【]\s*(.+?)\s*[\]\)）】]$/.exec(t);
+    if(m) t = m[1];
+    t = t.replace(/^[\s"'“”‘’]+/, "").replace(/[\s"'“”‘’]+$/, "");
+    t = t.replace(/[:：]\s*$/, "");
+    return t.trim();
+  }
+  function hashtagsOf(s){
+    var out = [], m, re = new RegExp(TAG_CH, "g");
+    while((m = re.exec(String(s == null ? "" : s)))) out.push("#" + m[1]);
+    return out;
+  }
+  /* 그 줄이 사실상 해시태그 줄인가 ("#태그"로 시작하거나, 태그 2개 이상 + 남는 말 2단어 이하) */
+  function isTagLine(s){
+    var t = String(s == null ? "" : s).trim();
+    if(!t) return false;
+    if(/^#{1,6}\s+/.test(t)) return false;      /* 마크다운 머리글 */
+    if(/^#\S/.test(t)) return true;
+    var tags = hashtagsOf(t);
+    if(!tags.length) return false;
+    var rest = t.replace(TAG_RE, " ").replace(/[\s,·、]+/g, " ").trim();
+    var words = rest.split(" ").filter(function(w){ return w.length; });
+    return tags.length >= 2 && words.length <= 2;
+  }
+  function trimLines(arr){
+    var out = (arr || []).slice();
+    while(out.length && !String(out[0] || "").trim()) out.shift();
+    while(out.length && !String(out[out.length - 1] || "").trim()) out.pop();
+    return out;
+  }
+  /* label-only lines such as "## caption" or "**body**" also start a section. */
+  function labelWord(probe){
+    var raw = String(probe == null ? "" : probe);
+    raw = raw.replace(/^\[/, "").replace(/\]$/, "").replace(/[:：]\s*$/, "").replace(/\s+/g, " ").trim();
+    if(!raw) return "";
+    var p2 = raw + ":";
+    if(RE_CAP.test(p2)) return "caption";
+    if(RE_TITLE.test(p2)) return "title";
+    if(RE_BODY.test(p2)) return "body";
+    if(RE_TAGS.test(p2)) return "tags";
+    return "";
+  }
+  /* 본문 한 줄의 마크다운·불릿·번호 접두만 벗긴다(이모지·문장부호는 그대로) */
+  function cleanBodyLine(s){
+    var t = String(s == null ? "" : s).replace(/\u00A0/g, " ");
+    t = t.replace(/^\s+/, "");
+    t = t.replace(/^#{1,6}\s+/, "");
+    t = t.replace(/^>+\s*/, "");
+    t = t.replace(/^\*\*\s*/, "").replace(/\s*\*\*$/, "");
+    t = t.replace(/^(?:[-•·▸▶◆◇●◦]|\d{1,2}[.)]|[①②③④⑤⑥⑦⑧⑨⑩])\s+/, "");
+    t = t.replace(/\s+$/, "");
+    return t;
+  }
+
+  function parsePaste(raw){
+    var text = String(raw == null ? "" : raw).replace(/\r\n?/g, "\n").replace(/\u00A0/g, " ");
+    if(!text.trim()) return null;
+    var lines = text.split("\n");
+    var title = "", bodyLines = [], capLines = [], tags = [];
+    var mode = "auto";        /* auto | title | body | caption | tags */
+
+    function addTags(list){
+      (list || []).forEach(function(x){
+        var t = String(x == null ? "" : x).replace(/^#+/, "").replace(/[.,;:!?)\]】」』]+$/, "").trim();
+        if(!t) return;
+        if(!/^[0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_]/.test(t)) return;
+        t = t.replace(/\s+/g, "");
+        if(t) tags.push("#" + t);
+      });
+    }
+    function addCapLine(line){
+      var hs = hashtagsOf(line);
+      var rest = line;
+      if(hs.length){ addTags(hs); rest = line.replace(TAG_RE, " "); }
+      rest = rest.replace(/\s+/g, " ").trim().replace(/^[-–—·:：]+/, "").trim();
+      if(rest) capLines.push(rest);
+    }
+
+    for(var i = 0; i < lines.length; i++){
+      var s = lines[i].replace(/\s+$/, "").trim();
+      if(!s){
+        if(mode === "caption") capLines.push("");
+        else bodyLines.push("");
+        continue;
+      }
+      var probe = labelProbe(s), m;
+      if((m = RE_CAP.exec(probe))){
+        mode = "caption";
+        if(m[1] && m[1].trim()) addCapLine(m[1].trim());
+        continue;
+      }
+      if((m = RE_TITLE.exec(probe))){
+        var tv = (m[1] || "").trim();
+        if(tv && !title){ title = cleanTitle(tv); mode = "body"; }
+        else mode = "title";
+        continue;
+      }
+      if((m = RE_BODY.exec(probe))){
+        mode = "body";
+        var bv = (m[1] || "").trim();
+        if(bv) bodyLines.push(cleanBodyLine(bv));
+        continue;
+      }
+      if((m = RE_TAGS.exec(probe))){
+        mode = "tags";
+        var tvv = (m[1] || "").trim();
+        if(tvv) addTags(hashtagsOf(tvv).length ? hashtagsOf(tvv) : tvv.split(/[\s,]+/));
+        continue;
+      }
+      var lw = labelWord(probe);       /* heading / bold-only section line (no colon) */
+      if(lw){ mode = lw; continue; }
+      if(RE_META.test(probe)) continue;                 /* 플랫폼·톤·길이 같은 머리 정보는 본문에서 뺀다 */
+      if(isTagLine(s)){ addTags(hashtagsOf(s)); continue; }
+      if(/^#{1,6}\s+/.test(s) && !title && mode !== "caption"){
+        title = cleanTitle(stripDecor(s));
+        mode = "body";
+        continue;
+      }
+      if(mode === "title"){
+        if(!title) title = cleanTitle(stripDecor(s));
+        else bodyLines.push(cleanBodyLine(s));
+        mode = "body";
+        continue;
+      }
+      if(mode === "caption"){ addCapLine(s); continue; }
+      if(mode === "tags"){ addTags(hashtagsOf(s).length ? hashtagsOf(s) : s.split(/[\s,]+/)); continue; }
+      var cb = cleanBodyLine(s);
+      if(cb) bodyLines.push(cb);
+    }
+
+    var body = trimLines(bodyLines);
+    if(!title){
+      for(var j = 0; j < body.length; j++){
+        var cand = stripDecor(body[j]);
+        if(!cand) continue;
+        if(/^[-=_*~]{3,}$/.test(cand)) continue;
+        if(isTagLine(cand)) continue;
+        title = cleanTitle(cand);
+        body.splice(j, 1);
+        break;
+      }
+    }
+    var bodyText = trimLines(body).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    var capText = trimLines(capLines).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    if(!bodyText && capText){ bodyText = capText; capText = ""; }   /* 캡션만 있는 글은 본문으로 */
+    if(!bodyText && title) bodyText = title;                        /* 그래도 비면 제목이라도 */
+    var seen = {}, uniq = [];
+    tags.forEach(function(t){ var k = t.toLowerCase(); if(!seen[k]){ seen[k] = 1; uniq.push(t); } });
+    return { title: title, body: bodyText, caption: capText, tags: uniq.slice(0, 20).join(" ") };
+  }
+
+  /* 붙여넣은 글 → 아래 칸(제목·대본·캡션) 채우기 */
+  function applyPaste(){
+    var m = document.getElementById("extModal");
+    if(!m) return null;
+    var pe = m.querySelector("#extPaste");
+    if(!pe) return null;
+    var note = m.querySelector("#extPasteNote");
+    var box = m.querySelector("#extPasteBox");
+    var raw = pe.value;
+    if(!raw.trim()){
+      if(box) box.classList.remove("on");
+      if(note) note.textContent = PASTE_NOTE;
+      return null;
+    }
+    var r = parsePaste(raw);
+    if(!r) return null;
+    var name = m.querySelector("#extName"), body = m.querySelector("#extBody"), cap = m.querySelector("#extCap");
+    if(name && r.title) name.value = r.title;
+    if(body && r.body) body.value = r.body;
+    if(cap) cap.value = [r.caption, r.tags].filter(function(x){ return !!x; }).join("\n");
+    var nTag = (r.tags || "").split(/\s+/).filter(function(x){ return x.length; }).length;
+    if(box) box.classList.add("on");
+    if(note) note.textContent = "제목 " + (r.title ? "✓" : "—") +
+      " · 대본 " + (r.body ? (String(r.body).split("\n").length + "줄") : "—") +
+      " · 캡션 " + (r.caption ? "✓" : "—") + " · 해시태그 " + nTag + "개 — 아래 칸에서 고쳐도 돼요";
+    return r;
+  }
+
   /* ---------------- CSS ---------------- */
   function css(){
     if(document.getElementById("v200-css")) return;
@@ -11777,6 +12008,13 @@ var AiriaMp4 = (function(){
       ".ext-cancel{border:1px solid #E0DACE;background:#fff;color:#3A342C}",
       ".ext-err{margin:0 0 10px;font-size:12px;color:#B23B28;min-height:0}",
       ".ext-runday{display:flex;gap:6px;align-items:center}",
+      ".ext-paste{border:1px dashed #DCD3C3;border-radius:14px;padding:11px 12px;background:#FFFDF7;margin:0 0 12px}",
+      ".ext-paste.on{border-color:#8A63C4;background:#FBF8FF}",
+      ".ext-paste > span{margin:0}",
+      ".ext-paste textarea{min-height:74px;background:#fff;border-style:dashed;border-color:#E0DACE}",
+      ".ext-paste.on textarea{border-color:#BCA6E0;border-style:solid}",
+      ".ext-paste .ext-paste-note{font-size:11px;color:#8A8378;line-height:1.5}",
+      ".ext-paste.on .ext-paste-note{color:#6B47A8;font-weight:600}",
       "@media(min-width:720px){#extModal{align-items:center;padding:24px}",
       "  #extModal .ext-sheet{border-radius:20px;max-height:86vh}}"
     ].join("\n");
@@ -11848,6 +12086,11 @@ var AiriaMp4 = (function(){
       '  <label class="ext-f"><span>플랫폼</span><select id="extPlat">',
       PLATS.map(function(p){ return '<option value="' + p.k + '">' + p.label + '</option>'; }).join(""),
       '  </select></label>',
+      '  <div class="ext-f ext-paste" id="extPasteBox">',
+      '    <span>통째로 붙여넣기 <small>(ChatGPT 답변 등을 그대로 붙여넣으면 제목·대본·캡션·해시태그로 알아서 나눠 넣어요)</small></span>',
+      '    <textarea id="extPaste" placeholder="제목: 새벽 두 시 반, 이 엄마가 하는 일&#10;대본:&#10;첫 줄은 훅으로&#10;두 번째 컷 자막&#10;캡션: 올릴 때 붙는 글&#10;#릴스 #육아일상"></textarea>',
+      '    <small class="ext-paste-note" id="extPasteNote">붙여넣는 즉시 아래 칸이 채워져요 · 아래 칸에서 고쳐도 됩니다</small>',
+      '  </div>',
       '  <label class="ext-f"><span>제목</span><input type="text" id="extName" placeholder="예: 새벽 두 시 반, 이 엄마가 하는 일"></label>',
       '  <label class="ext-f"><span>대본 · 글 <small>(줄바꿈 = 컷 하나 / 스레드·피드는 그대로 본문)</small></span>',
       '    <textarea id="extBody" placeholder="첫 줄은 훅으로 쓰여요.&#10;두 번째 줄&#10;세 번째 줄&#10;마지막 줄"></textarea></label>',
@@ -11870,6 +12113,13 @@ var AiriaMp4 = (function(){
     m.querySelector("#extCancel").addEventListener("click", closeForm);
     m.querySelector("#extSave").addEventListener("click", onSave);
     m.querySelector("#extFiles").addEventListener("change", onFilesPicked);
+    var pe = m.querySelector("#extPaste");
+    if(pe){
+      /* 붙여넣기(paste)는 값이 들어오기 전에 이벤트가 와서 다음 틱에 처리한다 */
+      pe.addEventListener("paste", function(){ setTimeout(applyPaste, 0); });
+      pe.addEventListener("drop", function(){ setTimeout(applyPaste, 0); });
+      pe.addEventListener("input", function(){ applyPaste(); });
+    }
     m.querySelector("#extPlat").addEventListener("change", function(){
       var p = m.querySelector("#extPlat").value;
       if(formState.editId){ /* 편집 중에는 플랫폼을 바꾸면 새 플랫폼 대본으로 다시 만든다 */ }
@@ -11891,6 +12141,12 @@ var AiriaMp4 = (function(){
     var cap = m.querySelector("#extCap");
     var day = m.querySelector("#extDay");
     m.querySelector("#extErr").textContent = "";
+    var pb = m.querySelector("#extPaste");
+    if(pb){ pb.value = ""; }
+    var pbox = m.querySelector("#extPasteBox");
+    if(pbox) pbox.classList.remove("on");
+    var pnote = m.querySelector("#extPasteNote");
+    if(pnote) pnote.textContent = PASTE_NOTE;
     if(ed){
       sel.value = ed.plat || "reels";
       name.value = ed.title || "";
@@ -11954,6 +12210,21 @@ var AiriaMp4 = (function(){
       editId: formState.editId,
       picked: formState.picked.slice()
     };
+    /* 통째로 붙여넣기만 하고 아래 칸을 안 건드려도 저장되게 — 저장 직전에 한 번 더 나눈다 */
+    if(!p.title || !p.body){
+      var rawPaste = m.querySelector("#extPaste") ? m.querySelector("#extPaste").value : "";
+      if(rawPaste && rawPaste.trim()){
+        var pr = parsePaste(rawPaste);
+        if(pr){
+          if(!p.title && pr.title) p.title = pr.title;
+          if(!p.body && pr.body) p.body = pr.body;
+          if(!p.caption){
+            var pcv = [pr.caption, pr.tags].filter(function(x){ return !!x; }).join("\n").trim();
+            if(pcv) p.caption = pcv;
+          }
+        }
+      }
+    }
     if(!p.title && !p.body){ err.textContent = "제목이나 대본 글을 하나는 넣어 주세요."; return; }
     if(!p.body){ err.textContent = "대본 글을 넣어 주세요 — 첫 줄이 훅이 돼요."; return; }
     var tags = (p.caption.split(/\r?\n/).filter(function(s){ return s.trim().charAt(0) === "#"; })[0] || "");
@@ -12139,7 +12410,24 @@ var AiriaMp4 = (function(){
     open: function(id){ openForm(id || ""); },
     close: closeForm,
     nextId: nextId,
-    ensureAll: ensureAll
+    ensureAll: ensureAll,
+    /* 빌드 36 — 통째로 붙여넣기 자동 분리 점검구 */
+    parsePaste: parsePaste,
+    paste: function(text){
+      openForm("");
+      var m = document.getElementById("extModal");
+      var pe = m ? m.querySelector("#extPaste") : null;
+      if(!pe) return null;
+      pe.value = String(text == null ? "" : text);
+      return applyPaste();
+    },
+    fields: function(){
+      var m = document.getElementById("extModal");
+      if(!m) return null;
+      var g = function(id){ var e = m.querySelector("#" + id); return e ? e.value : null; };
+      return { title: g("extName"), body: g("extBody"), caption: g("extCap"), plat: g("extPlat"), day: g("extDay"), paste: g("extPaste") };
+    },
+    save: function(){ onSave(); }
   };
 })();
 
