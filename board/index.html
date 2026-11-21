@@ -4937,7 +4937,8 @@ var AiriaMp4 = (function(){
     return {
       scene: (sc === "__user__" || (sc && sceneDef(sc))) ? sc : threadSceneDefault(v),
       data: saved.data || "",
-      mode: (saved.mode === "card") ? "card" : "clean",
+      /* v1.15(빌드 39) — 피드는 카드뉴스가 본체라 기본이 "카드" (예전엔 사진만이라 디자인이 안 보였다) */
+      mode: saved.mode ? (saved.mode === "card" ? "card" : "clean") : ((typeof plat !== "undefined" && plat === "feed") ? "card" : "clean"),
       line: (saved.line !== undefined && saved.line !== null) ? String(saved.line) : String(d.card || ""),
       deck: (saved.deck && typeof saved.deck === "object") ? saved.deck : {},
       pick: (saved.pick && typeof saved.pick === "object") ? saved.pick : {}
@@ -9990,43 +9991,72 @@ var AiriaMp4 = (function(){
   }
 
   /* ==========================================================================
-     v1.11 — 인스타 피드 5장 캐러셀 · 디자인 테마 5종 (구조까지 다르게)
+     v1.15 (빌드 39) — 인스타 피드 카드뉴스 디자인 전면 리뉴얼 · 12종
 
-     벤치마킹 근거 (2026-11-20 확인)
-       · 첫 장은 1초 안에 '무엇을 얻는지' 보이는 한 문장, 두 줄까지. 큰 글씨·강한 대비.
-       · 본문 한 장 = 한 메시지. 30~50자. 여백을 남기고 장식은 한 군데만.
-       · 마지막 장은 요약(저장하고 싶은 한 장). CTA 는 캡션으로.
-       · 표지 타이틀 60~80px · 부제 45px · 본문 28~45px · 출처 25px (1080 기준).
-       참고: Mirr 캐러셀 가이드 · Duchamp 캐러셀 규칙 · 원티드 카드뉴스 조판 글 · 뉴닉/크몽 톤 분석
+     2026-11-21 트렌드 조사 근거 (아래 레퍼런스 성격을 실제 조판으로 옮겼다)
+       · 에디토리얼 매거진: 키커·룰·스탠드퍼스트·폴리오, 세리프 헤드라인, 64~80px 여백
+         (Gradiently 'Editorial design for social posts' · BeyondBeings 'Infographics are dead')
+       · 크림 모노크롬 미니멀 타이포: 큰 글씨 + 작은 보조 + 한 곳 강조, Canva 클린 레이아웃 검색 54% ↑
+         (TheSocialPlug 'Instagram Trends Nov 2026' · Telacomum 'Visual trends 2026')
+       · 벤토 그리드: 애플·노션식 라운드 카드 격자, 정보 3~4칸으로 분해
+       · 다크 시네마틱: 2.39:1 레터박스 · 타임코드 · 중앙 정렬 카피
+       · 아카이브 인덱스: 케이스 번호·메타 표·스탬프 (자료 카드)
+       · 포스터 볼드: 색면 위 초대형 타이포 + 기울인 사진 (포스터/리스 인쇄 질감)
+       · 필름 콘택트시트: 퍼포레이션 · 3컷 크롭 · 모노 캡션
+       · 스티커 스크랩북: 테이프·스티커·손그림 밑줄·기울인 인화
+       · 메모/체크리스트 UI: 앱 창 크롬 · 체크박스 · 회색 바탕
+       · 스위스 그리드: 헤어라인 그리드 · 우측 정렬 · 큰 번호
+       · 신문 활자: 제호·괘선·흑백 사진·2단
+       · 인용 카드: 거대 따옴표 · 중앙 세리프 · 출처 한 줄
 
-     색만 바꾸지 않고 **컴포지션 자체**를 다르게 만들었다.
-       ① 매거진 — 표지는 전면 사진 + 하단 굵은 세리프, 본문은 거대 숫자 + 좌측 세로선 + 우측 여백
-       ② 페이퍼 — 줄노트·체크박스·형광펜 밑줄, 사진은 스티커처럼 모서리에
-       ③ 다크   — 검정 + 네온 한 줄 + 얇은 타임라인, 사진은 그라데이션에 녹임
-       ④ 볼드   — 화면을 채우는 초대형 2줄 타이포 + 색면 분할 (사진 장과 교차)
-       ⑤ 폴라로이드 — 흰 인화지 테두리 + 손글씨 캡션 + 테이프·날짜 스탬프
+     규칙
+       · 색만 바꾼 복사판 금지 — 표지·본문·마지막 장의 정렬/여백/사진 배치가 서로 다르다.
+       · 표지 1초 규칙: 한 문장(두 줄까지), 큰 글씨, 강한 대비. 본문 한 장 = 한 메시지.
+       · 마지막 장은 저장/댓글 한 가지만 요청한다.
+       · 글자 겹침 금지 — 모든 블록은 실제 높이를 돌려받아 다음 블록 y 를 계산한다.
+       · 줄바꿈(\n)은 사용자가 쓴 그대로 살린다.
      ========================================================================== */
+
   var FEED_THEMES = [
-    { key: "magazine", label: "① 매거진", note: "표지 전면 사진 · 본문 거대 숫자" },
-    { key: "paper",    label: "② 페이퍼", note: "줄노트 · 체크박스 · 형광펜" },
-    { key: "dark",     label: "③ 다크",   note: "검정 · 네온 한 줄 · 타임라인" },
-    { key: "bold",     label: "④ 볼드",   note: "초대형 2줄 타이포 · 색면" },
-    { key: "polaroid", label: "⑤ 폴라로이드", note: "인화지 · 손글씨 · 테이프" }
+    { key: "editorial", label: "에디토리얼", note: "매거진 스프레드 · 키커·룰·세리프 위계", cat: "매거진" },
+    { key: "cream",     label: "크림 타이포", note: "모노크롬 미니멀 · 큰 글씨와 넓은 여백", cat: "미니멀" },
+    { key: "bento",     label: "벤토 그리드", note: "애플·노션식 라운드 카드 격자", cat: "미니멀" },
+    { key: "memo",      label: "메모 체크", note: "메모 앱 창 · 체크박스 리스트", cat: "미니멀" },
+    { key: "swiss",     label: "스위스 그리드", note: "헤어라인 그리드 · 우측 정렬 · 큰 번호", cat: "타이포" },
+    { key: "news",      label: "신문 활자", note: "제호·괘선·흑백 사진 · 2단 조판", cat: "타이포" },
+    { key: "poster",    label: "포스터 볼드", note: "색면 위 초대형 타이포 · 기울인 사진", cat: "타이포" },
+    { key: "cine",      label: "다크 시네마", note: "2.39:1 레터박스 · 타임코드 · 중앙 카피", cat: "다크" },
+    { key: "film",      label: "필름 콘택트", note: "퍼포레이션 · 3컷 크롭 · 모노 캡션", cat: "다크" },
+    { key: "archive",   label: "아카이브 카드", note: "케이스 번호·메타 표·스탬프", cat: "다크" },
+    { key: "sticker",   label: "스티커 스크랩", note: "테이프·스티커·손그림 밑줄", cat: "아트" },
+    { key: "quote",     label: "인용 카드", note: "거대 따옴표 · 중앙 세리프 · 출처 한 줄", cat: "아트" }
   ];
+  /* 옛 5종 키는 새 디자인으로 이어 준다(저장된 값이 있어도 그대로 뜨게) */
+  var FEED_THEME_ALIAS = {
+    magazine: "editorial", paper: "sticker", dark: "cine", bold: "poster", polaroid: "sticker"
+  };
   var FEED_THEME_KEY = "arisia949_feedtheme_v1";
+  var FEED_THEME_DEFAULT = "editorial";
+
+  function feedThemeOf(v){
+    var saved = null;
+    try { saved = (JSON.parse(localStorage.getItem(FEED_THEME_KEY) || "{}") || {})[String(v && v.id)]; } catch(e){}
+    var th = saved || (v && v.feedTheme) || FEED_THEME_DEFAULT;
+    th = FEED_THEME_ALIAS[th] || th;
+    for(var i = 0; i < FEED_THEMES.length; i++) if(FEED_THEMES[i].key === th) return th;
+    return FEED_THEME_DEFAULT;
+  }
   function readFeedThemes(){
     try { var o = JSON.parse(localStorage.getItem(FEED_THEME_KEY) || "{}"); return (o && typeof o === "object") ? o : {}; }
     catch(e){ return {}; }
   }
-  function feedThemeOf(v){
-    if(!v) return "magazine";
-    var saved = readFeedThemes()[String(v.id)];
-    var th = saved || v.feedTheme || "magazine";
-    for(var i = 0; i < FEED_THEMES.length; i++) if(FEED_THEMES[i].key === th) return th;
-    return "magazine";
+  function feedThemeLabel(key){
+    for(var i = 0; i < FEED_THEMES.length; i++) if(FEED_THEMES[i].key === key) return FEED_THEMES[i].label;
+    return FEED_THEMES[0].label;
   }
   function setFeedTheme(key){
-    var v = viewOfSel();
+    var v = null;
+    try { v = viewOfSel(); } catch(e){ v = null; }
     if(!v) return;
     var all = readFeedThemes();
     all[String(v.id)] = key;
@@ -10037,400 +10067,1283 @@ var AiriaMp4 = (function(){
     try { drawThreadImage(); } catch(e){}
     toast("카드뉴스 디자인을 ‘" + feedThemeLabel(key) + "’으로 바꿨어요");
   }
-  function feedThemeLabel(key){
-    for(var i = 0; i < FEED_THEMES.length; i++) if(FEED_THEMES[i].key === key) return FEED_THEMES[i].label;
-    return "① 매거진";
-  }
 
   /* ---------- 공통 조판 도우미 ---------- */
-  function feedTone(v){
+  function fbTone(v){
     setLook(v);
     var dark = isDarkHex(CUR.paper);
     return {
       dark: dark,
       bg: CUR.paper,
       ink: dark ? "#FAF7F0" : "#171310",
-      sub: dark ? "rgba(250,247,240,.70)" : "#6A6154",
+      sub: dark ? "rgba(250,247,240,.66)" : "#6A6154",
+      hair: dark ? "rgba(250,247,240,.18)" : "rgba(23,19,16,.14)",
       accent: dark ? CUR.accent2 : CUR.accent,
       accent2: CUR.accent2
     };
   }
-  function feedPhoto(g, v, s, x, y, w, h, r, tilt){
+  function fbFont(g, weight, size, ls, fam){
+    g.font = weight + " " + size + "px " + (FAM[fam || CUR.fam] || FONT_STACK);
+    try { g.letterSpacing = (ls == null ? "0px" : ls); } catch(e){}
+  }
+  /* \n 을 강제 줄바꿈으로 살린다 */
+  function fbWrapAll(g, txt, maxW){
+    var paras = String(txt == null ? "" : txt).split(/\n/), out = [], i, j;
+    for(i = 0; i < paras.length; i++){
+      var p = paras[i].replace(/\s+/g, " ").trim();
+      if(!p) continue;
+      var ws = wrapWords(g, p, maxW);
+      for(j = 0; j < ws.length; j++) out.push({ text: ws[j].text, para: i });
+    }
+    return out.length ? out : [{ text: "", para: 0 }];
+  }
+  function fbFit(g, weight, txt, maxW, size, minSize, maxLines, fam){
+    var sizeNow = size, lines;
+    /* 사용자가 \n 으로 나눈 줄(①②③ 목록 등)은 한 줄 안에 들어가게 크기를 줄인다 */
+    var paras = String(txt == null ? "" : txt).split(/\n/).filter(function(p){ return p.trim(); });
+    var noWrap = paras.length > 1;
+    while(true){
+      fbFont(g, weight, sizeNow, "0px", fam);
+      lines = fbWrapAll(g, txt, maxW);
+      var split = false;
+      if(noWrap){
+        var seen = {};
+        for(var q = 0; q < lines.length; q++){
+          if(seen[lines[q].para]) { split = true; break; }
+          seen[lines[q].para] = 1;
+        }
+      }
+      if((lines.length <= maxLines && !split) || sizeNow <= minSize) break;
+      sizeNow -= 2;
+    }
+    if(lines.length > maxLines){
+      lines = lines.slice(0, maxLines);
+      var last = lines[lines.length - 1];
+      var t = last.text;
+      while(t.length > 1 && g.measureText(t + "…").width > maxW) t = t.slice(0, -1);
+      lines[lines.length - 1] = { text: t + "…" };
+    }
+    return { lines: lines, size: sizeNow };
+  }
+  /* 그린 높이를 돌려준다 — 다음 블록 y 는 반드시 이 값으로 계산한다 */
+  function fbText(g, weight, txt, x, y, maxW, size, minSize, maxLines, color, align, lh, ls, fam){
+    if(txt == null || txt === "") return 0;
+    var fit = fbFit(g, weight, txt, maxW, size, minSize, maxLines, fam);
+    var step = Math.round(fit.size * (lh || 1.24));
+    fbFont(g, weight, fit.size, ls, fam);
+    g.textAlign = align || "left";
+    g.fillStyle = color;
+    for(var i = 0; i < fit.lines.length; i++){
+      var tx = x;
+      if(align === "center") tx = x + maxW / 2;
+      else if(align === "right") tx = x + maxW;
+      g.fillText(fit.lines[i].text, tx, y + i * step);
+    }
+    return (fit.lines.length - 1) * step + Math.round(fit.size * 0.92);
+  }
+  function fbMeasure(g, weight, txt, maxW, size, minSize, maxLines, lh, fam){
+    var fit = fbFit(g, weight, txt, maxW, size, minSize, maxLines, fam);
+    var step = Math.round(fit.size * (lh || 1.24));
+    return { h: (fit.lines.length - 1) * step + Math.round(fit.size * 0.92), size: fit.size, n: fit.lines.length };
+  }
+  function fbPhoto(g, v, s, x, y, w, h, r, tilt, zoom, ox, oy){
     var im = feedSceneImg(v, s);
     g.save();
     if(tilt){ g.translate(x + w / 2, y + h / 2); g.rotate(tilt); g.translate(-(x + w / 2), -(y + h / 2)); }
     g.beginPath(); roundRect(g, x, y, w, h, r || 0); g.clip();
     if(im && im.complete && im.naturalWidth){
-      var sc = Math.max(w / im.width, h / im.height);
-      g.drawImage(im, x + (w - im.width * sc) / 2, y + (h - im.height * sc) / 2, im.width * sc, im.height * sc);
+      var z = zoom || 1;
+      var sc = Math.max(w / im.width, h / im.height) * z;
+      var dw = im.width * sc, dh = im.height * sc;
+      g.drawImage(im, x + (w - dw) / 2 + (ox || 0) * w, y + (h - dh) / 2 + (oy || 0) * h, dw, dh);
     } else {
       var gr = g.createLinearGradient(x, y, x + w, y + h);
-      gr.addColorStop(0, withAlpha(CUR.accent, .20)); gr.addColorStop(1, withAlpha(CUR.accent2, .34));
+      gr.addColorStop(0, withAlpha(CUR.accent, .26)); gr.addColorStop(1, withAlpha(CUR.accent2, .40));
       g.fillStyle = gr; g.fillRect(x, y, w, h);
     }
     g.restore();
   }
-  function feedFont(g, weight, size, ls, fam){
-    g.font = weight + " " + size + "px " + (FAM[fam || CUR.fam] || FONT_STACK);
-    try { g.letterSpacing = (ls == null ? "-0.6px" : ls); } catch(e){}
-  }
-  function feedLine(g, weight, txt, x, y, maxW, size, minSize, maxLines, color, align, lh, ls){
-    if(!txt) return 0;
-    var fit = fitLines(g, weight, txt, maxW, size, minSize, maxLines);
-    var step = Math.round(fit.size * (lh || 1.24));
-    feedFont(g, weight, fit.size, ls);
-    g.textAlign = align || "left";
-    g.fillStyle = color;
-    for(var i = 0; i < fit.lines.length; i++){
-      g.fillText(fit.lines[i].text, x, y + i * step);
+  function fbGray(g, v, s, x, y, w, h, r){
+    var im = feedSceneImg(v, s), c2 = g.canvas;
+    g.save();
+    g.beginPath(); roundRect(g, x, y, w, h, r || 0); g.clip();
+    if(im && im.complete && im.naturalWidth){
+      var sc = Math.max(w / im.width, h / im.height);
+      g.drawImage(im, x + (w - im.width * sc) / 2, y + (h - im.height * sc) / 2, im.width * sc, im.height * sc);
+      g.globalCompositeOperation = "saturation";
+      g.fillStyle = "#808080"; g.fillRect(x, y, w, h);
+      g.globalCompositeOperation = "multiply";
+      g.fillStyle = "rgba(246,242,231,.30)"; g.fillRect(x, y, w, h);
+      g.globalCompositeOperation = "source-over";
+    } else {
+      g.fillStyle = "#DDD8CB"; g.fillRect(x, y, w, h);
     }
-    return (fit.lines.length - 1) * step + fit.size;
+    g.restore();
   }
-  function feedHas(s){ return !!(s && (s.scene || s.data)); }
-  function feedNo(v){ return String(v && v.id || "").replace(/[^0-9]/g, "") || "00"; }
-  function feedStamp(){
-    var d = new Date();
-    return "2026.11.20";
-  }
-  /* 강조 구절 — 형광펜/네온 한 곳만 */
-  function feedKey(txt){
-    var s = String(txt || "");
-    var m = s.match(/^[\s\S]{2,20}?(?=[,.。·!?]|$)/);
+  function fbHas(s){ return !!(s && (s.scene || s.data)) && s.photo !== false; }
+  function fbNo(v){ return String((v && v.id) || "").replace(/[^0-9]/g, "") || "00"; }
+  function fbNum(i, total){ return ("0" + (i + 1)).slice(-2) + " / " + ("0" + total).slice(-2); }
+  function fbStamp(){ return "2026.11.21"; }
+  function fbHandle(){ return "@arisia949"; }
+  function fbRole(s){ return String((s && s.role) || "").toUpperCase(); }
+  function fbKey(txt){
+    var s = String(txt || "").replace(/\n/g, " ");
+    var m = s.match(/^[\s\S]{2,18}?(?=[,.。·!?]|$)/);
     var v = (m ? m[0] : s).trim();
     return v.length >= 2 ? v : "";
   }
-
-  /* ---------- ① 매거진 ---------- */
-  function drawFeedMagazine(g, v, cfg, s, idx, total){
-    var t = feedTone(v), W = TWD, H = THT, no = ("0" + (idx + 1)).slice(-2);
-    var dark = t.dark;
+  function fbPill(g, txt, x, y, size, bg, fg, padX, padY, fam, weight){
+    fbFont(g, weight || "600", size, "0px", fam);
+    var w = g.measureText(txt).width + (padX == null ? 26 : padX) * 2;
+    var h = size + (padY == null ? 16 : padY) * 2;
+    g.fillStyle = bg; roundRect(g, x, y, w, h, h / 2); g.fill();
+    g.fillStyle = fg; g.textAlign = "left";
+    g.fillText(txt, x + (padX == null ? 26 : padX), y + h / 2 + size * 0.36);
+    return w;
+  }
+  /* 사진이 없는 장(타입 카드)을 위한 활자 블록 — 빈 사각형 대신 쓴다 */
+  function fbTypePanel(g, x, y, w, h, s, t, opt){
+    opt = opt || {};
+    var accent = t.accent;
     g.save();
-    if(idx === 0 && feedHas(s)){
-      /* 표지 — 전면 사진 + 하단 굵은 세리프 */
-      feedPhoto(g, v, s, 0, 0, W, H, 0);
-      var gr = g.createLinearGradient(0, H * 0.38, 0, H);
-      gr.addColorStop(0, "rgba(10,8,6,0)");
-      gr.addColorStop(0.52, "rgba(10,8,6,.52)");
-      gr.addColorStop(1, "rgba(10,8,6,.94)");
-      g.fillStyle = gr; g.fillRect(0, H * 0.38, W, H * 0.62);
-      feedFont(g, "500", 22, "3.4px", "mono");
+    g.fillStyle = opt.fill || (t.dark ? "rgba(255,255,255,.055)" : "rgba(23,19,16,.05)");
+    if(opt.r) { roundRect(g, x, y, w, h, opt.r); g.fill(); } else g.fillRect(x, y, w, h);
+    g.strokeStyle = opt.line || t.hair; g.lineWidth = 1;
+    if(opt.r){ roundRect(g, x + .5, y + .5, w - 1, h - 1, opt.r); g.stroke(); }
+    else g.strokeRect(x + .5, y + .5, w - 1, h - 1);
+    if(opt.number !== false){
+      fbFont(g, "600", Math.min(h * 0.52, 220), "-8px", opt.fam || "serif");
+      g.textAlign = "left"; g.fillStyle = withAlpha(accent, .55);
+      g.fillText(opt.number || "", x + w * 0.06, y + h * 0.72);
+    }
+    if(opt.label){
+      fbFont(g, "500", 18, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(opt.label, x + w * 0.06, y + 54);
+    }
+    if(opt.text){
+      fbText(g, "500", opt.text, x + w * 0.06, y + h * 0.8, w * 0.7, 24, 18, 2,
+             t.dark ? "rgba(248,245,238,.6)" : "rgba(23,19,16,.55)", "left", 1.4, "0px", "mono");
+    }
+    g.restore();
+  }
+  function fbRuleLines(g, x, y, w, h, r, t){
+    g.save();
+    g.fillStyle = t.dark ? "rgba(255,255,255,.045)" : "rgba(23,19,16,.035)";
+    roundRect(g, x, y, w, h, r || 0); g.fill();
+    g.fillStyle = t.dark ? "rgba(255,255,255,.12)" : "rgba(23,19,16,.10)";
+    for(var ly = y + 40; ly < y + h - 18; ly += 42) g.fillRect(x + 26, ly, w - 52, 1);
+    g.restore();
+  }
+  function fbSparks(g, x, y, r, color){          /* 손그림 별 */
+    g.save(); g.strokeStyle = color; g.lineWidth = 4; g.lineCap = "round";
+    for(var k = 0; k < 3; k++){
+      var a = Math.PI / 2 * k;
+      g.beginPath();
+      g.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r);
+      g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+      g.stroke();
+    }
+    g.restore();
+  }
+  function fbWavy(g, x, y, w, color, lw){
+    g.save(); g.strokeStyle = color; g.lineWidth = lw || 5; g.lineCap = "round";
+    g.beginPath(); g.moveTo(x, y);
+    var step = w / 8;
+    for(var i = 0; i < 8; i++) g.quadraticCurveTo(x + step * i + step / 2, y + (i % 2 ? -6 : 6), x + step * (i + 1), y);
+    g.stroke(); g.restore();
+  }
+
+  /* ================================================================ 01 에디토리얼 */
+  function fbEditorial(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var paper = t.dark ? "#15120F" : "#FBF7EF";
+    var ink = t.dark ? "#F7F2E7" : "#171310";
+    var sub = t.dark ? "rgba(247,242,231,.66)" : "#6B6053";
+    var accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+
+    /* 머리 — 키커 · 매체명 · 얇은 룰 */
+    function head(){
+      fbFont(g, "500", 19, "3.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText("ISSUE " + ("0" + total).slice(-2) + "  ·  " + ("0" + (idx + 1)).slice(-2), 84, 86);
+      g.textAlign = "right"; g.fillStyle = sub;
+      g.fillText("릴리의 리스트", W - 84, 86);
+      g.fillStyle = t.hair; g.fillRect(84, 112, W - 168, 1);
+    }
+
+    if(last){
+      /* 마지막 — 사진 아래 크림 패널에 중앙 정렬 인용 */
+      fbPhoto(g, v, s, 0, 0, W, 720, 0);
+      g.fillStyle = paper; g.fillRect(0, 720, W, H - 720);
+      fbFont(g, "500", 19, "3.2px", "mono");
+      g.textAlign = "center"; g.fillStyle = accent;
+      g.fillText("SAVE  ·  " + fbHandle(), W / 2, 790);
+      var hq = fbText(g, "600", s.line, 110, 880, W - 220, 60, 40, 3, ink, "center", 1.3, "-1.2px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 130, 880 + hq + 34, W - 260, 27, 21, 2, sub, "center", 1.46);
+      g.fillStyle = accent; g.fillRect(W / 2 - 26, H - 84, 52, 2);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      /* 표지 — 위는 활자, 아래는 큰 사진 한 장 */
+      g.fillStyle = paper; g.fillRect(0, 0, W, H);
+      head();
+      fbFont(g, "500", 19, "3.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(fbRole(s), 84, 170);
+      var h1 = fbText(g, "600", s.line, 84, 250, 912, 96, 58, 3, ink, "left", 1.16, "-2.6px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 84, 250 + h1 + 34, 600, 29, 22, 2, sub, "left", 1.44);
+      var py = Math.max(560, 250 + h1 + 120);
+      if(fbHas(s)) fbPhoto(g, v, s, 84, py, 912, H - py - 96, 0);
+      else {
+        g.fillStyle = accent; g.fillRect(84, py, 132, 8);
+        fbFont(g, "600", 240, "-10px", "serif");
+        g.textAlign = "right"; g.fillStyle = withAlpha(ink, .08);
+        g.fillText(("0" + (idx + 1)).slice(-2), W - 84, H - 150);
+      }
+      fbFont(g, "500", 17, "2.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText("PHOTO " + ("0" + (idx + 1)).slice(-2) + "  ·  " + fbStamp(), 84, H - 54);
+      g.textAlign = "right"; g.fillStyle = accent;
+      g.fillText(fbNum(idx, total), W - 84, H - 54);
+      g.restore(); return;
+    }
+    /* 본문 — 사진은 우상단 인셋, 큰 활자는 왼쪽 좁은 단 */
+    g.fillStyle = paper; g.fillRect(0, 0, W, H);
+    head();
+    var hasP = fbHas(s);
+    if(hasP){
+      fbPhoto(g, v, s, 616, 158, 380, 470, 0);
+      g.strokeStyle = t.hair; g.lineWidth = 1; g.strokeRect(615.5, 157.5, 381, 471);
+      fbFont(g, "500", 16, "2.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText("FIG. " + ("0" + (idx + 1)).slice(-2), 616, 664);
+    }
+    fbFont(g, "500", 18, "3px", "mono");
+    g.fillStyle = accent; g.textAlign = "left";
+    g.fillText(fbRole(s), 84, 190);
+    var hb = fbText(g, "600", s.line, 84, 268, hasP ? 490 : W - 168, 76, 46, 4, ink, "left", 1.2, "-1.8px", "serif");
+    if(s.sub) fbText(g, "400", s.sub, 84, 268 + hb + 36, hasP ? 470 : 620, 27, 21, 4, sub, "left", 1.5);
+    if(!hasP){
+      /* 사진이 없는 장 — 아래에 활자 띠(큰 번호 + 얇은 선)를 깔아 여백을 만든다 */
+      var bandY = Math.min(H - 320, Math.max(760, 268 + hb + 190));
+      g.fillStyle = t.hair; g.fillRect(84, bandY, W - 168, 1);
+      fbFont(g, "600", 190, "-10px", "serif");
+      g.textAlign = "right"; g.fillStyle = withAlpha(accent, .30);
+      g.fillText(("0" + (idx + 1)).slice(-2), W - 84, bandY + 210);
+      fbFont(g, "500", 18, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText(fbStamp(), 84, bandY + 60);
+    }
+    if(hasP){
+      fbFont(g, "600", 210, "-10px", "serif");
+      g.textAlign = "left"; g.fillStyle = t.dark ? "rgba(247,242,231,.09)" : "rgba(23,19,16,.08)";
+      g.fillText(("0" + (idx + 1)).slice(-2), 74, 1180);
+    }
+    fbFont(g, "500", 17, "2.4px", "mono");
+    g.fillStyle = accent; g.fillText(fbHandle(), 84, 1262);
+    g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbNum(idx, total), W - 84, 1262);
+    g.restore();
+  }
+
+  /* ================================================================ 02 크림 타이포 */
+  function fbCream(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var bg = t.dark ? "#121110" : "#F4F1E9";
+    var ink = t.dark ? "#F7F3EA" : "#141311";
+    var sub = t.dark ? "rgba(247,243,234,.62)" : "#7A7466";
+    var accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+
+    if(last){
+      g.fillStyle = accent; g.fillRect(0, 0, W, H);
+      fbFont(g, "500", 19, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.72)";
+      g.fillText("마지막 장", 84, 120);
+      g.fillStyle = "rgba(255,255,255,.55)"; g.fillRect(84, 148, W - 168, 1);
+      var hc = fbText(g, "600", s.line, 84, 300, W - 168, 104, 62, 3, "#FFFFFF", "left", 1.1, "-4px");
+      if(s.sub) fbText(g, "400", s.sub, 84, 300 + hc + 40, W - 260, 30, 23, 3, "rgba(255,255,255,.82)", "left", 1.5);
+      g.fillStyle = "rgba(255,255,255,.9)"; g.fillRect(84, H - 200, 72, 2);
+      fbFont(g, "500", 20, "2.6px", "mono");
+      g.fillStyle = "#FFFFFF"; g.textAlign = "left";
+      g.fillText("저장해 두기  ·  " + fbHandle(), 84, H - 150);
+      g.restore(); return;
+    }
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    /* 위·아래 헤어라인과 작은 번호 */
+    g.fillStyle = t.hair; g.fillRect(84, 118, W - 168, 1); g.fillRect(84, H - 130, W - 168, 1);
+    fbFont(g, "500", 18, "2.8px", "mono");
+    g.textAlign = "left"; g.fillStyle = sub;
+    g.fillText(fbNum(idx, total), 84, 96);
+    g.textAlign = "right"; g.fillText(fbStamp(), W - 84, 96);
+
+    if(idx === 0){
+      fbFont(g, "500", 18, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(fbRole(s), 84, 210);
+      var h1 = fbText(g, "600", s.line, 80, 300, 920, 126, 74, 3, ink, "left", 1.06, "-5px");
+      var hy = 300 + h1 + 44;
+      if(s.sub) hy = hy + fbText(g, "400", s.sub, 84, hy, 640, 30, 23, 2, sub, "left", 1.5) + 30;
+      if(fbHas(s)) fbPhoto(g, v, s, 676, 860, 320, 400, 2);
+      fbFont(g, "500", 16, "2.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      if(fbHas(s)) g.fillText("FIG. " + ("0" + (idx + 1)).slice(-2), 676, 1286);
       g.textAlign = "left";
-      g.fillStyle = "rgba(255,255,255,.78)";
-      g.fillText("NO." + feedNo(v) + "   ·   COVER", 72, 96);
-      g.fillStyle = t.accent;
-      g.fillRect(72, 812, 64, 4);
-      feedLine(g, "600", s.line, 72, 908, W - 144, 92, 62, 2, "#FFFFFF", "left", 1.16, "-2.4px", "serif");
-      if(s.sub) feedLine(g, "400", s.sub, 72, 1002, W - 220, 32, 24, 2, "rgba(255,255,255,.80)", "left", 1.4);
-      feedFont(g, "500", 20, "2.4px", "mono");
-      g.fillStyle = "rgba(255,255,255,.60)";
-      g.fillText("1 / " + total, 72, H - 56);
-      g.restore();
-      return;
+      g.fillStyle = accent; g.fillText(fbHandle(), 84, 1286);
+      g.restore(); return;
     }
-    /* 본문 — 거대 숫자 + 좌측 세로선 + 우측 여백 */
-    g.fillStyle = dark ? "#141216" : "#FAF7F1";
-    g.fillRect(0, 0, W, H);
-    feedFont(g, "600", 330, "-16px", dark ? "mono" : "serif");
-    g.textAlign = "left";
-    g.fillStyle = dark ? "rgba(255,255,255,.10)" : "rgba(23,19,16,.09)";
-    g.fillText(no, 54, 372);
-    g.fillStyle = dark ? "rgba(255,255,255,.16)" : "rgba(23,19,16,.16)";
-    g.fillRect(150, 250, 1, 900);
-    feedFont(g, "500", 22, "2.8px", "mono");
-    g.fillStyle = t.accent;
-    g.fillText(String(s.role || "").toUpperCase(), 192, 300);
-    var y = 430;
-    var used = feedLine(g, "600", s.line, 192, y, 640, 88, 52, 3, t.ink, "left", 1.2, "-2.4px");
-    if(s.sub) feedLine(g, "400", s.sub, 192, y + used + 64, 540, 33, 24, 3, t.sub, "left", 1.46);
-    if(feedHas(s)){
-      feedPhoto(g, v, s, 790, 640, 230, 300, 0);
-      g.strokeStyle = dark ? "rgba(255,255,255,.18)" : "rgba(23,19,16,.14)";
-      g.lineWidth = 1;
-      g.strokeRect(789.5, 639.5, 231, 301);
+    /* 본문 — 활자만, 사진은 아래 띠 */
+    var bandH = fbHas(s) ? 300 : 0;
+    fbFont(g, "500", 18, "3px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent;
+    g.fillText(fbRole(s) + "  ·  " + ("0" + (idx + 1)).slice(-2), 84, 230);
+    var hb = fbText(g, "600", s.line, 80, 330, 900, 108, 64, 3, ink, "left", 1.14, "-3.6px");
+    if(s.sub) fbText(g, "400", s.sub, 84, 330 + hb + 48, 700, 30, 23, 3, sub, "left", 1.5);
+    if(bandH){
+      fbPhoto(g, v, s, 0, H - bandH - 130, W, bandH, 0);
+      g.fillStyle = t.hair; g.fillRect(0, H - bandH - 130, W, 1);
     }
-    feedFont(g, "500", 19, "2px", "mono");
-    g.fillStyle = dark ? "rgba(255,255,255,.45)" : "rgba(23,19,16,.40)";
-    g.fillText(no + " / " + ("0" + total), 192, H - 74);
-    g.textAlign = "right";
-    g.fillText("@arisia949", W - 72, H - 74);
+    fbFont(g, "500", 17, "2.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent; g.fillText(fbHandle(), 84, H - 96);
+    g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbNum(idx, total), W - 84, H - 96);
     g.restore();
   }
 
-  /* ---------- ② 페이퍼 ---------- */
-  function drawFeedPaper(g, v, cfg, s, idx, total){
-    var t = feedTone(v), W = TWD, H = THT, no = ("0" + (idx + 1)).slice(-2);
-    var dark = t.dark;
-    var paper = dark ? "#1A1712" : "#FBF6EA";
-    var ink = dark ? "#F7F1E4" : "#211E18";
-    g.save();
-    g.fillStyle = paper;
-    g.fillRect(0, 0, W, H);
-    /* 줄노트 */
-    var lineCol = dark ? "rgba(247,241,228,.13)" : "rgba(33,30,24,.13)";
-    g.fillStyle = lineCol;
-    for(var y = 252; y < H - 130; y += 78){ g.fillRect(96, y, W - 192, 1.4); }
-    /* 좌측 여백선 */
-    g.fillStyle = withAlpha(t.accent, .55);
-    g.fillRect(150, 200, 2, H - 330);
-    /* 사진 — 스티커처럼 오른쪽 위 모서리에, 비스듬히 + 테이프 */
-    if(feedHas(s) && idx < 2){
-      var sw = 320, sh = 380, sx = W - sw - 96, sy = 150;
+  /* ================================================================ 03 벤토 그리드 */
+  function fbBento(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var page = t.dark ? "#0F0E10" : "#E9E6DF";
+    var card = t.dark ? "#1B191C" : "#FFFFFF";
+    var ink = t.dark ? "#F8F5EE" : "#171512";
+    var sub = t.dark ? "rgba(248,245,238,.60)" : "#736C61";
+    var accent = t.accent;
+    var M = 34, GAP = 18, CW = W - M * 2;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = page; g.fillRect(0, 0, W, H);
+
+    function cardBox(x, y, w, h, fill, r){
       g.save();
-      g.translate(sx + sw / 2, sy + sh / 2);
-      g.rotate(-3.2 * Math.PI / 180);
-      g.shadowColor = "rgba(40,30,20,.26)"; g.shadowBlur = 22; g.shadowOffsetY = 10;
-      g.fillStyle = "#FFFFFF"; g.fillRect(-sw / 2 - 12, -sh / 2 - 12, sw + 24, sh + 24);
-      g.restore();
-      feedPhoto(g, v, s, sx, sy, sw, sh, 0, -3.2 * Math.PI / 180);
-      g.save();
-      g.translate(sx + 40, sy + 2); g.rotate(-2.4 * Math.PI / 180);
-      g.fillStyle = dark ? "rgba(255,255,255,.18)" : "rgba(255,255,255,.66)";
-      g.fillRect(-54, -14, 108, 28);
+      g.shadowColor = "rgba(20,15,10,.10)"; g.shadowBlur = 18; g.shadowOffsetY = 6;
+      g.fillStyle = fill || card; roundRect(g, x, y, w, h, r == null ? 28 : r); g.fill();
       g.restore();
     }
-    /* 머리 — 손글씨 날짜 */
-    feedFont(g, "500", 20, "1.6px", "mono");
-    g.textAlign = "left";
-    g.fillStyle = dark ? "rgba(247,241,228,.52)" : "rgba(33,30,24,.46)";
-    g.fillText(feedStamp() + "  ·  " + no + "/" + ("0" + total), 96, 108);
-    /* 체크박스 + 본문 */
-    var bodyTop = feedHas(s) && idx < 2 ? 620 : 420;
-    var bx = 96, by = bodyTop - 44;
-    g.strokeStyle = withAlpha(t.accent, .85);
-    g.lineWidth = 3;
-    g.strokeRect(bx, by, 34, 34);
-    feedFont(g, "500", 22, "2.4px", "mono");
-    g.fillStyle = t.accent;
-    g.fillText(String(s.role || "").toUpperCase(), bx + 56, by + 26);
-    /* 형광펜 한 줄 */
-    var hl = feedKey(s.line);
-    var maxW = feedHas(s) && idx < 2 ? W - 192 : W - 300;
-    var headSize = 70, headY = bodyTop + 78;
-    if(hl){
-      feedFont(g, "600", headSize, "-1.4px");
-      var hw = Math.min(g.measureText(hl).width, maxW);
-      g.fillStyle = withAlpha(t.accent, dark ? .30 : .28);
-      g.fillRect(bx, headY - headSize * 0.78, hw + 10, headSize * 0.92);
+    function label(txt, x, y, color, size){
+      fbFont(g, "600", size || 17, "1.6px", "mono");
+      g.textAlign = "left"; g.fillStyle = color || sub;
+      g.fillText(txt, x, y);
     }
-    var used2 = feedLine(g, "600", s.line, bx, headY, maxW, headSize, 46, 3, ink, "left", 1.28, "-1.4px");
-    if(s.sub) feedLine(g, "400", s.sub, bx, headY + used2 + 46, maxW - 40, 31, 23, 3, dark ? "rgba(247,241,228,.68)" : "#6A6154", "left", 1.48);
-    /* 바닥 — 연필로 그은 듯한 짧은 선 + 저장 유도 한 줄 */
-    g.fillStyle = withAlpha(t.accent, .70);
-    g.fillRect(96, H - 128, 96, 2);
-    feedFont(g, "500", 20, "1.4px", "mono");
-    g.fillStyle = dark ? "rgba(247,241,228,.42)" : "rgba(33,30,24,.38)";
-    g.textAlign = "left";
-    g.fillText(idx === total - 1 ? "저장해 두고 다음에 다시" : "@arisia949", 96, H - 92);
+
+    if(last){
+      cardBox(M, M, CW, H - M * 2, accent);
+      g.fillStyle = "rgba(255,255,255,.16)"; roundRect(g, M + 30, M + 30, 150, 44, 22); g.fill();
+      label("마지막", M + 54, M + 59, "#FFFFFF", 17);
+      var hl = fbText(g, "600", s.line, M + 44, M + 330, CW - 88, 84, 52, 3, "#FFFFFF", "left", 1.16, "-2.6px");
+      if(s.sub) fbText(g, "400", s.sub, M + 46, M + 330 + hl + 40, CW - 120, 28, 22, 3, "rgba(255,255,255,.86)", "left", 1.5);
+      cardBox(M + 44, H - 330, CW - 88, 190, "rgba(255,255,255,.16)", 22);
+      label("저장  ·  " + fbHandle(), M + 74, H - 240, "#FFFFFF", 19);
+      label(fbStamp(), M + 74, H - 196, "rgba(255,255,255,.75)", 17);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      /* 위 큰 제목 카드 · 아래 사진 + 숫자 카드 */
+      cardBox(M, M, CW, 470);
+      var pillW = fbPill(g, "오늘의 카드뉴스", M + 34, M + 34, 18, withAlpha(accent, .14), accent, 22, 12);
+      var h1 = fbText(g, "600", s.line, M + 34, M + 160, CW - 68, 78, 50, 3, ink, "left", 1.16, "-2.4px");
+      if(s.sub) fbText(g, "400", s.sub, M + 34, M + 160 + h1 + 30, CW - 120, 26, 21, 2, sub, "left", 1.44);
+      var y2 = M + 470 + GAP;
+      cardBox(M, y2, 592, H - y2 - M - 250);
+      if(fbHas(s)) fbPhoto(g, v, s, M + 12, y2 + 12, 568, H - y2 - M - 274, 20);
+      else fbTypePanel(g, M + 12, y2 + 12, 568, H - y2 - M - 274, s, t,
+                       { r: 20, number: ("0" + (idx + 1)).slice(-2), label: "TODAY" });
+      cardBox(M + 592 + GAP, y2, CW - 592 - GAP, H - y2 - M - 250, t.dark ? "#25222A" : "#F5F1E8");
+      fbFont(g, "600", 118, "-6px", "gothic");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(("0" + total).slice(-2), M + 592 + GAP + 30, y2 + 170);
+      fbFont(g, "500", 20, "1px", "mono");
+      g.fillStyle = sub; g.fillText("SLIDES", M + 592 + GAP + 34, y2 + 214);
+      fbFont(g, "500", 22, "0px");
+      g.fillStyle = ink;
+      g.fillText(fbNum(idx, total), M + 592 + GAP + 34, y2 + 320);
+      cardBox(M, H - M - 226, CW, 226, t.dark ? "#1B191C" : "#FFFFFF");
+      label(fbRole(s), M + 34, H - M - 176, accent, 17);
+      fbFont(g, "500", 22, "0px"); g.fillStyle = sub;
+      g.fillText(fbHandle() + "  ·  " + fbStamp(), M + 34, H - M - 96);
+      g.restore(); return;
+    }
+    /* 본문 — 위 사진 카드 + 옆 숫자 카드, 아래 넓은 글 카드 */
+    cardBox(M, M, 592, 640);
+    if(fbHas(s)) fbPhoto(g, v, s, M + 12, M + 12, 568, 616, 20);
+    else fbTypePanel(g, M + 12, M + 12, 568, 616, s, t,
+                     { r: 20, number: ("0" + (idx + 1)).slice(-2), label: "MEMO", text: s.role });
+    cardBox(M + 592 + GAP, M, CW - 592 - GAP, 640, t.dark ? "#25222A" : "#F5F1E8");
+    fbFont(g, "600", 150, "-8px", "gothic");
+    g.textAlign = "left"; g.fillStyle = accent;
+    g.fillText(("0" + (idx + 1)).slice(-2), M + 592 + GAP + 28, M + 190);
+    fbFont(g, "500", 19, "1.2px", "mono");
+    g.fillStyle = sub; g.fillText(fbRole(s), M + 592 + GAP + 32, M + 240);
+    fbFont(g, "500", 20, "0px"); g.fillStyle = ink;
+    g.fillText(fbNum(idx, total), M + 592 + GAP + 32, M + 600);
+    var yb = M + 640 + GAP;
+    cardBox(M, yb, CW, H - yb - M);
+    var hb = fbText(g, "600", s.line, M + 40, yb + 96, CW - 80, 70, 44, 3, ink, "left", 1.18, "-2px");
+    if(s.sub) fbText(g, "400", s.sub, M + 40, yb + 96 + hb + 28, CW - 110, 26, 21, 3, sub, "left", 1.48);
+    fbFont(g, "500", 17, "1.6px", "mono");
+    g.fillStyle = accent; g.textAlign = "left";
+    g.fillText(fbHandle(), M + 40, H - M - 36);
     g.restore();
   }
 
-  /* ---------- ③ 다크 ---------- */
-  function drawFeedDark(g, v, cfg, s, idx, total){
-    var t = feedTone(v), W = TWD, H = THT, no = ("0" + (idx + 1)).slice(-2);
+  /* ================================================================ 04 메모 체크 */
+  function fbMemo(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var desk = t.dark ? "#0E0D0F" : "#E5E2DB";
+    var sheet = t.dark ? "#1C1A1F" : "#FFFFFF";
+    var ink = t.dark ? "#F8F5EE" : "#1A1815";
+    var sub = t.dark ? "rgba(248,245,238,.55)" : "#8A8478";
+    var accent = t.accent;
+    var X = 52, Y = 62, WW = W - X * 2, HH = H - Y * 2;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = desk; g.fillRect(0, 0, W, H);
     g.save();
-    g.fillStyle = "#08080B";
-    g.fillRect(0, 0, W, H);
-    if(feedHas(s)){
-      feedPhoto(g, v, s, 0, 0, W, Math.round(H * 0.72), 0);
-      var gr = g.createLinearGradient(0, H * 0.30, 0, H * 0.76);
-      gr.addColorStop(0, "rgba(8,8,11,0)");
-      gr.addColorStop(0.55, "rgba(8,8,11,.72)");
-      gr.addColorStop(1, "rgba(8,8,11,1)");
-      g.fillStyle = gr; g.fillRect(0, H * 0.30, W, H * 0.46);
-    } else {
-      var gl = g.createRadialGradient(W * 0.28, H * 0.40, 40, W * 0.28, H * 0.40, 620);
-      gl.addColorStop(0, withAlpha(t.accent, .30));
-      gl.addColorStop(1, withAlpha(t.accent, 0));
-      g.fillStyle = gl; g.fillRect(0, 0, W, H);
-      feedFont(g, "600", 520, "-24px", "mono");
+    g.shadowColor = "rgba(20,16,10,.18)"; g.shadowBlur = 30; g.shadowOffsetY = 12;
+    g.fillStyle = sheet; roundRect(g, X, Y, WW, HH, 26); g.fill();
+    g.restore();
+    /* 창 상단 — 신호등 3개 + 가운데 제목 */
+    var dot = ["#F26B5E", "#F7BE4F", "#63C36B"];
+    for(var k = 0; k < 3; k++){
+      g.fillStyle = dot[k]; g.beginPath(); g.arc(X + 42 + k * 30, Y + 42, 9, 0, Math.PI * 2); g.fill();
+    }
+    fbFont(g, "600", 19, "0.4px", "mono");
+    g.textAlign = "center"; g.fillStyle = sub;
+    g.fillText("메모", W / 2, Y + 50);
+    g.fillStyle = t.hair; g.fillRect(X + 20, Y + 76, WW - 40, 1);
+    fbFont(g, "500", 17, "1.6px", "mono");
+    g.textAlign = "center"; g.fillStyle = sub;
+    g.fillText(fbStamp() + "   ·   " + fbNum(idx, total), W / 2, Y + 118);
+
+    var innerX = X + 62, innerW = WW - 124;
+
+    function checks(txt, x, y, w, size, maxItems, checkedAll){
+      var items = String(txt || "").split(/[.。]\s|·|\n/).map(function(x2){ return x2.replace(/\s+/g, " ").trim(); })
+        .filter(function(x2){ return x2.length > 4 && x2.indexOf("@") < 0; }).slice(0, maxItems);
+      var yy = y, i;
+      for(i = 0; i < items.length; i++){
+        var box = size * 0.86;
+        g.save();
+        g.strokeStyle = checkedAll ? accent : withAlpha(t.ink, .38);
+        g.lineWidth = 2.4;
+        roundRect(g, x, yy - box * 0.74, box, box, 7); g.stroke();
+        if(checkedAll){
+          g.fillStyle = accent;
+          g.beginPath();
+          g.moveTo(x + box * 0.20, yy - box * 0.36);
+          g.lineTo(x + box * 0.44, yy - box * 0.10);
+          g.lineTo(x + box * 0.82, yy - box * 0.66);
+          g.lineWidth = 4; g.strokeStyle = accent; g.stroke();
+        }
+        g.restore();
+        var hItem = fbText(g, "400", items[i], x + box + 24, yy, w - box - 24, size, size - 8, 2, ink, "left", 1.34);
+        yy = yy + Math.max(hItem, box) + 26;
+      }
+      return yy;
+    }
+
+    if(last){
+      fbText(g, "600", "다음에 다시 볼 것", innerX, Y + 230, innerW, 46, 34, 2, ink, "left", 1.2, "-1px");
+      var yEnd = checks(s.sub || s.line, innerX, Y + 340, innerW, 34, 4, true);
+      fbText(g, "600", s.line, innerX, Math.min(yEnd + 60, Y + HH - 300), innerW, 60, 40, 3, ink, "left", 1.2, "-1.6px");
+      g.fillStyle = accent; roundRect(g, innerX, Y + HH - 160, 300, 76, 38); g.fill();
+      fbFont(g, "600", 24, "0px", "gothic");
+      g.fillStyle = "#FFFFFF"; g.textAlign = "center";
+      g.fillText("저장해 두기", innerX + 150, Y + HH - 110);
+      fbFont(g, "500", 18, "1.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText(fbHandle(), innerX, Y + HH - 46);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      var ySub = Y + 250 + fbText(g, "600", s.line, innerX, Y + 250, innerW, 66, 44, 3, ink, "left", 1.18, "-2px") + 26;
+      if(s.sub) fbText(g, "400", s.sub, innerX, ySub, innerW, 27, 22, 2, sub, "left", 1.44);
+      g.fillStyle = t.hair; g.fillRect(innerX, ySub + 46, innerW, 1);
+      checks(s.sub, innerX, Math.min(ySub + 116, Y + HH - 420), innerW, 30, 2, false);
+      if(fbHas(s)) fbPhoto(g, v, s, innerX, Y + HH - 330, innerW, 250, 16);
+      else { fbRuleLines(g, innerX, Y + HH - 330, innerW, 250, 16, t); }
+      g.restore(); return;
+    }
+    var hh = fbText(g, "600", s.line, innerX, Y + 250, innerW, 58, 40, 3, ink, "left", 1.2, "-1.4px");
+    var yAfter = Y + 250 + hh + 46;
+    g.fillStyle = t.hair; g.fillRect(innerX, yAfter - 26, innerW, 1);
+    yAfter = checks(s.sub || "", innerX, yAfter + 52, innerW, 30, 3, false);
+    if(fbHas(s)) fbPhoto(g, v, s, innerX, Math.min(yAfter + 24, Y + HH - 300), innerW, 240, 14);
+    else { fbRuleLines(g, innerX, Math.min(yAfter + 40, Y + HH - 300), innerW, 240, 14, t); }
+    fbFont(g, "500", 17, "1.4px", "mono");
+    g.fillStyle = accent; g.textAlign = "left";
+    g.fillText(fbRole(s), innerX, Y + HH - 40);
+    g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbNum(idx, total), innerX + innerW, Y + HH - 40);
+    g.restore();
+  }
+
+  /* ================================================================ 05 스위스 그리드 */
+  function fbSwiss(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var bg = t.dark ? "#0C0C0E" : "#FBFBF8";
+    var ink = t.dark ? "#F7F5EE" : "#0F0F0F";
+    var sub = t.dark ? "rgba(247,245,238,.55)" : "#7C776C";
+    var accent = t.accent, M = 72;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    /* 6단 그리드 헤어라인 */
+    g.fillStyle = t.dark ? "rgba(255,255,255,.07)" : "rgba(15,15,15,.07)";
+    for(var c = 1; c < 6; c++) g.fillRect(M + (W - M * 2) / 6 * c, 0, 1, H);
+    for(var r = 1; r < 8; r++) g.fillRect(0, (H / 8) * r, W, 1);
+
+    fbFont(g, "500", 18, "2.6px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent; g.fillText("릴리의 리스트", M, 74);
+    g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbNum(idx, total), W - M, 74);
+    g.fillStyle = accent; g.fillRect(M, 100, 46, 46);
+
+    if(last){
       g.textAlign = "right";
-      g.fillStyle = "rgba(255,255,255,.06)";
-      g.fillText(no, W - 40, H * 0.70);
-      g.textAlign = "left";
+      var hq = fbText(g, "600", s.line, W - 900, 320, 900, 92, 56, 3, ink, "right", 1.14, "-3px");
+      if(s.sub) fbText(g, "400", s.sub, W - 760, 320 + hq + 50, 760, 30, 23, 3, sub, "right", 1.5);
+      g.fillStyle = accent; g.fillRect(W - 380, H - 260, 380, 84);
+      fbFont(g, "600", 30, "0px", "gothic");
+      g.textAlign = "center"; g.fillStyle = "#FFFFFF";
+      g.fillText("저장", W - 190, H - 206);
+      fbFont(g, "500", 18, "2.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbHandle(), M, H - 76);
+      g.restore(); return;
     }
-    /* 네온 한 줄 */
-    var y0 = feedHas(s) ? Math.round(H * 0.62) : Math.round(H * 0.46);
-    feedFont(g, "500", 21, "3.2px", "mono");
-    g.textAlign = "left";
-    g.fillStyle = t.accent;
-    g.fillText(String(s.role || "").toUpperCase(), 88, y0 - 44);
-    g.shadowColor = withAlpha(t.accent, .55);
-    g.shadowBlur = 26;
-    var used = feedLine(g, "600", s.line, 88, y0 + 52, W - 176, 96, 56, 3, "#FFFFFF", "left", 1.18, "-2.6px");
-    g.shadowBlur = 0;
-    g.shadowColor = "rgba(0,0,0,0)";
-    if(s.sub) feedLine(g, "400", s.sub, 88, y0 + 52 + used + 56, W - 210, 33, 24, 3, "rgba(255,255,255,.72)", "left", 1.46);
-    /* 얇은 타임라인 */
-    var tw = (W - 176 - 12 * (total - 1)) / total;
-    for(var i = 0; i < total; i++){
-      g.fillStyle = (i <= idx) ? withAlpha(t.accent, .95) : "rgba(255,255,255,.18)";
-      g.fillRect(88 + i * (tw + 12), H - 104, tw, 3);
-    }
-    feedFont(g, "500", 19, "2px", "mono");
-    g.fillStyle = "rgba(255,255,255,.46)";
-    g.fillText(no + " / " + ("0" + total), 88, H - 62);
-    g.textAlign = "right";
-    g.fillText("@arisia949", W - 88, H - 62);
-    g.restore();
-  }
-
-  /* ---------- ④ 볼드 ---------- */
-  function drawFeedBold(g, v, cfg, s, idx, total){
-    var t = feedTone(v), W = TWD, H = THT, no = ("0" + (idx + 1)).slice(-2);
-    var photoSlide = feedHas(s) && idx < 2;
-    g.save();
-    if(photoSlide){
-      /* 사진 + 아래 색면, 경계에 걸친 초대형 타이포 */
-      feedPhoto(g, v, s, 0, 0, W, Math.round(H * 0.54), 0);
-      g.fillStyle = withAlpha(t.accent, .96);
-      g.fillRect(0, Math.round(H * 0.54), W, H - Math.round(H * 0.54));
-      feedFont(g, "500", 20, "3px", "mono");
-      g.textAlign = "left";
-      g.fillStyle = "rgba(255,255,255,.86)";
-      g.fillText(String(s.role || "").toUpperCase() + "  " + no + "/" + ("0" + total), 64, 84);
-      var yb = Math.round(H * 0.54) + 118;
-      feedLine(g, "600", s.line, 60, yb, W - 120, 118, 66, 2, "#FFFFFF", "left", 1.02, "-4px");
-      if(s.sub) feedLine(g, "500", s.sub, 64, yb + 236, W - 170, 32, 24, 2, "rgba(255,255,255,.86)", "left", 1.42, "-0.4px");
-    } else {
-      /* 색면 분할 + 화면을 채우는 2줄 */
-      var split = Math.round(H * 0.62);
-      g.fillStyle = withAlpha(t.accent, .97);
-      g.fillRect(0, 0, W, split);
-      g.fillStyle = t.dark ? "#0E0C10" : "#17140F";
-      g.fillRect(0, split, W, H - split);
-      feedFont(g, "500", 20, "3px", "mono");
-      g.textAlign = "left";
-      g.fillStyle = "rgba(255,255,255,.82)";
-      g.fillText(String(s.role || "").toUpperCase() + "  " + no + "/" + ("0" + total), 60, 92);
-      var f = fitLines(g, "600", s.line, W - 110, 132, 74, 3);
-      var step = Math.round(f.size * 1.04);
-      var startY = Math.round(split * 0.62) - Math.round((f.lines.length - 1) * step / 2);
-      for(var i = 0; i < f.lines.length; i++){
-        feedFont(g, "600", f.size, "-4.4px");
-        g.fillStyle = "#FFFFFF";
-        g.fillText(f.lines[i].text, 55, startY + i * step);
-      }
-      if(s.sub) feedLine(g, "500", s.sub, 60, split + 118, W - 160, 36, 25, 2, "rgba(255,255,255,.80)", "left", 1.42, "-0.6px");
-      g.fillStyle = withAlpha(t.accent, .95);
-      g.fillRect(60, split + 62, 88, 6);
-    }
-    g.restore();
-  }
-
-  /* ---------- ⑤ 폴라로이드 ---------- */
-  function drawFeedPolaroid(g, v, cfg, s, idx, total){
-    var t = feedTone(v), W = TWD, H = THT, no = ("0" + (idx + 1)).slice(-2);
-    var dark = t.dark;
-    g.save();
-    var bg = g.createLinearGradient(0, 0, W * 0.4, H);
-    bg.addColorStop(0, dark ? "#171412" : "#EFE6D8");
-    bg.addColorStop(0.6, dark ? "#1E1A17" : "#E7DCCB");
-    bg.addColorStop(1, dark ? "#121010" : "#DED2BF");
-    g.fillStyle = bg;
-    g.fillRect(0, 0, W, H);
-    /* 손으로 붙인 작은 라벨 */
-    feedFont(g, "500", 20, "2.6px", "mono");
-    g.textAlign = "left";
-    g.fillStyle = dark ? "rgba(255,255,255,.42)" : "rgba(40,32,24,.42)";
-    g.fillText("ROLL " + no + " / " + ("0" + total), 70, 90);
-
-    var cardW = 700, cardH = 820, cx = W / 2 + (idx % 2 ? 16 : -14), cy = 430 + (idx % 2 ? 18 : 0);
-    var tilt = (idx % 2 ? 2.4 : -2.0) * Math.PI / 180;
-    g.save();
-    g.translate(cx, cy);
-    g.rotate(tilt);
-    g.shadowColor = "rgba(30,22,14,.34)"; g.shadowBlur = 30; g.shadowOffsetY = 16;
-    g.fillStyle = "#FDFBF6";
-    g.fillRect(-cardW / 2, -cardH / 2, cardW, cardH);
-    g.restore();
-    /* 테이프 */
-    g.save();
-    g.translate(cx + 180, cy - cardH / 2 + 6);
-    g.rotate(18 * Math.PI / 180);
-    g.fillStyle = dark ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.66)";
-    g.fillRect(-70, -18, 140, 36);
-    g.restore();
-
-    g.save();
-    g.translate(cx, cy);
-    g.rotate(tilt);
-    var iw = cardW - 56, ih = cardH - 210;
-    if(feedHas(s)){
-      g.save();
-      g.beginPath(); g.rect(-iw / 2, -cardH / 2 + 28, iw, ih); g.clip();
-      var im = feedSceneImg(v, s);
-      if(im && im.complete && im.naturalWidth){
-        var sc = Math.max(iw / im.width, ih / im.height);
-        g.drawImage(im, -im.width * sc / 2, -cardH / 2 + 28 + (ih - im.height * sc) / 2, im.width * sc, im.height * sc);
+    if(idx === 0){
+      /* 왼쪽 단: 번호·역할 / 오른쪽 단: 우측 정렬 헤드라인 + 사진 */
+      fbFont(g, "600", 210, "-12px", "gothic");
+      g.textAlign = "left"; g.fillStyle = withAlpha(accent, .95);
+      g.fillText(("0" + (idx + 1)).slice(-2), M - 8, 700);
+      fbFont(g, "500", 18, "2.6px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(fbRole(s), M, H - 76);
+      var h0 = fbText(g, "600", s.line, 360, 270, W - 432, 92, 56, 3, ink, "right", 1.14, "-3px");
+      if(s.sub) fbText(g, "400", s.sub, 448, 270 + h0 + 34, W - 520, 27, 21, 3, sub, "right", 1.46);
+      if(fbHas(s)){
+        fbPhoto(g, v, s, 520, 760, 488, 420, 0);
+        fbFont(g, "500", 15, "2px", "mono");
+        g.textAlign = "left"; g.fillStyle = sub;
+        g.fillText("FIG. " + ("0" + (idx + 1)).slice(-2), 520, 1206);
       } else {
-        g.fillStyle = withAlpha(CUR.accent, .24);
-        g.fillRect(-iw / 2, -cardH / 2 + 28, iw, ih);
+        for(var q = 0; q < 4; q++){
+          g.fillStyle = q === 0 ? withAlpha(accent, .9) : withAlpha(accent, .16);
+          g.fillRect(520 + (q % 2) * 252, 760 + Math.floor(q / 2) * 212, 236, 196);
+        }
       }
-      g.restore();
-    } else {
-      g.fillStyle = dark ? "#241F1A" : "#F4ECDC";
-      g.fillRect(-iw / 2, -cardH / 2 + 28, iw, ih);
-      g.strokeStyle = dark ? "rgba(255,255,255,.10)" : "rgba(40,32,24,.13)";
-      g.lineWidth = 2;
-      for(var ly = -cardH / 2 + 120; ly < -cardH / 2 + ih; ly += 64){
-        g.beginPath(); g.moveTo(-iw / 2 + 34, ly); g.lineTo(iw / 2 - 34, ly); g.stroke();
-      }
-      /* 손글씨처럼 적은 본문 */
-      if(s.role){
-        feedFont(g, "500", 20, "2.4px", "mono");
-        g.textAlign = "left";
-        g.fillStyle = withAlpha(t.accent, .95);
-        g.fillText(String(s.role).toUpperCase(), -iw / 2 + 44, -cardH / 2 + 96);
-      }
-      feedLine(g, "500", s.line, -iw / 2 + 44, -cardH / 2 + 214, iw - 88, 54, 36, 4,
-               dark ? "#F3EADB" : "#23201A", "left", 1.5, "-0.4px", "mono");
-      if(s.sub) feedLine(g, "400", s.sub, -iw / 2 + 44, -cardH / 2 + ih - 96, iw - 88, 28, 22, 3,
-                         dark ? "rgba(243,234,219,.66)" : "rgba(35,32,26,.62)", "left", 1.5, "0px", "mono");
+      fbFont(g, "500", 17, "2.2px", "mono");
+      g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbHandle(), W - M, H - 76);
+      g.restore(); return;
     }
-    /* 인화지 아래 캡션 — 손글씨 느낌 */
-    var capSize = String(s.line || "").length <= 12 ? 44 : 34;
-    var cf = fitLines(g, "500", s.line, cardW - 90, capSize, 24, 3);
-    var cstep = Math.round(cf.size * 1.34);
-    var baseY = cardH / 2 - 64 - (cf.lines.length - 1) * cstep;
-    feedFont(g, "500", cf.size, "-0.2px", "mono");
-    g.textAlign = "center";
-    g.fillStyle = dark ? "#201B16" : "#24201A";
-    for(var ci = 0; ci < cf.lines.length; ci++) g.fillText(cf.lines[ci].text, 0, baseY + ci * cstep - 26);
-    g.restore();
-
-    /* 날짜 스탬프 + 저장 한 줄 */
-    feedFont(g, "500", 19, "2.4px", "mono");
-    g.textAlign = "left";
-    g.fillStyle = withAlpha(t.accent, .95);
-    g.fillText(feedStamp(), 70, H - 66);
-    g.textAlign = "right";
-    g.fillStyle = dark ? "rgba(255,255,255,.45)" : "rgba(40,32,24,.42)";
-    g.fillText(idx === total - 1 ? "저장" : "@arisia949", W - 70, H - 66);
-    if(s.sub){
-      feedFont(g, "400", 24, "0px");
-      g.textAlign = "center";
-      g.fillStyle = dark ? "rgba(255,255,255,.52)" : "rgba(40,32,24,.50)";
-      g.fillText(String(s.sub).slice(0, 30), W / 2, H - 150);
+    /* 본문 — 사진 왼쪽, 활자 오른쪽 정렬 */
+    if(fbHas(s)) fbPhoto(g, v, s, M, 190, 520, 620, 0);
+    else {
+      fbTypePanel(g, M, 190, 460, 620, s, t, { number: "", label: "NOTE", text: "기록은 이렇게 젖어 둘 니다" });
     }
+    var hb = fbText(g, "600", s.line, W - M - 420, 240, 420, 68, 40, 4, ink, "right", 1.2, "-2px");
+    if(s.sub) fbText(g, "400", s.sub, W - M - 380, 240 + hb + 40, 380, 27, 21, 4, sub, "right", 1.5);
+    fbFont(g, "600", 250, "-12px", "gothic");
+    g.textAlign = "right"; g.fillStyle = withAlpha(accent, .9);
+    g.fillText(("0" + (idx + 1)).slice(-2), W - M + 6, 1180);
+    fbFont(g, "500", 18, "2.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent; g.fillText(fbRole(s), M, 900);
+    g.fillStyle = sub; g.fillText((fbHas(s) ? "FIG. " : "NOTE ") + ("0" + (idx + 1)).slice(-2), M, 940);
     g.restore();
   }
 
-  function drawFeedCard(g, v, cfg, s, idx, total){
-    var th = feedThemeOf(v);
+  /* ================================================================ 06 신문 활자 */
+  function fbNews(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var paper = "#F7F3E8", ink = "#14120E", sub = "#6E675A", accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = paper; g.fillRect(0, 0, W, H);
+
+    function masthead(){
+      g.fillStyle = ink; g.fillRect(72, 60, W - 144, 3);
+      fbFont(g, "600", 62, "8px", "serif");
+      g.textAlign = "center"; g.fillStyle = ink;
+      g.fillText("릴리의 리스트", W / 2, 132);
+      g.fillRect(72, 152, W - 144, 1);
+      fbFont(g, "500", 16, "1.6px", "mono");
+      g.fillStyle = sub;
+      g.textAlign = "left";  g.fillText("제 12 호", 74, 182);
+      g.textAlign = "center"; g.fillText(fbStamp() + " · 토요일", W / 2, 182);
+      g.textAlign = "right"; g.fillText("1면", W - 74, 182);
+      g.fillStyle = ink; g.fillRect(72, 198, W - 144, 2);
+    }
+    function corner(){
+      fbFont(g, "500", 15, "1.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent; g.fillText("릴리의 리스트", 72, 58);
+      g.textAlign = "right"; g.fillStyle = sub; g.fillText(fbNum(idx, total), W - 72, 58);
+      g.fillStyle = ink; g.fillRect(72, 72, W - 144, 1);
+    }
+    if(last){
+      corner();
+      g.fillStyle = ink; g.fillRect(72, 120, W - 144, 4);
+      fbFont(g, "600", 26, "4px", "serif");
+      g.textAlign = "center"; g.fillStyle = ink; g.fillText("정 리", W / 2, 190);
+      g.fillRect(72, 214, W - 144, 1);
+      var hq = fbText(g, "600", s.line, 96, 300, W - 192, 66, 42, 3, ink, "left", 1.2, "-1.4px", "serif");
+      g.fillStyle = ink; g.fillRect(96, 300 + hq + 26, 120, 2);
+      var items = String(s.sub || "").split(/[.。·]/).map(function(x){ return x.replace(/\s+/g, " ").trim(); })
+        .filter(function(x){ return x.length > 1 && x.indexOf("@") < 0; }).slice(0, 3);
+      var y = 300 + hq + 88;
+      for(var i = 0; i < items.length; i++){
+        fbFont(g, "500", 20, "1px", "mono");
+        g.textAlign = "left"; g.fillStyle = accent; g.fillText("0" + (i + 1), 96, y - 4);
+        var hh = fbText(g, "400", items[i], 152, y, W - 260, 28, 22, 2, ink, "left", 1.44);
+        y = y + Math.max(hh, 34) + 34;
+        g.fillStyle = "rgba(20,18,14,.14)"; g.fillRect(96, y - 24, W - 192, 1);
+      }
+      fbFont(g, "500", 18, "1.6px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText("다음 호에 또 뵙겠습니다  ·  " + fbHandle(), 96, H - 84);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      masthead();
+      /* 표지 — 왼쪽 단 헤드라인 / 오른쪽 단 흑백 사진 (에디토리얼과 확실히 다른 신문 1면) */
+      var colW0 = 452;
+      var h1n = fbText(g, "600", s.line, 72, 262, colW0, 86, 52, 3, ink, "left", 1.14, "-2.2px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 72, 262 + h1n + 26, colW0 - 20, 27, 21, 3, sub, "left", 1.46);
+      if(fbHas(s)){
+        fbGray(g, v, s, 588, 246, 420, 520, 0);
+        g.fillStyle = ink; g.fillRect(566, 246, 2, 520);
+        fbFont(g, "500", 15, "1.4px", "mono");
+        g.textAlign = "left"; g.fillStyle = sub;
+        g.fillText("사진 · 2026 ⓒ 릴리의 리스트", 588, 794);
+      } else {
+        g.fillStyle = ink; g.fillRect(566, 246, 2, 520);
+        g.strokeStyle = "rgba(20,18,14,.35)"; g.lineWidth = 2; g.strokeRect(588.5, 246.5, 419, 519);
+        fbFont(g, "600", 190, "-8px", "serif");
+        g.textAlign = "center"; g.fillStyle = "rgba(20,18,14,.12)";
+        g.fillText(("0" + (idx + 1)).slice(-2), 798, 560);
+        fbFont(g, "500", 19, "4px", "mono");
+        g.fillStyle = accent; g.fillText(fbRole(s), 798, 320);
+      }
+      g.fillStyle = ink; g.fillRect(72, 880, W - 144, 3);
+      fbFont(g, "600", 24, "1px", "serif");
+      g.textAlign = "left"; g.fillStyle = ink;
+      g.fillText("이 번 호 의 기 록", 72, 934);
+      fbFont(g, "400", 24, "0px", "serif");
+      g.textAlign = "right"; g.fillStyle = sub;
+      g.fillText(fbRole(s) + "  ·  " + fbHandle(), W - 72, 934);
+      g.fillStyle = "rgba(20,18,14,.16)"; g.fillRect(72, 962, W - 144, 1);
+      fbFont(g, "400", 30, "0.4px", "serif");
+      g.textAlign = "left"; g.fillStyle = ink;
+      g.fillText("아래로 넘겨 오늘의 기록을 읽어 보세요", 72, 1032);
+      g.fillStyle = ink; g.fillRect(72, 1248, W - 144, 1);
+      fbFont(g, "500", 16, "1.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbStamp(), 72, 1282);
+      g.textAlign = "right"; g.fillText(fbNum(idx, total), W - 72, 1282);
+      g.restore(); return;
+    }
+    /* 본문 — 제호 없이 2단 조판 (사진은 위, 아래는 두 단) */
+    corner();
+    fbFont(g, "500", 18, "2.6px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent;
+    g.fillText(fbRole(s), 72, 128);
+    var hb = fbText(g, "600", s.line, 72, 190, W - 144, 72, 44, 2, ink, "left", 1.14, "-1.8px", "serif");
+    g.fillStyle = ink; g.fillRect(72, 190 + hb + 22, W - 144, 2);
+    var yTop = 190 + hb + 52;
+    /* 리드 문장은 아래에 고정하고, 사진이 그 위를 채운다 */
+    if(!fbHas(s)){
+      var nbY = yTop + 30, nbH = H - 156 - 40 - 90 - nbY;
+      g.strokeStyle = "rgba(20,18,14,.35)"; g.lineWidth = 2;
+      g.strokeRect(72.5, nbY + .5, W - 145, Math.max(220, nbH));
+      fbFont(g, "600", 200, "-8px", "serif");
+      g.textAlign = "center"; g.fillStyle = "rgba(20,18,14,.10)";
+      g.fillText(("0" + (idx + 1)).slice(-2), W / 2, nbY + Math.max(220, nbH) / 2 + 70);
+      fbFont(g, "500", 19, "4px", "mono");
+      g.fillStyle = accent;
+      g.fillText(fbRole(s), W / 2, nbY + 56);
+    }
+    var leadH = fbMeasure(g, "400", s.sub || "", W - 144, 42, 30, 3, 1.5).h;
+    var leadY = H - 156 - leadH;
+    if(fbHas(s)){
+      var pH = Math.max(240, leadY - 74 - (yTop + 18));
+      fbGray(g, v, s, 72, yTop + 18, W - 144, pH, 0);
+      fbFont(g, "500", 15, "1.2px", "mono");
+      g.textAlign = "right"; g.fillStyle = sub;
+      g.fillText("사진 · 2026 ⓒ 릴리의 리스트", W - 72, yTop + 18 + pH + 24);
+    }
+    fbText(g, "400", s.sub, 72, leadY, W - 144, 42, 30, 3, ink, "left", 1.5);
+    g.fillStyle = ink; g.fillRect(72, H - 96, W - 144, 1);
+    fbFont(g, "500", 16, "1.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbHandle(), 72, H - 62);
+    g.textAlign = "right"; g.fillText(fbNum(idx, total), W - 72, H - 62);
+    g.restore();
+  }
+
+  /* ================================================================ 07 포스터 볼드 */
+  function fbOn(hex){
+    var h = String(hex || "").replace("#", "");
+    if(h.length !== 6) return "#FFFFFF";
+    var r = parseInt(h.slice(0, 2), 16), gg = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * gg + 0.114 * b) > 118 ? "#12100E" : "#FFFFFF";
+  }
+  function fbPoster(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var accent = t.accent, on = fbOn(accent), dark = "#12100E";
+    g.save(); g.textBaseline = "alphabetic";
+    function tiltedPhoto(x, y, w, h, deg, border){
+      var rad = deg * Math.PI / 180, b2 = border || 12;
+      g.save();
+      g.translate(x + w / 2, y + h / 2); g.rotate(rad);
+      g.fillStyle = dark; g.fillRect(-w / 2 - b2, -h / 2 - b2, w + b2 * 2, h + b2 * 2);
+      g.restore();
+      fbPhoto(g, v, s, x, y, w, h, 0, rad);
+    }
+    if(last){
+      g.fillStyle = dark; g.fillRect(0, 0, W, H);
+      g.fillStyle = accent; g.fillRect(0, 0, W, 18);
+      fbFont(g, "500", 20, "4px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText("마지막 장  ·  " + fbStamp(), 64, 120);
+      var hq = fbText(g, "600", s.line, 60, 240, W - 120, 126, 76, 3, "#FFFFFF", "left", 1.04, "-5px");
+      if(s.sub) fbText(g, "400", s.sub, 64, 240 + hq + 44, W - 200, 30, 23, 3, "rgba(255,255,255,.72)", "left", 1.5);
+      g.fillStyle = accent; g.fillRect(64, H - 300, 420, 96);
+      fbFont(g, "600", 40, "-1px", "gothic");
+      g.textAlign = "center"; g.fillStyle = fbOn(accent);
+      g.fillText("저장", 64 + 210, H - 234);
+      fbFont(g, "500", 20, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.55)";
+      g.fillText(fbHandle(), 64, H - 150);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      g.fillStyle = accent; g.fillRect(0, 0, W, H);
+      fbFont(g, "500", 20, "4px", "mono");
+      g.textAlign = "left"; g.fillStyle = withAlpha(on, .66);
+      g.fillText("릴리의 리스트  ·  " + fbNum(idx, total), 60, 108);
+      var f = fbFit(g, "600", s.line, W - 110, 132, 88, 3);
+      var step = Math.round(f.size * 0.98), y0 = 250 + f.size;
+      for(var i = 0; i < f.lines.length; i++){
+        fbFont(g, "600", f.size, "-6px", "gothic");
+        g.textAlign = "left"; g.fillStyle = on;
+        g.fillText(f.lines[i].text, 54, y0 + i * step);
+      }
+      var yAfter = y0 + (f.lines.length - 1) * step + 62;
+      var subEnd = yAfter;
+      if(s.sub) subEnd = yAfter + fbText(g, "500", s.sub, 60, yAfter, 540, 30, 23, 2, withAlpha(on, .86), "left", 1.44);
+      if(fbHas(s)) tiltedPhoto(600, Math.max(790, subEnd + 26), 400, 476, -4, 14);
+      g.save();
+      g.translate(34, H / 2 + 210); g.rotate(-Math.PI / 2);
+      fbFont(g, "500", 17, "4px", "mono");
+      g.textAlign = "left"; g.fillStyle = withAlpha(on, .55);
+      g.fillText("VOL. 11  —  DAILY RECORD", 0, 0);
+      g.restore();
+      fbFont(g, "500", 18, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = withAlpha(on, .70);
+      g.fillText("@arisia949", 60, H - 60);
+      g.restore(); return;
+    }
+    /* 본문 — 검정 바탕 + 포인트색 활자 */
+    g.fillStyle = dark; g.fillRect(0, 0, W, H);
+    if(fbHas(s)) tiltedPhoto(560, 120, 400, 470, 3, 12);
+    else {
+      g.strokeStyle = withAlpha(accent, .55); g.lineWidth = 6;
+      g.beginPath(); g.arc(760, 340, 190, 0, Math.PI * 2); g.stroke();
+      fbFont(g, "600", 150, "-6px", "gothic");
+      g.textAlign = "center"; g.fillStyle = withAlpha(accent, .9);
+      g.fillText(("0" + (idx + 1)).slice(-2), 760, 392);
+    }
+    fbFont(g, "500", 19, "3.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent;
+    g.fillText(fbRole(s) + "  " + ("0" + (idx + 1)).slice(-2), 60, 130);
+    var hb = fbText(g, "600", s.line, 56, 300, fbHas(s) ? 500 : 500, 96, 54, 4, "#FFFFFF", "left", 1.06, "-4px");
+    if(s.sub) fbText(g, "400", s.sub, 60, 300 + hb + 40, 470, 27, 21, 4, "rgba(255,255,255,.70)", "left", 1.5);
+    g.fillStyle = accent; g.fillRect(60, H - 170, 120, 10);
+    fbFont(g, "500", 18, "3px", "mono");
+    g.textAlign = "right"; g.fillStyle = "rgba(255,255,255,.55)";
+    g.fillText(fbNum(idx, total), W - 60, H - 56);
+    g.restore();
+  }
+
+  /* ================================================================ 08 다크 시네마 */
+  function fbCine(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var bg = "#08080A", white = "#F7F6F2", dim = "rgba(247,246,242,.58)", accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    function tc(i){ return "00:" + ("0" + (i * 8 + 4)).slice(-2) + ":12"; }
+
+    if(last){
+      fbPhoto(g, v, s, 0, 0, W, 420, 0);
+      var gb = g.createLinearGradient(0, 260, 0, 420);
+      gb.addColorStop(0, "rgba(8,8,10,0)"); gb.addColorStop(1, "rgba(8,8,10,1)");
+      g.fillStyle = gb; g.fillRect(0, 260, W, 160);
+      fbFont(g, "500", 17, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent; g.fillText("SC " + ("0" + total).slice(-2) + "  ·  END", 88, 120);
+      g.textAlign = "right"; g.fillStyle = dim; g.fillText(tc(idx), W - 88, 120);
+      var hq = fbText(g, "600", s.line, 88, 640, W - 176, 76, 46, 3, white, "center", 1.24, "-1.6px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 120, 640 + hq + 36, W - 240, 27, 21, 3, dim, "center", 1.5);
+      g.fillStyle = accent; g.fillRect(W / 2 - 32, H - 300, 64, 2);
+      fbFont(g, "500", 19, "3.4px", "mono");
+      g.textAlign = "center"; g.fillStyle = white;
+      g.fillText("저장해 두기", W / 2, H - 230);
+      g.fillStyle = withAlpha(accent, .9); g.fillRect(120, H - 120, W - 240, 2);
+      fbFont(g, "500", 16, "2.6px", "mono");
+      g.textAlign = "center"; g.fillStyle = dim;
+      g.fillText(fbHandle(), W / 2, H - 76);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      /* 표지 — 와이드 스크린 한 컷 + 중앙 카피 */
+      if(fbHas(s)) fbPhoto(g, v, s, 0, 150, W, 490, 0);
+      else {
+        var cg = g.createRadialGradient(W * 0.5, 420, 40, W * 0.5, 420, 560);
+        cg.addColorStop(0, withAlpha(accent, .30)); cg.addColorStop(1, "rgba(8,8,10,0)");
+        g.fillStyle = cg; g.fillRect(0, 150, W, 490);
+        fbFont(g, "600", 300, "-14px", "mono");
+        g.textAlign = "center"; g.fillStyle = "rgba(255,255,255,.07)";
+        g.fillText(("0" + (idx + 1)).slice(-2), W / 2, 480);
+      }
+      g.fillStyle = bg; g.fillRect(0, 140, W, 10); g.fillRect(0, 640, W, 10);
+      fbFont(g, "500", 17, "3.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = white; g.fillText("릴리의 리스트", 88, 104);
+      g.textAlign = "right"; g.fillStyle = dim; g.fillText(tc(0), W - 88, 104);
+      fbFont(g, "500", 18, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(fbRole(s), 88, 760);
+      var h1 = fbText(g, "600", s.line, 88, 836, W - 176, 92, 56, 3, white, "center", 1.2, "-2.6px");
+      if(s.sub) fbText(g, "400", s.sub, 130, 836 + h1 + 40, W - 260, 29, 22, 3, dim, "center", 1.48);
+      g.fillStyle = accent; g.fillRect(88, H - 130, 64, 3);
+      fbFont(g, "500", 17, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = dim;
+      g.fillText("SC 01  ·  " + fbNum(idx, total), 88, H - 86);
+      g.textAlign = "right"; g.fillText("@arisia949", W - 88, H - 86);
+      g.restore(); return;
+    }
+    /* 본문 — 사진 위, 활자 아래 좌측 정렬 */
+    if(fbHas(s)) fbPhoto(g, v, s, 0, 0, W, 840, 0);
+    else {
+      var cg2 = g.createRadialGradient(W * 0.35, 340, 50, W * 0.35, 340, 700);
+      cg2.addColorStop(0, withAlpha(accent, .26)); cg2.addColorStop(1, "rgba(8,8,10,0)");
+      g.fillStyle = cg2; g.fillRect(0, 0, W, 860);
+      fbFont(g, "600", 420, "-18px", "mono");
+      g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.05)";
+      g.fillText(("0" + (idx + 1)).slice(-2), 40, 700);
+    }
+    var gd = g.createLinearGradient(0, 560, 0, 880);
+    gd.addColorStop(0, "rgba(8,8,10,0)"); gd.addColorStop(1, "rgba(8,8,10,.98)");
+    g.fillStyle = gd; g.fillRect(0, 560, W, 320);
+    fbFont(g, "500", 17, "3px", "mono");
+    g.textAlign = "right"; g.fillStyle = dim; g.fillText(tc(idx) + "  ·  REC", W - 88, 92);
+    var hbM = fbMeasure(g, "600", s.line, W - 176, 74, 46, 2, 1.18);
+    var hsM = s.sub ? fbMeasure(g, "400", s.sub, W - 220, 26, 21, 2, 1.5) : { h: 0 };
+    var yText = H - 170 - (hbM.h + (s.sub ? hsM.h + 30 : 0));
+    fbFont(g, "500", 18, "3px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent;
+    g.fillText(fbRole(s), 88, yText - 40);
+    var hb = fbText(g, "600", s.line, 88, yText, W - 176, 74, 46, 2, white, "left", 1.18, "-2px");
+    if(s.sub) fbText(g, "400", s.sub, 88, yText + hb + 30, W - 220, 26, 21, 2, dim, "left", 1.5);
+    var tw = (W - 176 - 10 * (total - 1)) / total;
+    for(var i = 0; i < total; i++){
+      g.fillStyle = (i <= idx) ? accent : "rgba(255,255,255,.16)";
+      g.fillRect(88 + i * (tw + 10), H - 110, tw, 2);
+    }
+    fbFont(g, "500", 16, "2.6px", "mono");
+    g.textAlign = "left"; g.fillStyle = dim; g.fillText(fbNum(idx, total), 88, H - 66);
+    g.textAlign = "right"; g.fillText(fbHandle(), W - 88, H - 66);
+    g.restore();
+  }
+
+  /* ================================================================ 09 필름 콘택트 */
+  function fbFilm(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var bg = "#171310", paper = "#F4EFE4", dim = "rgba(244,239,228,.55)", accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    function perfs(y){
+      g.fillStyle = "rgba(244,239,228,.82)";
+      for(var x = 26; x < W - 30; x += 62) roundRect(g, x, y, 34, 20, 5), g.fill();
+    }
+    g.fillStyle = "#0E0B09"; g.fillRect(0, 0, W, 70); g.fillRect(0, H - 70, W, 70);
+    perfs(24); perfs(H - 46);
+
+    if(last){
+      if(fbHas(s)) fbPhoto(g, v, s, 150, 180, 780, 620, 0, 0, 1.35);
+      else {
+        g.fillStyle = "#211B15"; g.fillRect(150, 180, 780, 620);
+        fbFont(g, "600", 220, "-8px", "serif");
+        g.textAlign = "center"; g.fillStyle = "rgba(244,239,228,.10)";
+        g.fillText(("0" + (idx + 1)).slice(-2), 540, 560);
+      }
+      fbFont(g, "500", 16, "2.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent; g.fillText("24A", 150, 170);
+      g.textAlign = "right"; g.fillStyle = dim; g.fillText("1/125  f2.0", W - 150, 170);
+      var hq = fbText(g, "600", s.line, 120, 870, W - 240, 56, 36, 3, paper, "center", 1.3, "-0.6px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 150, 870 + hq + 26, W - 300, 24, 19, 2, dim, "center", 1.5);
+      fbFont(g, "500", 18, "4px", "mono");
+      g.textAlign = "center"; g.fillStyle = withAlpha(accent, .95);
+      g.fillText("END OF ROLL  ·  " + fbHandle(), W / 2, H - 130);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      g.fillStyle = "rgba(244,239,228,.10)"; roundRect(g, 40, 86, 150, 32, 16); g.fill();
+      fbFont(g, "500", 15, "2.4px", "mono");
+      g.textAlign = "center"; g.fillStyle = paper; g.fillText("ROLL 01", 115, 108);
+      if(fbHas(s)){
+        fbPhoto(g, v, s, 40, 140, 1000, 480, 0, 0, 1.22);
+        fbPhoto(g, v, s, 40, 634, 1000, 306, 0, 0, 1.75, 0.04, -0.02);
+      } else {
+        g.fillStyle = "#211B15"; g.fillRect(40, 140, 1000, 480); g.fillRect(40, 634, 1000, 306);
+        fbFont(g, "600", 150, "-6px", "serif");
+        g.textAlign = "center"; g.fillStyle = "rgba(244,239,228,.10)";
+        g.fillText(("0" + (idx + 1)).slice(-2), 540, 460); g.fillText(("0" + (idx + 1)).slice(-2), 540, 860);
+      }
+      g.fillStyle = "rgba(10,8,6,.62)";
+      g.fillRect(52, 574, 62, 32); g.fillRect(52, 898, 62, 32);
+      fbFont(g, "500", 16, "2.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = paper; g.fillText("01A", 64, 596); g.fillText("01B", 64, 920);
+      fbFont(g, "500", 17, "2.6px", "mono");
+      g.textAlign = "left"; g.fillStyle = accent;
+      g.fillText(fbRole(s) + "  ·  " + fbStamp(), 44, 992);
+      var h1 = fbText(g, "600", s.line, 44, 1044, W - 88, 58, 38, 2, paper, "left", 1.22, "-1px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 44, 1044 + h1 + 12, W - 120, 23, 18, 1, dim, "left", 1.4);
+      g.restore(); return;
+    }
+    if(fbHas(s)) fbPhoto(g, v, s, 40, 110, 1000, 700, 0, 0, 1.3);
+    else {
+      g.fillStyle = "#211B15"; g.fillRect(40, 110, 1000, 700);
+      fbFont(g, "600", 260, "-10px", "serif");
+      g.textAlign = "center"; g.fillStyle = "rgba(244,239,228,.10)";
+      g.fillText(("0" + (idx + 1)).slice(-2), 540, 560);
+      fbFont(g, "500", 20, "4px", "mono");
+      g.fillStyle = withAlpha(t.accent, .9);
+      g.fillText(fbRole(s), 540, 660);
+    }
+    fbFont(g, "500", 16, "2.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent; g.fillText(("2" + (idx + 1)) + "A", 44, 100);
+    g.textAlign = "right"; g.fillStyle = dim; g.fillText(fbRole(s), W - 44, 100);
+    fbFont(g, "500", 17, "2.6px", "mono");
+    g.textAlign = "left"; g.fillStyle = dim;
+    g.fillText("KODAK 400  ·  " + fbStamp() + "  ·  " + fbNum(idx, total), 44, 862);
+    var hb = fbText(g, "600", s.line, 44, 926, W - 88, 58, 38, 2, paper, "left", 1.22, "-1px", "serif");
+    if(s.sub) fbText(g, "400", s.sub, 44, 926 + hb + 16, W - 140, 23, 18, 1, dim, "left", 1.45);
+    g.restore();
+  }
+
+  /* ================================================================ 10 아카이브 카드 */
+  function fbArchive(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var paper = t.dark ? "#14120F" : "#F1EDE2";
+    var ink = t.dark ? "#F2ECDD" : "#1E1B16";
+    var sub = t.dark ? "rgba(242,236,221,.55)" : "#6B6458";
+    var accent = t.accent, hair = t.dark ? "rgba(242,236,221,.20)" : "rgba(30,27,22,.22)";
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = paper; g.fillRect(0, 0, W, H);
+    /* 양피지 격자 */
+    g.fillStyle = t.dark ? "rgba(242,236,221,.05)" : "rgba(30,27,22,.05)";
+    for(var y = 0; y < H; y += 96) g.fillRect(0, y, W, 1);
+
+    function stamp(txt, x, y, deg, color, size){
+      g.save(); g.translate(x, y); g.rotate(deg * Math.PI / 180);
+      g.strokeStyle = color; g.lineWidth = 3;
+      fbFont(g, "600", size || 24, "3px", "mono");
+      var w = g.measureText(txt).width + 34;
+      roundRect(g, -w / 2, -30, w, 60, 8); g.stroke();
+      g.fillStyle = color; g.textAlign = "center";
+      g.fillText(txt, 0, 9);
+      g.restore();
+    }
+    function metaRow(label, value, x, y, w){
+      fbFont(g, "500", 16, "1.8px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub; g.fillText(label, x, y);
+      fbFont(g, "500", 21, "0.4px", "mono");
+      g.textAlign = "right"; g.fillStyle = ink; g.fillText(value, x + w, y);
+      g.fillStyle = hair; g.fillRect(x, y + 16, w, 1);
+      return 62;
+    }
+    if(last){
+      g.fillStyle = ink; g.fillRect(0, 0, W, 132);
+      fbFont(g, "500", 17, "3px", "mono");
+      g.textAlign = "left"; g.fillStyle = paper; g.fillText("CASE FILE  ·  CLOSING", 96, 82);
+      g.strokeStyle = hair; g.lineWidth = 2; g.strokeRect(56, 160, W - 112, H - 216);
+      var hq = fbText(g, "600", s.line, 96, 236, W - 192, 64, 42, 3, ink, "left", 1.22, "-1.2px", "serif");
+      var yy = 236 + hq + 70;
+      yy = yy + metaRow("DATE", fbStamp(), 96, yy, W - 192);
+      yy = yy + metaRow("TYPE", "일상 기록", 96, yy, W - 192);
+      yy = yy + metaRow("NOTE", "저장 후 다시 보기", 96, yy, W - 192);
+      if(s.sub) fbText(g, "400", s.sub, 96, yy + 40, W - 240, 26, 21, 3, sub, "left", 1.5);
+      stamp("FILED", W - 250, H - 240, -7, accent, 30);
+      fbFont(g, "500", 16, "2.4px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbHandle(), 96, H - 100);
+      g.restore(); return;
+    }
+    g.fillStyle = ink; g.fillRect(0, 0, W, 132);
+    fbFont(g, "500", 17, "3px", "mono");
+    g.textAlign = "left"; g.fillStyle = paper; g.fillText("CASE FILE", 96, 82);
+    g.textAlign = "right"; g.fillStyle = withAlpha(paper, .70); g.fillText("NO. " + fbNum(idx, total), W - 96, 82);
+    g.strokeStyle = hair; g.lineWidth = 2; g.strokeRect(56, 160, W - 112, H - 216);
+
+    if(idx === 0){
+      var h1 = fbText(g, "600", s.line, 96, 278, W - 192, 78, 50, 3, ink, "left", 1.18, "-2px", "serif");
+      var yy0 = 278 + h1 + 40;
+      if(s.sub) fbText(g, "400", s.sub, 96, yy0, 620, 27, 21, 3, sub, "left", 1.48);
+      var py0 = yy0 + 110, ph0 = 360;
+      if(fbHas(s)) fbPhoto(g, v, s, 620, py0, 340, ph0, 0);
+      else fbTypePanel(g, 620, py0, 340, ph0, s, t,
+                       { number: ("0" + (idx + 1)).slice(-2), label: "NOTE", fill: "rgba(30,27,22,.04)" });
+      g.strokeStyle = hair; g.lineWidth = 1; g.strokeRect(619.5, py0 - .5, 341, ph0 + 1);
+      fbFont(g, "500", 15, "2px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub;
+      g.fillText("FIG. 01  ·  EVIDENCE", 620, py0 + ph0 + 34);
+      var my = H - 300;
+      my = my + metaRow("DATE", fbStamp(), 96, my, 480);
+      my = my + metaRow("TYPE", "일상 기록", 96, my, 480);
+      my = my + metaRow("OWNER", fbHandle(), 96, my, 480);
+      stamp("OPEN", W - 230, H - 150, -6, withAlpha(accent, .85), 22);
+      g.restore(); return;
+    }
+    if(fbHas(s)) fbPhoto(g, v, s, 96, 200, 380, 470, 0);
+    else fbTypePanel(g, 96, 200, 380, 470, s, t,
+                     { number: ("0" + (idx + 1)).slice(-2), label: "NOTE", fill: "rgba(30,27,22,.04)" });
+    g.strokeStyle = hair; g.lineWidth = 1; g.strokeRect(95.5, 199.5, 381, 471);
+    fbFont(g, "500", 15, "2px", "mono");
+    g.textAlign = "left"; g.fillStyle = sub;
+    g.fillText((fbHas(s) ? "FIG. " : "NOTE ") + ("0" + (idx + 1)).slice(-2) + "  ·  RECORD", 96, 700);
+    var my2 = 200;
+    fbFont(g, "500", 17, "2.6px", "mono");
+    g.textAlign = "left"; g.fillStyle = accent; g.fillText(fbRole(s), 540, 232);
+    var hb = fbText(g, "600", s.line, 540, 290, 430, 62, 40, 4, ink, "left", 1.2, "-1.4px", "serif");
+    if(s.sub) fbText(g, "400", s.sub, 96, 780, W - 192, 27, 21, 3, sub, "left", 1.5);
+    g.fillStyle = hair; g.fillRect(96, 990, W - 192, 1);
+    metaRow("DATE", fbStamp(), 96, 1040, W - 192);
+    metaRow("TYPE", "일상 기록", 96, 1102, W - 192);
+    metaRow("NOTE", String(s.role || ""), 96, 1164, W - 192);
+    fbFont(g, "500", 16, "2.4px", "mono");
+    g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbHandle(), 96, H - 96);
+    g.restore();
+  }
+
+  /* ================================================================ 11 스티커 스크랩 */
+  function fbSticker(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var bg = t.dark ? "#1A1712" : "#F8F1E4";
+    var ink = t.dark ? "#F7F0E0" : "#26201A";
+    var sub = t.dark ? "rgba(247,240,224,.60)" : "#6F6557";
+    var accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.fillStyle = t.dark ? "rgba(255,255,255,.06)" : "rgba(38,32,26,.08)";
+    for(var dy = 30; dy < H; dy += 44) for(var dx = 30; dx < W; dx += 44){ g.beginPath(); g.arc(dx, dy, 1.8, 0, Math.PI * 2); g.fill(); }
+
+    function tape(x, y, w, deg){
+      g.save(); g.translate(x, y); g.rotate(deg * Math.PI / 180);
+      g.fillStyle = t.dark ? "rgba(255,255,255,.20)" : "rgba(255,252,240,.72)";
+      g.fillRect(-w / 2, -18, w, 36);
+      g.fillStyle = t.dark ? "rgba(255,255,255,.08)" : "rgba(38,32,26,.05)";
+      g.fillRect(-w / 2, -18, w, 5);
+      g.restore();
+    }
+    if(last){
+      g.fillStyle = accent;
+      g.beginPath(); g.arc(W / 2, 420, 210, 0, Math.PI * 2); g.fill();
+      fbFont(g, "600", 26, "3px", "mono");
+      g.textAlign = "center"; g.fillStyle = fbOn(accent);
+      g.fillText("다음에 또", W / 2, 400);
+      g.fillText("만나요", W / 2, 436);
+      fbSparks(g, W / 2 - 250, 330, 22, accent);
+      fbSparks(g, W / 2 + 250, 520, 18, accent);
+      var hq = fbText(g, "600", s.line, 90, 720, W - 180, 72, 46, 3, ink, "center", 1.24, "-1.6px");
+      if(s.sub) fbText(g, "400", s.sub, 120, 720 + hq + 34, W - 240, 27, 21, 3, sub, "center", 1.5);
+      fbWavy(g, W / 2 - 90, 720 + hq - 12, 180, withAlpha(accent, .9), 6);
+      fbFont(g, "500", 19, "2.4px", "mono");
+      g.textAlign = "center"; g.fillStyle = sub;
+      g.fillText("저장  ·  " + fbHandle(), W / 2, H - 100);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      g.save();
+      g.translate(390, 470); g.rotate(2.4 * Math.PI / 180);
+      g.shadowColor = "rgba(40,30,20,.28)"; g.shadowBlur = 26; g.shadowOffsetY = 12;
+      g.fillStyle = t.dark ? "#2A251E" : "#FFFFFF";
+      g.fillRect(-292, -352, 584, 704);
+      g.restore();
+      if(fbHas(s)){
+        fbPhoto(g, v, s, 112, 132, 560, 680, 0, 2.4 * Math.PI / 180);
+      } else {
+        g.save();
+        g.translate(392, 472); g.rotate(2.4 * Math.PI / 180);
+        fbFont(g, "500", 40, "0px", "mono");
+        g.textAlign = "center"; g.fillStyle = withAlpha(ink, .78);
+        g.fillText("오늘의 기록", 0, -10);
+        g.fillStyle = withAlpha(accent, .8); g.fillRect(-90, 18, 180, 3);
+        g.restore();
+      }
+      tape(330, 128, 190, -3);
+      g.save(); g.translate(790, 262); g.rotate(-9 * Math.PI / 180);
+      g.fillStyle = accent; g.beginPath(); g.arc(0, 0, 96, 0, Math.PI * 2); g.fill();
+      g.restore();
+      fbFont(g, "600", 20, "1.6px", "mono");
+      g.textAlign = "center"; g.fillStyle = fbOn(accent);
+      g.fillText(String(s.role || "").slice(0, 6), 790, 268);
+      var h1 = fbText(g, "600", s.line, 86, 900, 880, 74, 46, 3, ink, "left", 1.2, "-1.8px");
+      fbWavy(g, 92, 900 + h1 - 10, 300, withAlpha(accent, .85), 6);
+      if(s.sub) fbText(g, "400", s.sub, 86, 900 + h1 + 40, 760, 27, 21, 2, sub, "left", 1.5);
+      g.save(); g.translate(W - 150, H - 150); g.rotate(-7 * Math.PI / 180);
+      g.strokeStyle = withAlpha(accent, .9); g.lineWidth = 3;
+      roundRect(g, -110, -40, 220, 80, 10); g.stroke();
+      fbFont(g, "600", 22, "2px", "mono");
+      g.textAlign = "center"; g.fillStyle = accent; g.fillText(fbStamp(), 0, 8);
+      g.restore();
+      fbFont(g, "500", 17, "2.2px", "mono");
+      g.textAlign = "left"; g.fillStyle = sub; g.fillText(fbHandle(), 86, H - 66);
+      g.restore(); return;
+    }
+    g.save();
+    g.translate(300, 430); g.rotate(-2.2 * Math.PI / 180);
+    g.shadowColor = "rgba(40,30,20,.24)"; g.shadowBlur = 22; g.shadowOffsetY = 10;
+    g.fillStyle = t.dark ? "#2A251E" : "#FFFFFF";
+    g.fillRect(-230, -272, 460, 544);
+    g.restore();
+    if(fbHas(s)){
+      fbPhoto(g, v, s, 80, 172, 440, 516, 0, -2.2 * Math.PI / 180);
+    } else {
+      g.save();
+      g.translate(300, 430); g.rotate(-2.2 * Math.PI / 180);
+      fbFont(g, "500", 34, "0px", "mono");
+      g.textAlign = "center"; g.fillStyle = withAlpha(ink, .74);
+      g.fillText("한 장 메모", 0, -6);
+      g.fillStyle = withAlpha(accent, .8); g.fillRect(-70, 16, 140, 3);
+      g.restore();
+    }
+    tape(250, 166, 150, 2);
+    g.save(); g.translate(636, 210); g.rotate(6 * Math.PI / 180);
+    g.fillStyle = accent; roundRect(g, -34, -34, 300, 68, 34); g.fill();
+    fbFont(g, "600", 22, "1px", "mono");
+    g.textAlign = "left"; g.fillStyle = fbOn(accent);
+    g.fillText(String(s.role || "기록").slice(0, 8), 8, 9);
+    g.restore();
+    var hb = fbText(g, "600", s.line, 560, 330, 440, 62, 40, 5, ink, "left", 1.24, "-1.2px");
+    fbWavy(g, 566, 330 + hb - 10, 240, withAlpha(accent, .8), 5);
+    if(s.sub) fbText(g, "400", s.sub, 560, 330 + hb + 30, 430, 26, 20, 4, sub, "left", 1.5);
+    fbFont(g, "500", 17, "2px", "mono");
+    g.textAlign = "left"; g.fillStyle = sub;
+    g.fillText(fbStamp() + "  ·  " + fbNum(idx, total), 560, 1080);
+    g.fillText(fbHandle(), 560, 1120);
+    if(fbHas(s)) tape(880, 1082, 120, -4);
+    g.restore();
+  }
+
+  /* ================================================================ 12 인용 카드 */
+  function fbQuote(g, v, cfg, s, idx, total){
+    var t = fbTone(v), W = TWD, H = THT, last = (idx === total - 1);
+    var paper = t.dark ? "#141210" : "#F6F1E6";
+    var ink = t.dark ? "#F7F2E6" : "#191510";
+    var sub = t.dark ? "rgba(247,242,230,.58)" : "#6E6355";
+    var accent = t.accent;
+    g.save(); g.textBaseline = "alphabetic";
+
+    function mark(x, y, color, size){
+      fbFont(g, "600", size, "0px", "serif");
+      g.textAlign = "left"; g.fillStyle = color;
+      g.fillText("“", x, y);
+    }
+    if(last){
+      g.fillStyle = accent; g.fillRect(0, 0, W, H);
+      mark(96, 300, "rgba(255,255,255,.35)", 300);
+      var hq = fbText(g, "600", s.line, 120, 460, W - 240, 76, 46, 4, "#FFFFFF", "center", 1.28, "-1.2px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 150, 460 + hq + 44, W - 300, 27, 21, 3, "rgba(255,255,255,.82)", "center", 1.5);
+      g.fillStyle = "rgba(255,255,255,.85)"; g.fillRect(W / 2 - 30, H - 330, 60, 2);
+      fbFont(g, "500", 20, "3px", "mono");
+      g.textAlign = "center"; g.fillStyle = "#FFFFFF";
+      g.fillText("저장  ·  " + fbHandle(), W / 2, H - 260);
+      g.restore(); return;
+    }
+    if(idx === 0){
+      fbPhoto(g, v, s, 0, 0, W, H, 0);
+      g.fillStyle = withAlpha(paper, .82); g.fillRect(0, 0, W, H);
+      mark(88, 300, withAlpha(ink, .16), 320);
+      fbFont(g, "500", 17, "3.4px", "mono");
+      g.textAlign = "center"; g.fillStyle = accent;
+      g.fillText("릴리의 리스트  ·  " + fbStamp(), W / 2, 150);
+      var h1 = fbText(g, "600", s.line, 120, 430, W - 240, 82, 50, 4, ink, "center", 1.3, "-1.4px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 150, 430 + h1 + 44, W - 300, 28, 22, 3, sub, "center", 1.5);
+      g.fillStyle = withAlpha(accent, .9); g.fillRect(W / 2 - 40, H - 260, 80, 3);
+      fbFont(g, "500", 18, "2.6px", "mono");
+      g.textAlign = "center"; g.fillStyle = sub;
+      g.fillText(fbHandle(), W / 2, H - 190);
+      g.restore(); return;
+    }
+    /* 본문 — 크림 바탕 + 아래 사진 띠 */
+    g.fillStyle = paper; g.fillRect(0, 0, W, H);
+    mark(70, 330, withAlpha(ink, .12), 300);
+    fbFont(g, "500", 17, "3.2px", "mono");
+    g.textAlign = "center"; g.fillStyle = accent;
+    g.fillText(fbRole(s) + "  ·  " + fbNum(idx, total), W / 2, 170);
+    var hb = fbText(g, "600", s.line, 120, 400, W - 240, 70, 44, 4, ink, "center", 1.28, "-1px", "serif");
+    if(s.sub) fbText(g, "400", s.sub, 150, 400 + hb + 40, W - 300, 26, 21, 3, sub, "center", 1.5);
+    g.fillStyle = withAlpha(accent, .8); g.fillRect(W / 2 - 26, 400 + hb + 8, 52, 2);
+    if(fbHas(s)) fbPhoto(g, v, s, 120, H - 380, W - 240, 280, 4);
+    fbFont(g, "500", 16, "2.4px", "mono");
+    g.textAlign = "center"; g.fillStyle = sub;
+    g.fillText(fbHandle(), W / 2, H - 56);
+    g.restore();
+  }
+
+  /* ---------- 디스패치 ---------- */
+  function drawFeedCard(g, v, cfg, s, idx, total, forceKey){
+    var th = forceKey || feedThemeOf(v);
     s = s || { line: "", sub: "", scene: "" };
     total = total || 5;
-    if(th === "paper") return drawFeedPaper(g, v, cfg, s, idx, total);
-    if(th === "dark") return drawFeedDark(g, v, cfg, s, idx, total);
-    if(th === "bold") return drawFeedBold(g, v, cfg, s, idx, total);
-    if(th === "polaroid") return drawFeedPolaroid(g, v, cfg, s, idx, total);
-    return drawFeedMagazine(g, v, cfg, s, idx, total);
+    g.save();
+    g.textAlign = "left"; g.textBaseline = "alphabetic";
+    g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)"; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
+    try {
+      if(th === "cream") return fbCream(g, v, cfg, s, idx, total);
+      if(th === "bento") return fbBento(g, v, cfg, s, idx, total);
+      if(th === "memo") return fbMemo(g, v, cfg, s, idx, total);
+      if(th === "swiss") return fbSwiss(g, v, cfg, s, idx, total);
+      if(th === "news") return fbNews(g, v, cfg, s, idx, total);
+      if(th === "poster") return fbPoster(g, v, cfg, s, idx, total);
+      if(th === "cine") return fbCine(g, v, cfg, s, idx, total);
+      if(th === "film") return fbFilm(g, v, cfg, s, idx, total);
+      if(th === "archive") return fbArchive(g, v, cfg, s, idx, total);
+      if(th === "sticker") return fbSticker(g, v, cfg, s, idx, total);
+      if(th === "quote") return fbQuote(g, v, cfg, s, idx, total);
+      return fbEditorial(g, v, cfg, s, idx, total);
+    } finally { g.restore(); }
   }
 
-  /* 점검구(테스트용, 앱 동작에는 안 씀) */
+  /* 점검구 — 테스트·디자인 미리보기가 쓴다 */
   try {
-    window.AriaFeed = { themes: FEED_THEMES, themeOf: feedThemeOf, setTheme: setFeedTheme,
-                        slides: function(id){ var v = getEffectiveIdea(id, "feed"); return v; } };
+    window.AriaFeed = {
+      themes: FEED_THEMES,
+      themeOf: feedThemeOf,
+      setTheme: setFeedTheme,
+      slides: function(id){ return getEffectiveIdea ? getEffectiveIdea(id, "feed") : null; },
+      /* key 디자인으로 i번째 장을 w×h 로 그려 dataURL 로 돌려준다 */
+      /* 조판 점검(테스트용) — 주어진 폭에서 실제로 몇 px 로 몇 줄이 되는지 */
+      fit: function(txt, maxW, size, minSize, maxLines, weight, fam){
+        var v = viewOfSel(); if(v) setLook(v);
+        var c = document.createElement("canvas"); c.width = 1080; c.height = 1350;
+        var g = c.getContext("2d");
+        var f = fbFit(g, weight || "600", txt, maxW, size, minSize, maxLines, fam);
+        fbFont(g, weight || "600", f.size, "0px", fam);
+        return { size: f.size, lines: f.lines.map(function(l){ return l.text + " (" + Math.round(g.measureText(l.text).width) + ")"; }) };
+      },
+      render: function(key, i, w, h){
+        var v = viewOfSel(); if(!v) return "";
+        var cfg = threadCfg(v), total = feedSlideCount(v);
+        var idx = Math.max(0, Math.min(total - 1, i || 0));
+        var c = document.createElement("canvas");
+        c.width = w || TWD; c.height = h || THT;
+        var g = c.getContext("2d");
+        g.scale(c.width / TWD, c.height / THT);
+        drawFeedCard(g, v, cfg, feedSlideAt(v, cfg, idx), idx, total, key);
+        try { return c.toDataURL("image/jpeg", 0.9); } catch(e){ return ""; }
+      }
+    };
   } catch(e){}
+
 
 /* ==========================================================================
    v1.8.5 — 주간 플래너(월~일) + 오늘 동향 추천
@@ -10937,6 +11850,172 @@ var AiriaMp4 = (function(){
   }, 60);
 })();
 
+  /* ==========================================================================
+     v1.15 (빌드 39) — 카드뉴스 디자인 피커 (12종 한눈에 · 눌러서 바로 적용)
+
+       · 지금 고른 대본의 '표지'를 각 디자인으로 실제 렌더한 미리보기를 카드에 넣는다.
+       · 카드를 누르면 즉시 전환(덱·큰 미리보기·저장/공유 모두 같은 디자인으로).
+       · 분류 칩(전체/매거진/미니멀/타이포/다크/아트)으로 좁혀 볼 수 있다.
+       · 옛 #feedThemeBar 자리를 그대로 쓴다(테스트·다른 코드가 이 id 를 본다).
+     ========================================================================== */
+  var FT_PREVIEW_CACHE = {};
+  var FT_FILTER = "전체";
+  var FT_REPAINT = 0;
+
+  function feedThemePreview(v, key){
+    var total = 0, s0 = null;
+    try { total = feedSlideCount(v); s0 = feedSlideAt(v, threadCfg(v), 0); } catch(e){ return ""; }
+    var sig = String((s0 && s0.line) || "") + "|" + String((s0 && s0.sub) || "") + "|" + total;
+    var ck = String(v.id) + "|" + key + "|" + sig;
+    if(FT_PREVIEW_CACHE[ck]) return FT_PREVIEW_CACHE[ck];
+    var du = "";
+    try { du = window.AriaFeed && AriaFeed.render ? AriaFeed.render(key, 0, 216, 270) : ""; } catch(e){ du = ""; }
+    FT_PREVIEW_CACHE[ck] = du;
+    return du;
+  }
+
+  function renderFeedThemeBar(){
+    var v = null;
+    try { v = viewOfSel(); } catch(e){ v = null; }
+    if(!v || plat !== "feed") return;
+    var deck = document.getElementById("feedDeck");
+    if(!deck) return;
+    var bar = document.getElementById("feedThemeBar");
+    if(!bar){
+      bar = document.createElement("div");
+      bar.className = "ft-picker";
+      bar.id = "feedThemeBar";
+      deck.parentNode.insertBefore(bar, deck);
+    }
+    var cur = "editorial";
+    try { cur = feedThemeOf(v); } catch(e){}
+    /* 장면 사진이 아직 안 실렸으면 미리보기가 빈 색면으로 나온다 — 실린 뒤 한 번 다시 그린다 */
+    var photoReady = true;
+    try {
+      var s0 = feedSlideAt(v, threadCfg(v), 0);
+      var im0 = s0 ? feedSceneImg(v, s0) : null;
+      photoReady = !s0 || !(s0.scene || s0.data) || !!(im0 && im0.complete && im0.naturalWidth);
+    } catch(e){ photoReady = true; }
+    var cats = ["전체"], i;
+    for(i = 0; i < FEED_THEMES.length; i++){
+      if(cats.indexOf(FEED_THEMES[i].cat) < 0) cats.push(FEED_THEMES[i].cat);
+    }
+    var html = '<div class="ft-head"><b>카드뉴스 디자인</b>' +
+      '<span>' + FEED_THEMES.length + '종 · 지금 대본 표지로 미리보기 · 누르면 바로 적용</span></div>' +
+      '<div class="ft-cats">';
+    for(i = 0; i < cats.length; i++){
+      html += '<button type="button" class="ft-cat' + (cats[i] === FT_FILTER ? " on" : "") +
+        '" data-ft-cat="' + esc(cats[i]) + '">' + esc(cats[i]) + '</button>';
+    }
+    html += '</div><div class="ft-grid">';
+    for(i = 0; i < FEED_THEMES.length; i++){
+      var th = FEED_THEMES[i];
+      if(FT_FILTER !== "전체" && th.cat !== FT_FILTER) continue;
+      var img = feedThemePreview(v, th.key);
+      html += '<button type="button" class="ft-item' + (th.key === cur ? " on" : "") + '" data-feed-theme="' + th.key +
+        '" aria-pressed="' + (th.key === cur ? "true" : "false") + '" title="' + esc(th.note) + '">' +
+        '<span class="ft-thumb">' +
+          (img ? '<img alt="" src="' + img + '">' : '<span class="ft-noimg"></span>') +
+          (th.key === cur ? '<b class="ft-on">적용됨</b>' : "") +
+        '</span>' +
+        '<span class="ft-name">' + esc(th.label) + '</span>' +
+        '<span class="ft-cat-tag">' + esc(th.cat) + '</span>' +
+        '<span class="ft-note">' + esc(th.note) + '</span>' +
+      '</button>';
+    }
+    html += '</div>';
+    bar.innerHTML = html;
+    if(!photoReady && FT_REPAINT < 4){
+      FT_REPAINT++;
+      setTimeout(function(){
+        FT_PREVIEW_CACHE = {};
+        try { renderFeedThemeBar(); } catch(e){}
+      }, 700);
+    }
+  }
+
+  function ftCss(){
+    if(document.getElementById("v39-css")) return;
+    var st = document.createElement("style");
+    st.id = "v39-css";
+    st.textContent = [
+      "#feedThemeBar{display:block !important;width:100% !important;max-width:100% !important;box-sizing:border-box;",
+      "  background:#FFFFFF;border:1px solid #EAE6DE;border-radius:18px;padding:14px 12px 12px;margin:0 0 12px;height:auto !important}",
+      "#feedThemeBar .ft-head{display:flex !important;flex-direction:column !important;gap:3px;margin:0 2px 10px;width:auto !important}",
+      "#feedThemeBar .ft-head b{font-size:14.5px;letter-spacing:-.3px;color:#1D1A16}",
+      "#feedThemeBar .ft-head span{font-size:11.5px;color:#8A8378;line-height:1.45}",
+      "#feedThemeBar .ft-cats{display:flex !important;flex-direction:row !important;align-items:flex-start !important;",
+      "  gap:6px;overflow-x:auto;overflow-y:hidden;padding:0 0 10px;height:auto !important;width:100% !important;",
+      "  -webkit-overflow-scrolling:touch}",
+      "#feedThemeBar .ft-cat{display:inline-flex !important;align-items:center;justify-content:center;",
+      "  width:auto !important;height:auto !important;min-height:0 !important;flex:0 0 auto !important;",
+      "  font:inherit;font-size:11.5px;line-height:1.2;padding:6px 11px;border-radius:999px;white-space:nowrap;",
+      "  border:1px solid #E4DFD6;background:#FBFAF6;color:#5B544A;cursor:pointer}",
+      "#feedThemeBar .ft-cat.on{background:#1F1A15;color:#fff;border-color:#1F1A15}",
+      "#feedThemeBar .ft-grid{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;",
+      "  gap:12px 8px;width:100% !important;height:auto !important}",
+      "#feedThemeBar .ft-item{display:flex !important;flex-direction:column !important;align-items:stretch !important;",
+      "  gap:2px;padding:0 !important;border:0 !important;background:none !important;text-align:left;",
+      "  font:inherit;cursor:pointer;border-radius:12px;min-width:0 !important;width:100% !important;height:auto !important;",
+      "  box-shadow:none !important}",
+      "#feedThemeBar .ft-thumb{position:relative;display:block !important;border-radius:10px;overflow:hidden;background:#F1ECE2;",
+      "  box-shadow:0 0 0 1px rgba(31,26,21,.10);aspect-ratio:4/5;width:100% !important;height:auto !important}",
+      "#feedThemeBar .ft-thumb img{display:block !important;width:100% !important;height:100% !important;object-fit:cover;position:absolute;inset:0}",
+      "#feedThemeBar .ft-item.on .ft-thumb{box-shadow:0 0 0 2.5px #1F1A15,0 4px 12px rgba(31,26,21,.18)}",
+      "#feedThemeBar .ft-on{position:absolute;left:5px;bottom:5px;font-size:9px;font-weight:700;letter-spacing:.2px;",
+      "  background:#1F1A15;color:#fff;padding:3px 6px;border-radius:6px}",
+      "#feedThemeBar .ft-name{display:block !important;font-size:12px;font-weight:700;color:#221E19;letter-spacing:-.2px;",
+      "  margin-top:6px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+      "#feedThemeBar .ft-cat-tag{display:block !important;font-size:9.5px;color:#A39A8B;letter-spacing:.3px}",
+      "#feedThemeBar .ft-note{display:block !important;font-size:10px;color:#7A7367;line-height:1.35;white-space:normal !important;",
+      "  overflow-wrap:anywhere;word-break:keep-all;text-overflow:clip !important}",
+      "@media (min-width:560px){#feedThemeBar .ft-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important}}"
+    ].join("\n");
+    document.head.appendChild(st);
+  }
+
+  function ftBind(){
+    var bar = document.getElementById("feedThemeBar");
+    if(!bar || bar.getAttribute("data-bound")) return;
+    bar.setAttribute("data-bound", "1");
+    bar.addEventListener("click", function(e){
+      var t = e.target && e.target.closest ? e.target.closest("[data-ft-cat]") : null;
+      if(!t) return;
+      e.preventDefault();
+      FT_FILTER = t.getAttribute("data-ft-cat") || "전체";
+      try { renderFeedThemeBar(); } catch(err){}
+    });
+  }
+
+  setTimeout(function(){
+    try { ftCss(); } catch(e){}
+    try { ftBind(); } catch(e){}
+    try { renderFeedThemeBar(); } catch(e){}
+    /* 대본을 바꾸거나 저장할 때마다 미리보기를 새로 그린다 */
+    if(typeof renderThreadAll === "function"){
+      var _rta3 = renderThreadAll;
+      renderThreadAll = function(){
+        var r = _rta3.apply(null, arguments);
+        try { ftBind(); renderFeedThemeBar(); } catch(e){}
+        return r;
+      };
+    }
+  }, 70);
+
+  /* 점검구(테스트용) */
+  try {
+    window.AriaFeedUI = {
+      count: function(){ return FEED_THEMES.length; },
+      filter: function(c){ FT_FILTER = c || "전체"; renderFeedThemeBar(); },
+      current: function(){ try { return feedThemeOf(viewOfSel()); } catch(e){ return ""; } },
+      visible: function(){
+        return Array.prototype.map.call(document.querySelectorAll("#feedThemeBar [data-feed-theme]"), function(b){
+          return b.getAttribute("data-feed-theme");
+        });
+      }
+    };
+  } catch(e){}
+
 /* ==========================================================================
    v1.8 — 오늘의 골든타임 바 (오늘 요약 · 쇼츠·릴스 상단)
      · 유입이 많은 시간대 + 오늘 추천 콘티 1줄 + [바로 올리기 →]
@@ -11204,7 +12283,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 38;
+  var OTA_APP_BUILD = 39;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
