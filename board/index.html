@@ -10207,7 +10207,7 @@ var AiriaMp4 = (function(){
       fbPic(g, v, s, x - 24, y - 24, w + 48, h + 48, 0, { zoom: 1.16 });
       try { g.filter = "none"; } catch(e){}
     }
-    g.fillStyle = tone || "rgba(9,14,40,.46)"; g.fillRect(x, y, w, h);
+    g.fillStyle = tone || "rgba(6,22,48,.46)"; g.fillRect(x, y, w, h);
     var gr = g.createLinearGradient(x, y, x + w, y + h);
     gr.addColorStop(0, "rgba(255,255,255,.26)");
     gr.addColorStop(.44, "rgba(255,255,255,.05)");
@@ -10459,9 +10459,9 @@ var AiriaMp4 = (function(){
     g.save(); g.textBaseline = "alphabetic"; g.textAlign = "left"; g.shadowBlur = 0;
     if(has){
       fbPic(g, v, s, 0, 0, W, H, 0, { zoom: 1.04 });
-      fbWash(g, "#20359A", "multiply", 0, 0, W, H, .34);
+      fbWash(g, "#0B4A8C", "multiply", 0, 0, W, H, .34);
       g.save(); g.globalCompositeOperation = "screen";
-      fbGlow(g, "#7CE0FF", W * .35, H * .18, W * .70, .26); g.restore();
+      fbGlow(g, "#6EE7FF", W * .30, H * .16, W * .72, .34); g.restore();
     } else {
       fbMesh(g, W, H, ["#5C6BFF", "#8FE3FF", "#C7A8FF", "#FFB6DA", "#4451FF", "#A8E4FF"]);
       fbGlow(g, "#FFFFFF", W * .25, H * .30, W * .55, .45);
