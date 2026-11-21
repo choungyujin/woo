@@ -12596,6 +12596,8 @@ var AiriaMp4 = (function(){
       ? putVideo(p.video.file, p.video.name, p.video.dur)
       : Promise.resolve(null);
     return vidPut.then(function(vrec){
+      /* 새로 고른 파일을 저장하지 못했으면(용량·권한) 빈 항목을 만들지 않고 실패로 알린다 */
+      if(p.video && !p.video.existing && p.video.file && !vrec) throw new Error("video");
       if(vrec){
         base.video = vrec;
       } else if(p.dropVideo){
