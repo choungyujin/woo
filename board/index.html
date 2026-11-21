@@ -10325,28 +10325,30 @@ var AiriaMp4 = (function(){
   }
   function fbChromeText(g, weight, txt, x, y, maxW, size, minSize, maxLines, lh, ls, fam, align){
     var L = fbLayout(g, weight, txt, maxW, size, minSize, maxLines, lh, fam);
-    var gr = g.createLinearGradient(0, y - L.size * .82, 0, y + (L.lines.length - 1) * L.step + L.size * .2);
-    gr.addColorStop(0, "#FFFFFF"); gr.addColorStop(.16, "#DDE3EA"); gr.addColorStop(.40, "#8E97A3");
-    gr.addColorStop(.50, "#2F353D"); gr.addColorStop(.58, "#C9D0D8"); gr.addColorStop(.80, "#F4F7FA");
-    gr.addColorStop(1, "#98A1AC");
     fbFont(g, weight, L.size, ls, fam);
     var tx = x;
     if(align === "center") tx = x + maxW / 2; else if(align === "right") tx = x + maxW;
     g.textAlign = align || "left";
     for(var i = 0; i < L.lines.length; i++){
       var ty = y + i * L.step;
-      /* 1패스: 아이스 글로우 + 어두운 밑글자(외곽선 대신 깊이를 만든다) */
-      try { g.shadowColor = "rgba(158,231,255,.75)"; g.shadowBlur = 26; } catch(e){}
-      g.fillStyle = "rgba(24,12,50,.92)";
-      g.fillText(L.lines[i].text, tx, ty);
+      /* 줄마다 실버 밴드를 새로 만든다 — 한 줄 안에서 밝음→어두움→밝음이 보이게 */
+      var lg = g.createLinearGradient(0, ty - L.size * .86, 0, ty + L.size * .24);
+      lg.addColorStop(0, "#FFFFFF"); lg.addColorStop(.14, "#E8EEF5"); lg.addColorStop(.38, "#8E97A3");
+      lg.addColorStop(.50, "#2B3038"); lg.addColorStop(.60, "#C9D0D8"); lg.addColorStop(.82, "#FFFFFF");
+      lg.addColorStop(1, "#9AA3AE");
+      /* 1패스: 아이스 글로우 + 짙은 밑글자 */
+      try { g.shadowColor = "rgba(158,231,255,.85)"; g.shadowBlur = 28; } catch(e){}
+      g.fillStyle = "rgba(20,10,44,.96)";
+      g.fillText(L.lines[i].text, tx, ty + Math.max(2, L.size * .035));
       g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)";
-      /* 2패스: 실버 그라데이션 */
-      g.fillStyle = gr;
+      /* 2패스: 실버 크롬 */
+      g.fillStyle = lg;
       g.fillText(L.lines[i].text, tx, ty);
     }
     g.textAlign = "left";
     return L;
   }
+
   /* 회전은 라디안 — 각도(deg)를 넘기면 여기서 변환한다 */
   function fbSticker(g, txt, x, y, deg, bg, fg, size){
     g.save();
