@@ -10274,8 +10274,16 @@ var AiriaMp4 = (function(){
     }
 
     if(last){
-      /* 마지막 — 사진 아래 크림 패널에 중앙 정렬 인용 */
-      fbPhoto(g, v, s, 0, 0, W, 720, 0);
+      /* 마지막 — 사진 아래 크림 패널에 중앙 정렬 인용 (사진 없으면 위도 종이) */
+      if(fbHas(s)){
+        fbPhoto(g, v, s, 0, 0, W, 720, 0);
+      } else {
+        g.fillStyle = paper; g.fillRect(0, 0, W, 720);
+        g.fillStyle = t.hair; g.fillRect(84, 112, W - 168, 1);
+        fbFont(g, "500", 19, "3.2px", "mono");
+        g.textAlign = "left"; g.fillStyle = accent;
+        g.fillText("CLOSING", 84, 86);
+      }
       g.fillStyle = paper; g.fillRect(0, 720, W, H - 720);
       fbFont(g, "500", 19, "3.2px", "mono");
       g.textAlign = "center"; g.fillStyle = accent;
@@ -10358,15 +10366,16 @@ var AiriaMp4 = (function(){
 
     if(last){
       g.fillStyle = accent; g.fillRect(0, 0, W, H);
+      var onA = fbOn(accent);
       fbFont(g, "500", 19, "3px", "mono");
-      g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.72)";
+      g.textAlign = "left"; g.fillStyle = withAlpha(onA, .70);
       g.fillText("마지막 장", 84, 120);
-      g.fillStyle = "rgba(255,255,255,.55)"; g.fillRect(84, 148, W - 168, 1);
-      var hc = fbText(g, "600", s.line, 84, 300, W - 168, 104, 62, 3, "#FFFFFF", "left", 1.1, "-4px");
-      if(s.sub) fbText(g, "400", s.sub, 84, 300 + hc + 40, W - 260, 30, 23, 3, "rgba(255,255,255,.82)", "left", 1.5);
-      g.fillStyle = "rgba(255,255,255,.9)"; g.fillRect(84, H - 200, 72, 2);
+      g.fillStyle = withAlpha(onA, .45); g.fillRect(84, 148, W - 168, 1);
+      var hc = fbText(g, "600", s.line, 84, 300, W - 168, 104, 62, 3, onA, "left", 1.1, "-4px");
+      if(s.sub) fbText(g, "400", s.sub, 84, 300 + hc + 40, W - 260, 30, 23, 3, withAlpha(onA, .82), "left", 1.5);
+      g.fillStyle = withAlpha(onA, .90); g.fillRect(84, H - 200, 72, 2);
       fbFont(g, "500", 20, "2.6px", "mono");
-      g.fillStyle = "#FFFFFF"; g.textAlign = "left";
+      g.fillStyle = onA; g.textAlign = "left";
       g.fillText("저장해 두기  ·  " + fbHandle(), 84, H - 150);
       g.restore(); return;
     }
@@ -10436,13 +10445,18 @@ var AiriaMp4 = (function(){
 
     if(last){
       cardBox(M, M, CW, H - M * 2, accent);
-      g.fillStyle = "rgba(255,255,255,.16)"; roundRect(g, M + 30, M + 30, 150, 44, 22); g.fill();
-      label("마지막", M + 54, M + 59, "#FFFFFF", 17);
-      var hl = fbText(g, "600", s.line, M + 44, M + 330, CW - 88, 84, 52, 3, "#FFFFFF", "left", 1.16, "-2.6px");
-      if(s.sub) fbText(g, "400", s.sub, M + 46, M + 330 + hl + 40, CW - 120, 28, 22, 3, "rgba(255,255,255,.86)", "left", 1.5);
-      cardBox(M + 44, H - 330, CW - 88, 190, "rgba(255,255,255,.16)", 22);
-      label("저장  ·  " + fbHandle(), M + 74, H - 240, "#FFFFFF", 19);
-      label(fbStamp(), M + 74, H - 196, "rgba(255,255,255,.75)", 17);
+      var onB = fbOn(accent);
+      g.fillStyle = withAlpha(onB, .14); roundRect(g, M + 30, M + 30, 150, 44, 22); g.fill();
+      label("마지막", M + 54, M + 59, onB, 17);
+      var mH = fbMeasure(g, "600", s.line, CW - 88, 84, 52, 3, 1.16);
+      var mS = s.sub ? fbMeasure(g, "400", s.sub, CW - 120, 28, 22, 3, 1.5) : { h: 0 };
+      var blk = mH.h + (s.sub ? mS.h + 40 : 0);
+      var yBlk = Math.max(M + 150, Math.round((H - 330 + M + 120 - blk) / 2));
+      var hl = fbText(g, "600", s.line, M + 44, yBlk, CW - 88, 84, 52, 3, onB, "left", 1.16, "-2.6px");
+      if(s.sub) fbText(g, "400", s.sub, M + 46, yBlk + hl + 40, CW - 120, 28, 22, 3, withAlpha(onB, .84), "left", 1.5);
+      cardBox(M + 44, H - 330, CW - 88, 190, withAlpha(onB, .14), 22);
+      label("저장  ·  " + fbHandle(), M + 74, H - 240, onB, 19);
+      label(fbStamp(), M + 74, H - 196, withAlpha(onB, .75), 17);
       g.restore(); return;
     }
     if(idx === 0){
@@ -10874,7 +10888,15 @@ var AiriaMp4 = (function(){
     function tc(i){ return "00:" + ("0" + (i * 8 + 4)).slice(-2) + ":12"; }
 
     if(last){
-      fbPhoto(g, v, s, 0, 0, W, 420, 0);
+      if(fbHas(s)) fbPhoto(g, v, s, 0, 0, W, 420, 0);
+      else {
+        var cg3 = g.createRadialGradient(W * 0.5, 200, 30, W * 0.5, 200, 520);
+        cg3.addColorStop(0, withAlpha(accent, .26)); cg3.addColorStop(1, "rgba(8,8,10,0)");
+        g.fillStyle = cg3; g.fillRect(0, 0, W, 440);
+        fbFont(g, "600", 200, "-10px", "mono");
+        g.textAlign = "center"; g.fillStyle = "rgba(255,255,255,.07)";
+        g.fillText(("0" + total).slice(-2), W / 2, 300);
+      }
       var gb = g.createLinearGradient(0, 260, 0, 420);
       gb.addColorStop(0, "rgba(8,8,10,0)"); gb.addColorStop(1, "rgba(8,8,10,1)");
       g.fillStyle = gb; g.fillRect(0, 260, W, 160);
@@ -11250,11 +11272,12 @@ var AiriaMp4 = (function(){
     if(last){
       g.fillStyle = accent; g.fillRect(0, 0, W, H);
       mark(96, 300, "rgba(255,255,255,.35)", 300);
-      var hq = fbText(g, "600", s.line, 120, 460, W - 240, 76, 46, 4, "#FFFFFF", "center", 1.28, "-1.2px", "serif");
-      if(s.sub) fbText(g, "400", s.sub, 150, 460 + hq + 44, W - 300, 27, 21, 3, "rgba(255,255,255,.82)", "center", 1.5);
-      g.fillStyle = "rgba(255,255,255,.85)"; g.fillRect(W / 2 - 30, H - 330, 60, 2);
+      var onQ = fbOn(accent);
+      var hq = fbText(g, "600", s.line, 120, 460, W - 240, 76, 46, 4, onQ, "center", 1.28, "-1.2px", "serif");
+      if(s.sub) fbText(g, "400", s.sub, 150, 460 + hq + 44, W - 300, 27, 21, 3, withAlpha(onQ, .82), "center", 1.5);
+      g.fillStyle = withAlpha(onQ, .85); g.fillRect(W / 2 - 30, H - 330, 60, 2);
       fbFont(g, "500", 20, "3px", "mono");
-      g.textAlign = "center"; g.fillStyle = "#FFFFFF";
+      g.textAlign = "center"; g.fillStyle = onQ;
       g.fillText("저장  ·  " + fbHandle(), W / 2, H - 260);
       g.restore(); return;
     }
