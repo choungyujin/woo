@@ -2,11 +2,11 @@
   "app": "아리아 소셜보드",
   "package": "com.arisia.socialboard",
   "version": "1.10",
-  "build": 39,
-  "sha256": "7f9f6fe2f61af59e3e879776d88ff3762f92731465153d471ab586d431a9cbfb",
-  "bytes": 12029048,
+  "build": 40,
+  "sha256": "a2b063854d9d48fc5ddf0c51ae383e4e71952292315548f039d0679842de3f51",
+  "bytes": 12036064,
   "body": "app.enc.json",
   "kdf": "PBKDF2-SHA256",
   "iter": 600000,
-  "updatedAt": "2026-11-21T11:30:28+09:00"
+  "updatedAt": "2026-11-21T12:06:13+09:00"
 }
