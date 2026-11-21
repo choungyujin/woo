@@ -1619,16 +1619,24 @@
   @media(min-width:680px) and (max-width:899px){ .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
   @media(min-width:900px){ .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))} }
   .kpi{
-    position:relative; padding:14px 14px 13px 58px; min-height:86px; margin:0;
+    position:relative; min-height:86px; margin:0;
+    display:grid; grid-template-columns:34px minmax(0,1fr); column-gap:10px;
+    grid-template-areas:"ico k" "ico v" "ico d"; align-content:center; align-items:start;
     border-radius:18px !important; border:1px solid rgba(255,255,255,.8) !important;
     background:linear-gradient(155deg,rgba(178,152,255,.72),rgba(255,255,255,.55)) !important;
     box-shadow:0 22px 38px -28px rgba(120,96,220,.95), inset 0 1px 0 rgba(255,255,255,.8);
   }
+  /* 2·3·4번 카드도 1번과 같은 아이콘+글자 배치: 기존 목록형 CSS(.kpi + .kpi 등)가
+     padding-left 를 덮어써도 아이콘 자리가 사라지지 않도록 그리드 안에서 자리를 잡는다. */
+  .kpi-grid > .kpi, .kpi-grid > .kpi + .kpi, .kpi-grid > .kpi:nth-child(even){padding:14px 14px 13px 14px}
   .kpi::before{
-    content:"👥"; position:absolute; left:13px; top:14px; width:32px; height:32px;
+    content:"👥"; grid-area:ico; align-self:start; position:static; width:32px; height:32px;
     display:grid; place-items:center; border-radius:11px; font-size:14px;
     background:rgba(255,255,255,.78); box-shadow:0 8px 16px -12px rgba(80,60,150,.9);
   }
+  .kpi .k{grid-area:k}
+  .kpi .v{grid-area:v}
+  .kpi .d{grid-area:d}
   .kpi:nth-child(2){background:linear-gradient(155deg,rgba(132,196,255,.72),rgba(255,255,255,.55)) !important;
     box-shadow:0 22px 38px -28px rgba(80,150,230,.95), inset 0 1px 0 rgba(255,255,255,.8)}
   .kpi:nth-child(2)::before{content:"🤝"}
@@ -1806,8 +1814,9 @@
     .today-hero{padding:16px;border-radius:20px !important}
     .today-hero h2{font-size:20px}
     .kpi-grid{gap:8px;margin-top:14px}
-    .kpi{padding:12px 12px 11px 46px;min-height:78px;border-radius:16px !important}
-    .kpi::before{left:10px;top:12px;width:26px;height:26px;border-radius:9px;font-size:12px}
+    .kpi-grid > .kpi, .kpi-grid > .kpi + .kpi, .kpi-grid > .kpi:nth-child(even){padding:12px;min-height:78px}
+    .kpi{grid-template-columns:28px minmax(0,1fr);column-gap:8px;border-radius:16px !important}
+    .kpi::before{width:26px;height:26px;border-radius:9px;font-size:12px}
     .kpi .v{font-size:20px}
     .toolbar{padding:10px 16px}
     .listhead{padding:10px 16px}
@@ -12994,7 +13003,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 41;
+  var OTA_APP_BUILD = 42;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -14840,7 +14849,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 41;
+    var BUILD = 42;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
