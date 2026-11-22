@@ -10728,7 +10728,8 @@ var AiriaMp4 = (function(){
     { key: "widget",   label: "위젯 다크",    note: "노포토 · iOS 위젯 카드 · 클린 다크 UI",          cat: "다크", photo: false },
     { key: "brutal",   label: "브루탈 키네틱", note: "노포토 · 차콜 + 형광 오렌지 · 초대형 활자",     cat: "다크", photo: false },
     { key: "mesh",     label: "메쉬 인용",    note: "노포토 · 라벤더·스카이 메쉬 그라데이션 인용",    cat: "아트", photo: false },
-    { key: "pixel",    label: "픽셀 아카이브", note: "노포토 · 딥네이비 그리드 · 모노 데이터",        cat: "아트", photo: false }
+    { key: "pixel",    label: "픽셀 아카이브", note: "노포토 · 딥네이비 그리드 · 모노 데이터",        cat: "아트", photo: false },
+    { key: "dotpop",   label: "도트 팝",      note: "코랄 도트 패턴 · 검정 필 · 형광 하이라이트 바", cat: "아트", photo: true }
   ];
   /* 옛 키는 새 디자인으로 이어 준다(저장된 값이 있어도 그대로 뜨게) */
   var FEED_THEME_ALIAS = {
@@ -12006,6 +12007,116 @@ var AiriaMp4 = (function(){
     g.restore();
   }
 
+  /* ================================================================ 12 도트 팝 (빌드 44 · 2026-11-22 레퍼런스) */
+  /* 2026-11-22 레퍼런스: 인스타 @aiscene.kr '1년 만든 게임이 출시 전에 베껴졌다' 9장 카드뉴스(13시간)
+     — 코랄 배경 + 흰 도트 패턴, 검정 라운드 필 라벨, 흰 헤드라인 아래 검정 바 위 형광 활자,
+       점선 스티커 메모, 흰 테두리로 붙인 스크린샷, '밀어서 보기 →' CTA.
+     기존 11종에 없는 조합(도트 패턴 + 중앙 필 + 형광 하이라이트 바)이라 새 디자인으로 넣는다. */
+  function fbDotPop(g, v, cfg, s, idx, total){
+    var W = TWD, H = THT, cover = (idx === 0), last = (idx === total - 1);
+    var BG = "#F0555F", INK = "#111111", ACC = "#FFD24A", WHITE = "#FFFFFF", SUB = "rgba(255,255,255,.88)";
+    g.save(); g.textBaseline = "alphabetic"; g.textAlign = "left"; g.shadowBlur = 0;
+    g.fillStyle = last ? "#141416" : BG; g.fillRect(0, 0, W, H);
+
+    /* 도트 패턴 */
+    g.fillStyle = last ? "rgba(240,85,95,.30)" : "rgba(255,255,255,.16)";
+    for(var yy = 26; yy < H; yy += 52){
+      for(var xx = 26 + (((yy / 52) | 0) % 2 ? 26 : 0); xx < W; xx += 52){
+        g.beginPath(); g.arc(xx, yy, 2.6, 0, Math.PI * 2); g.fill();
+      }
+    }
+
+    function pillCenter(txt, cy, size, bg, fg, padX, padY){
+      fbFont(g, "800", size, "1px", "gothic");
+      var tw = g.measureText(txt).width, w = tw + padX * 2, h = size + padY * 2;
+      g.fillStyle = bg; roundRect(g, (W - w) / 2, cy - h / 2, w, h, h / 2); g.fill();
+      g.fillStyle = fg; g.textAlign = "center"; g.fillText(txt, W / 2, cy + size * 0.36); g.textAlign = "left";
+      return w;
+    }
+    function head(txt, y, maxH, big){
+      var L = fbFitBox(g, "900", txt, W - 150, maxH, big || 160, 56, 3, 1.06, "gothic", true);
+      var n = L.lines.length;
+      fbFont(g, "900", L.size, "-2px", "gothic");
+      for(var i = 0; i < n; i++){
+        var t = L.lines[i].text, lw = g.measureText(t).width, ly = y + i * L.step;
+        if(i === n - 1){
+          g.fillStyle = INK;
+          g.fillRect(66, ly - L.size * 0.80, Math.min(W - 132, lw + 44), L.size * 1.02);
+        }
+        g.fillStyle = (i === n - 1) ? ACC : WHITE;
+        g.fillText(t, 88, ly);
+      }
+      return L.h;
+    }
+    function noteBox(x, y, w, h, txt, size){
+      g.save();
+      g.fillStyle = "rgba(255,255,255,.13)";
+      roundRect(g, x, y, w, h, 18); g.fill();
+      try { g.setLineDash([10, 8]); } catch(e){}
+      g.strokeStyle = "rgba(255,255,255,.78)"; g.lineWidth = 3;
+      roundRect(g, x, y, w, h, 18); g.stroke();
+      try { g.setLineDash([]); } catch(e){}
+      if(txt) fbText(g, "600", txt, x + 30, y + 62, w - 60, size || 32, 22, 4, WHITE, "left", 1.42);
+      g.restore();
+    }
+    function tail(rightText){
+      fbFont(g, "700", 22, "3px", "mono"); g.fillStyle = last ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.85)";
+      g.textAlign = "right"; g.fillText(rightText, W - 84, H - 64); g.textAlign = "left";
+    }
+
+    if(last){
+      fbFont(g, "700", 22, "4px", "mono"); g.fillStyle = ACC;
+      g.fillText("마지막 장", 88, 118);
+      var hl = head(s.line, 330, 460, 150);
+      if(s.sub) fbText(g, "600", s.sub, 92, 330 + hl + 56, W - 240, 34, 24, 3, SUB, "left", 1.45);
+      var pl = fbPill(g, "저장하기", 92, H - 280, 30, ACC, INK, 36, 22, "gothic", "800");
+      fbPill(g, fbHandle(), 92 + pl + 16, H - 280, 30, "rgba(255,255,255,.16)", WHITE, 30, 22, "mono", "600");
+      tail(fbNum(idx, total));
+      g.restore(); return;
+    }
+
+    if(cover){
+      fbFont(g, "700", 22, "4px", "mono"); g.fillStyle = "rgba(255,255,255,.85)";
+      g.fillText("SLIDE " + fbIdx(idx), 88, 100);
+      g.textAlign = "right"; g.fillText(fbHandle(), W - 88, 100); g.textAlign = "left";
+      pillCenter(fbRole(s) || "오늘의 질문", 206, 30, INK, ACC, 42, 19);
+      var hc = head(s.line, 340, 400, 170);
+      if(fbHas(s)){
+        g.save(); g.translate(330, 1010); g.rotate(-4 * Math.PI / 180);
+        g.fillStyle = WHITE; roundRect(g, -218, -244, 436, 488, 12); g.fill();
+        fbPic(g, v, s, -204, -230, 408, 460, 6, { zoom: 1.02 });
+        g.restore();
+        noteBox(600, 850, 400, 260, s.sub, 30);
+      } else {
+        noteBox(96, 330 + hc + 80, 888, 300, s.sub, 36);
+      }
+      fbPill(g, "밀어서 보기 →", 88, H - 156, 28, WHITE, INK, 34, 20, "gothic", "800");
+      tail(fbNum(idx, total));
+      g.restore(); return;
+    }
+
+    /* 본문 장 */
+    fbFont(g, "700", 22, "4px", "mono"); g.fillStyle = "rgba(255,255,255,.85)";
+    g.fillText("SLIDE " + fbIdx(idx), 88, 100);
+    g.textAlign = "right"; g.fillText(fbNum(idx, total), W - 88, 100); g.textAlign = "left";
+    fbPill(g, fbRole(s) || "POINT", 90, 178, 26, INK, ACC, 30, 15, "gothic", "800");
+    var hb = head(s.line, 320, 300, 126);
+    if(fbHas(s)){
+      g.fillStyle = WHITE; roundRect(g, 96, 700, 888, 556, 14); g.fill();
+      fbPic(g, v, s, 112, 716, 856, 524, 8, { zoom: 1.02 });
+      if(s.sub){
+        g.fillStyle = INK; g.fillRect(96, 1130, 888, 126);
+        fbText(g, "600", s.sub, 124, 1178, 832, 30, 22, 2, WHITE, "left", 1.38);
+      }
+    } else {
+      g.save(); fbFont(g, "900", 420, "-20px", "gothic"); g.fillStyle = "rgba(255,255,255,.13)";
+      g.textAlign = "left"; g.fillText(fbIdx(idx), 60, 900); g.restore();
+      noteBox(96, 760, 888, 300, s.sub, 36);
+    }
+    tail(fbHandle() + "  ·  " + fbNum(idx, total));
+    g.restore();
+  }
+
   /* ================================================================ 배급 */
   function drawFeedCard(g, v, cfg, s, idx, total, forceKey){
     var th = forceKey || feedThemeOf(v);
@@ -12025,6 +12136,7 @@ var AiriaMp4 = (function(){
       if(th === "brutal")   return fbBrutal(g, v, cfg, s, idx, total);
       if(th === "mesh")     return fbMeshTheme(g, v, cfg, s, idx, total);
       if(th === "pixel")    return fbPixel(g, v, cfg, s, idx, total);
+      if(th === "dotpop")   return fbDotPop(g, v, cfg, s, idx, total);
       return fbDarkMag(g, v, cfg, s, idx, total);
     } finally { g.restore(); }
   }
@@ -13003,7 +13115,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 43;
+  var OTA_APP_BUILD = 44;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -14849,7 +14961,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 43;
+    var BUILD = 44;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
