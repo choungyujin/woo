@@ -10729,7 +10729,8 @@ var AiriaMp4 = (function(){
     { key: "brutal",   label: "브루탈 키네틱", note: "노포토 · 차콜 + 형광 오렌지 · 초대형 활자",     cat: "다크", photo: false },
     { key: "mesh",     label: "메쉬 인용",    note: "노포토 · 라벤더·스카이 메쉬 그라데이션 인용",    cat: "아트", photo: false },
     { key: "pixel",    label: "픽셀 아카이브", note: "노포토 · 딥네이비 그리드 · 모노 데이터",        cat: "아트", photo: false },
-    { key: "dotpop",   label: "도트 팝",      note: "코랄 도트 패턴 · 검정 필 · 형광 하이라이트 바", cat: "아트", photo: true }
+    { key: "dotpop",   label: "도트 팝",      note: "코랄 도트 패턴 · 검정 필 · 형광 하이라이트 바", cat: "아트", photo: true },
+    { key: "illopop",  label: "일러스트 팝",  note: "크림 배경 · 옐로 블롭 · 캐릭터 일러스트 카드 · 형광 하이라이트", cat: "사진", photo: true }
   ];
   /* 옛 키는 새 디자인으로 이어 준다(저장된 값이 있어도 그대로 뜨게) */
   var FEED_THEME_ALIAS = {
@@ -12118,6 +12119,112 @@ var AiriaMp4 = (function(){
   }
 
   /* ================================================================ 배급 */
+  /* 13번째 — 일러스트 팝 (illopop), 2026-11-22 12:30 점검
+     레퍼런스: @ez_duck_ez(인증) "카드뉴스 7장, 지피티로 만들었습니다"(2026-11-21, #카드뉴스 1위,
+     스크린샷 browser/ig_carousel_ref_ezduck-2026-11-22-124502.png).
+     크림 배경 + 소프트 옐로 블롭 2개, 좌상단 캐릭터 뱃지, 우상단 큰 페이지 카운터,
+     검정 초대형 헤드라인 마지막 줄 형광 필 하이라이트 + 손그림 느낌 옐로 밑줄,
+     왼쪽 옐로 바 부제, 흰 테두리 캐릭터 카드(기울임), 생각 버블, 'swipe →' 옐로 알약. */
+  function fbIlloPop(g, v, cfg, s, idx, total){
+    var W = TWD, H = THT, cover = (idx === 0), last = (idx === total - 1);
+    var BG = "#FFF6E3", INK = "#1A1A1A", ACC = "#FFD24A", ACC2 = "#FFB300", GRAY = "#6B6255";
+    g.save(); g.textBaseline = "alphabetic"; g.textAlign = "left"; g.shadowBlur = 0;
+    g.fillStyle = BG; g.fillRect(0, 0, W, H);
+
+    /* 소프트 옐로 블롭(라운드 사각 회전으로 그리는 안전한 도형) */
+    g.save(); g.translate(150, 90); g.rotate(-14 * Math.PI / 180);
+    g.fillStyle = last ? "#FFEFC2" : "#FFE9A8"; roundRect(g, -260, -200, 560, 420, 200); g.fill(); g.restore();
+    g.save(); g.translate(W - 130, H - 80); g.rotate(-10 * Math.PI / 180);
+    g.fillStyle = "#FFDD9A"; roundRect(g, -300, -240, 620, 500, 230); g.fill(); g.restore();
+
+    /* 좌상단 캐릭터 뱃지 */
+    g.fillStyle = "#FFFFFF"; roundRect(g, 66, 62, 330, 74, 37); g.fill();
+    g.fillStyle = ACC; g.beginPath(); g.arc(106, 99, 24, 0, Math.PI * 2); g.fill();
+    g.fillStyle = INK; g.beginPath(); g.arc(100, 94, 3.4, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(112, 94, 3.4, 0, Math.PI * 2); g.fill();
+    fbFont(g, "800", 27, "0px", "gothic"); g.fillStyle = INK;
+    g.fillText("MONGLE NOTE", 142, 108);
+
+    /* 우상단 큰 카운터 + 도트 */
+    fbFont(g, "800", 46, "0px", "gothic"); g.fillStyle = INK; g.textAlign = "right";
+    g.fillText(fbIdx(idx), W - 96, 108);
+    fbFont(g, "700", 24, "0px", "mono"); g.fillStyle = "rgba(26,26,26,.45)";
+    g.fillText("/ " + ("0" + total).slice(-2), W - 84, 108); g.textAlign = "left";
+    for(var d = 0; d < total; d++){
+      g.fillStyle = d === idx ? ACC2 : "rgba(26,26,26,.16)";
+      g.beginPath(); g.arc(W - 96 - (total - 1 - d) * 30, 136, d === idx ? 7 : 5.4, 0, Math.PI * 2); g.fill();
+    }
+
+    function head(txt, y, maxH, big){
+      var L = fbFitBox(g, "900", txt, W - 168, maxH, big || 168, 58, 3, 1.06, "gothic", true);
+      var n = L.lines.length;
+      fbFont(g, "900", L.size, "-2px", "gothic");
+      for(var i = 0; i < n; i++){
+        var t = L.lines[i].text, lw = g.measureText(t).width, ly = y + i * L.step;
+        if(i === n - 1){ /* 마지막 줄 형광 필 하이라이트 */
+          g.fillStyle = ACC;
+          roundRect(g, 72, ly - L.size * 0.78, Math.min(W - 150, lw + 52), L.size * 1.06, 26); g.fill();
+        }
+        g.fillStyle = INK;
+        g.fillText(t, 88, ly);
+      }
+      /* 손그림 느낌 옐로 밑줄 */
+      g.strokeStyle = ACC2; g.lineWidth = 10; g.lineCap = "round";
+      g.beginPath(); g.moveTo(90, y + L.h + 6);
+      g.quadraticCurveTo(90 + (W - 200) * 0.45, y + L.h + 20, Math.min(W - 90, 90 + lw), y + L.h + 8); g.stroke();
+      return L.h + 22;
+    }
+
+    function charCard(x, y, w, h, rot){
+      g.save(); g.translate(x, y); g.rotate((rot || -3) * Math.PI / 180);
+      g.fillStyle = "#FFFFFF"; roundRect(g, -w / 2 - 16, -h / 2 - 16, w + 32, h + 32, 26); g.fill();
+      fbPic(g, v, s, -w / 2, -h / 2, w, h, 18, { zoom: 1.02 });
+      g.restore();
+    }
+    function bubble(x, y){ /* 사진 없는 장 — 생각 버블 */
+      g.fillStyle = "#FFFFFF";
+      g.beginPath(); g.arc(x, y, 92, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(x + 108, y - 64, 46, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(x + 158, y - 118, 22, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(26,26,26,.30)";
+      for(var b = -1; b <= 1; b++){ g.beginPath(); g.arc(x + b * 26, y, 9, 0, Math.PI * 2); g.fill(); }
+    }
+    function tail(rightText){
+      fbFont(g, "700", 22, "3px", "mono"); g.fillStyle = "rgba(26,26,26,.55)";
+      g.textAlign = "right"; g.fillText(rightText, W - 84, H - 60); g.textAlign = "left";
+    }
+
+    if(last){
+      fbFont(g, "800", 26, "2px", "gothic"); g.fillStyle = ACC2;
+      g.fillText("마지막 장", 88, 210);
+      var hl = head(s.line, 300, 440, 150);
+      if(s.sub) fbText(g, "600", s.sub, 92, 300 + hl + 30, W - 220, 34, 24, 3, GRAY, "left", 1.45);
+      var pl = fbPill(g, "저장하기", 92, H - 300, 30, ACC, INK, 36, 22, "gothic", "800");
+      fbPill(g, fbHandle(), 92 + pl + 16, H - 300, 30, "rgba(26,26,26,.10)", INK, 30, 22, "mono", "600");
+      bubble(W - 240, H - 380);
+      tail(fbNum(idx, total));
+      g.restore(); return;
+    }
+
+    var yBase = 300;
+    fbPill(g, fbRole(s) || "오늘", 88, 200, 26, ACC, INK, 32, 16, "gothic", "800");
+    var hc = head(s.line, yBase, 360, 160);
+    if(fbHas(s)){
+      charCard(W - 380, 940, 620, 470, -3);
+      if(s.sub) fbText(g, "600", s.sub, 92, yBase + hc + 66, 560, 32, 24, 4, GRAY, "left", 1.44);
+    } else {
+      if(s.sub) fbText(g, "600", s.sub, 92, yBase + hc + 66, W - 220, 34, 24, 4, GRAY, "left", 1.44);
+      bubble(W - 250, 1020);
+    }
+    if(cover){
+      fbPill(g, "swipe →", 88, H - 150, 30, ACC, INK, 40, 22, "gothic", "800");
+      tail(fbHandle());
+    } else {
+      tail(fbHandle() + "  ·  " + fbNum(idx, total));
+    }
+    g.restore();
+  }
+
+  /* ================================================================ 배급 */
   function drawFeedCard(g, v, cfg, s, idx, total, forceKey){
     var th = forceKey || feedThemeOf(v);
     s = s || { line: "", sub: "", scene: "" };
@@ -12138,6 +12245,10 @@ var AiriaMp4 = (function(){
       if(th === "pixel")    return fbPixel(g, v, cfg, s, idx, total);
       if(th === "dotpop"){
         try { return fbDotPop(g, v, cfg, s, idx, total); }
+        catch(e){ return fbDarkMag(g, v, cfg, s, idx, total); }
+      }
+      if(th === "illopop"){
+        try { return fbIlloPop(g, v, cfg, s, idx, total); }
         catch(e){ return fbDarkMag(g, v, cfg, s, idx, total); }
       }
       return fbDarkMag(g, v, cfg, s, idx, total);
@@ -13118,7 +13229,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 45;
+  var OTA_APP_BUILD = 46;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -14964,7 +15075,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 45;
+    var BUILD = 46;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
