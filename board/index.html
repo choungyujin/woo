@@ -12136,7 +12136,10 @@ var AiriaMp4 = (function(){
       if(th === "brutal")   return fbBrutal(g, v, cfg, s, idx, total);
       if(th === "mesh")     return fbMeshTheme(g, v, cfg, s, idx, total);
       if(th === "pixel")    return fbPixel(g, v, cfg, s, idx, total);
-      if(th === "dotpop")   return fbDotPop(g, v, cfg, s, idx, total);
+      if(th === "dotpop"){
+        try { return fbDotPop(g, v, cfg, s, idx, total); }
+        catch(e){ return fbDarkMag(g, v, cfg, s, idx, total); }
+      }
       return fbDarkMag(g, v, cfg, s, idx, total);
     } finally { g.restore(); }
   }
