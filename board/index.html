@@ -13984,7 +13984,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 63;
+  var OTA_APP_BUILD = 64;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -16626,6 +16626,25 @@ var AiriaMp4 = (function(){
   ];
   /* 대본 순서 — 새 5편이 앞, 그다음 최근 점검 대본 */
   var CN_IDEAS = ["s20", "s21", "s22", "s23", "s24", "s19", "s18", "s17", "s16", "s15"];
+  /* 빌드 64 — 대본이 늘어도 갤러리가 따라가게: 디자인마다 '그 디자인을 자기 피드로 가진 최신 대본'을 먼저 찾는다.
+     (예: poll → 새 대본 s25 · 최신 대본의 카드뉴스도 바로 4장 저장 가능) */
+  function cnPickFor(themeKey, ideas, used){
+    var i;
+    for(i = 0; i < ideas.length; i++){                     /* 1) 자기 피드 테마가 같은 최신 대본 */
+      var f = ideas[i] && ideas[i].scripts && ideas[i].scripts.feed;
+      if(f && String(f.feedTheme || "") === themeKey && !used[ideas[i].id]) return ideas[i];
+    }
+    for(i = 0; i < CN_IDEAS.length; i++){                   /* 2) 빌드 60 고정 순서(같은 테마의 옛 대본) */
+      var it = null;
+      for(var k = 0; k < ideas.length; k++) if(String(ideas[k].id) === String(CN_IDEAS[i])) { it = ideas[k]; break; }
+      if(it && !used[it.id]){
+        var ff = it.scripts && it.scripts.feed;
+        if(ff && String(ff.feedTheme || "") === themeKey) return it;
+      }
+    }
+    for(i = 0; i < ideas.length; i++) if(!used[ideas[i].id]) return ideas[i];   /* 3) 아무 최신 대본 */
+    return null;
+  }
   var CN_KEY = "arisia949_cn_done_v1";
   var CN_SHOW = 6;
   var cnWired = false;
@@ -16654,14 +16673,13 @@ var AiriaMp4 = (function(){
   /* 갤러리 편 = 디자인 1종 × 대본 1편 (대본은 순서대로 돌려 쓴다) */
   function cnPieces(){
     var out = [], ideas = cnIdeas().filter(function(i){ return cnIdeaOf(i.id) && i.scripts && i.scripts.feed && Array.isArray(i.scripts.feed.slides); });
+    var used = {};
     for(var i = 0; i < CN_THEMES.length; i++){
       var th = CN_THEMES[i];
-      var pick = null;
-      for(var k = 0; k < ideas.length; k++){
-        if(String(ideas[k].id) === String(CN_IDEAS[i % CN_IDEAS.length])){ pick = ideas[k]; break; }
-      }
+      var pick = cnPickFor(th.key, ideas, used);
       if(!pick) pick = ideas[i % Math.max(1, ideas.length)];
       if(!pick) continue;
+      used[pick.id] = 1;
       out.push({ key: th.key + "|" + pick.id, theme: th.key, idea: pick, label: th.label, note: th.note });
     }
     return out;
@@ -16933,7 +16951,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 63;
+    var BUILD = 64;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
