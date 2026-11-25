@@ -8845,77 +8845,759 @@ var AiriaMp4 = (function(){
     src.connect(bp); bp.connect(g); g.connect(out);
     src.start(t0);
   }
-  /* ---------- 대본별 BGM 9종 (id 기준 · 끝 1.2초는 페이드아웃) ----------
-     같은 코드를 모든 대본에 치지 않는다. id → 곡, 템플릿은 대표 곡으로 연결.
-       s01 경쾌 반전 피아노 · s02 따뜻한 육아 어쿠스틱 · s03 산뜻한 나들이 그루브
-       s04 밤 11시 고요한 로파이 · s05 덕질 칠 신스비트 · s06 긴장→안정 엠비언트
-       s07 정리·실행 맑은 플럭 · s08 잔잔한 위로 패드 · s09 혼자 다 하는 리드미컬 로파이 */
+  /* ---------- 대본별 BGM 100종 (s01~s100 · id 기준 1:1 · 끝 1.2초는 페이드아웃) ----------
+     같은 곡을 두 대본에 쓰지 않는다. BPM 56~132 · Key 48~71 · 코드 진행 26종 ·
+     악기(패드/아르프/베이스/멜로디) 파형·필터·옥타브·디비전 · 드럼 21종을 곡마다 다르게 조합.
+     새 대본 s34~s100 을 추가하면 BGMS 의 같은 id 곡이 그대로 붙는다. ---------- */
   var BGMS = {
-    s01: { bpm: 116, key: 60, name: "경쾌 반전 피아노",
-           prog: [[0, 4, 7, 11], [9, 12, 16, 19], [5, 9, 12, 16], [7, 11, 14, 17]],
-           pad: { type: "triangle", gain: 0.026, lp: 1900, attack: 0.22 },
-           arp: { type: "triangle", gain: 0.055, div: 8, oct: 1, decay: 0.5, lp: 2800, echo: 1 },
+    s01: { bpm: 116, key: 61, name: "경쾌 반전 피아노",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
            bass: { type: "sine", gain: 0.095, div: 2 },
-           drum: "clapBright" },
-    s02: { bpm: 84, key: 53, name: "따뜻한 육아 어쿠스틱",
-           prog: [[0, 4, 7, 11], [2, 5, 9, 12], [5, 9, 12, 16], [7, 11, 14, 18]],
-           pad: { type: "sine", gain: 0.032, lp: 1200, attack: 0.55 },
-           arp: { type: "triangle", gain: 0.045, div: 6, oct: 1, decay: 0.75, lp: 2200 },
-           bass: { type: "sine", gain: 0.07, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s02: { bpm: 84, key: 54, name: "따뜻한 육아 어쿠스틱",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
            bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: null },
-    s03: { bpm: 104, key: 62, name: "산뜻한 나들이 그루브",
-           prog: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]],
-           arp: { type: "triangle", gain: 0.05, div: 8, oct: 1, decay: 0.34, lp: 3400, echo: 1 },
-           bass: { type: "sine", gain: 0.085, div: 2, alt: 7 },
-           drum: "shaker" },
-    s04: { bpm: 62, key: 57, name: "밤 11시 고요한 로파이",
-           prog: [[0, 3, 7, 10], [8, 12, 15, 19], [3, 7, 10, 14], [7, 10, 14, 17]],
-           pad: { type: "triangle", gain: 0.04, lp: 900, attack: 0.95 },
-           arp: { type: "sine", gain: 0.034, div: 4, oct: 1, decay: 1.7 },
-           bass: { type: "sine", gain: 0.055, div: 1 },
-           air: 0.012, drum: null },
+    s03: { bpm: 104, key: 63, name: "산뜻한 나들이 그루브",
+           prog: [[0,5,7],[7,10,14],[5,9,12],[0,5,10]],
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 4, 2, 0, 2, 4, 7, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "shaker" },
+    s04: { bpm: 62, key: 56, name: "밤 11시 고요한 로파이",
+           prog: [[0,3,7,10],[8,12,15,19],[3,7,10,14],[7,10,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, air: 0.012, drum: null },
     s05: { bpm: 100, key: 52, name: "덕질 칠 신스비트",
-           prog: [[0, 3, 7, 10], [8, 12, 15, 19], [3, 7, 10, 14], [5, 9, 12, 16]],
-           pad: { type: "sawtooth", gain: 0.02, lp: 820, attack: 0.35 },
-           arp: { type: "square", gain: 0.026, div: 8, oct: 1, decay: 0.34, lp: 1500 },
-           bass: { type: "sawtooth", gain: 0.095, div: 2, lp: 420 },
-           drum: "lofi" },
-    s06: { bpm: 70, key: 60, name: "긴장→안정 엠비언트",
-           intro: { sec: 3, notes: [69, 71, 76], gap: 0.9 },
-           prog: [[0, 4, 7, 14], [7, 11, 14, 18], [9, 12, 16, 19], [5, 9, 12, 17]],
-           pad: { type: "sine", gain: 0.042, lp: 1100, attack: 1.2 },
-           bell: { gain: 0.045, at: 0.7, len: 3.0 }, bass: { type: "sine", gain: 0.05, div: 1 },
-           pulse: 1, drum: null },
-    s07: { bpm: 108, key: 55, name: "정리·실행 맑은 플럭",
-           prog: [[0, 4, 7, 11], [2, 6, 9, 12], [4, 7, 11, 14], [5, 9, 12, 16]],
-           arp: { type: "triangle", gain: 0.048, div: 12, oct: 2, decay: 0.26, lp: 4200 },
-           bass: { type: "sine", gain: 0.08, div: 4 },
-           drum: "tick" },
-    s08: { bpm: 66, key: 60, name: "잔잔한 위로 패드",
-           prog: [[0, 4, 7, 9], [9, 12, 16, 19], [5, 9, 12, 16], [7, 11, 14, 17]],
-           pad: { type: "sine", gain: 0.042, lp: 1000, attack: 1.5 },
-           arp: { type: "sine", gain: 0.022, div: 4, oct: 2, decay: 1.5 },
-           bell: { gain: 0.034, at: 1.0, len: 2.6, hi: 1 }, bass: { type: "sine", gain: 0.045, div: 1 },
-           drum: null },
+           prog: [[0,3,7,10],[8,12,15,19],[3,7,10,14],[7,10,14,17]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "sawtooth", gain: 0.022, lp: 1500, div: 8, oct: 1, decay: 0.34 },
+           bass: { type: "sawtooth", gain: 0.075, lp: 420, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 7, 10, 12, 10, 7, 3] }, echo: { delay: 0.22, fb: 0.22 }, drum: "lofi" },
+    s06: { bpm: 70, key: 66, name: "긴장→안정 엠비언트",
+           prog: [[0,3,7,14],[8,12,15,19],[5,8,12,17],[3,7,10,14]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 7, 12, 10, 7, 5, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 },
+           intro: { sec: 3, notes: [69, 71, 76], gap: 0.9 }, air: 0.012, pulse: 1, drum: null },
+    s07: { bpm: 108, key: 51, name: "정리·실행 맑은 플럭",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 7, 4, 0, 4, 7, 12, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "tick" },
+    s08: { bpm: 96, key: 68, name: "혼자 일하는 하루",
+           prog: [[0,7,14],[0,5,12],[0,3,10],[0,7,16]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "bossa" },
     s09: { bpm: 92, key: 58, name: "혼자 다 하는 리드미컬 로파이",
-           prog: [[0, 4, 7, 10], [7, 10, 14, 17], [3, 7, 10, 14], [5, 9, 12, 16]],
-           pad: { type: "triangle", gain: 0.028, lp: 1500, attack: 0.35 },
-           arp: { type: "sine", gain: 0.04, div: 8, oct: 1, decay: 0.5 },
-           bass: { type: "sine", gain: 0.1, div: 2, alt: 7 },
-           drum: "lofiBusy" }
+           prog: [[0,3,7,10],[5,9,12,15],[7,10,14,17],[0,3,7,10]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.036, lp: 3000, div: 12, oct: 1, decay: 0.42, mode: "pendulum" },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [3, 7, 10, 12, 10, 7, 3, 0] }, air: 0.012, drum: "lofiBusy" },
+    s10: { bpm: 112, key: 70, name: "토요일 두 시 통통 튀는 밈",
+           prog: [[0,5,10],[3,8,13],[5,10,15],[0,5,10]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "square", gain: 0.024, lp: 1800, div: 16, oct: 1, decay: 0.22 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 0, 4, 4, 7, 7, 4, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s11: { bpm: 66, key: 49, name: "열정이 닳았을 때",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "sine", gain: 0.042, lp: 700, attack: 1.6 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 7, 10, 12, 10, 7, 3] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s12: { bpm: 88, key: 71, name: "첫 앱은 메모 앱",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "tickSparse" },
+    s13: { bpm: 72, key: 48, name: "주일 오후 세 시의 고요",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s14: { bpm: 102, key: 56, name: "아들딸 단정 엄마는 힙",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "square", gain: 0.02, lp: 1600, div: 8, oct: 1, decay: 0.3, swing: 0.33 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "swing" },
+    s15: { bpm: 68, key: 50, name: "일요일 밤 라디오",
+           prog: [[0,3,7,10],[8,12,15,19],[3,7,10,14],[7,10,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 },
+           intro: { sec: 3, notes: [69, 71, 76], gap: 0.9 }, air: 0.012, drum: null },
+    s16: { bpm: 78, key: 66, name: "스토어 문 앞에서 멈췄다",
+           prog: [[0,4,7,11],[5,9,12,16],[2,6,9,13],[7,11,14,18]],
+           pad: { type: "sawtooth", gain: 0.016, lp: 1400, attack: 0.7 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 12, 7, 4, 0, null] },
+           intro: { sec: 3, notes: [69, 71, 76], gap: 0.9 }, air: 0.012, drum: "heart" },
+    s17: { bpm: 64, key: 54, name: "모래가 안 나온 날",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s18: { bpm: 118, key: 61, name: "월요일 8시 양말 한 짝",
+           prog: [[0,4,7,10],[7,11,14,17],[5,9,12,16],[0,4,7,10]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 2, 5, 4, 7, 5, 9] }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s19: { bpm: 90, key: 58, name: "댓글 한 줄이 다음 글",
+           prog: [[0,4,7,9],[9,12,16,19],[5,9,12,16],[7,11,14,17]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 9, 7, 0, 4, 2, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s20: { bpm: 86, key: 51, name: "딸이 커피를 먼저 마셨다",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 4, 9, 4, 7, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "snap" },
+    s21: { bpm: 94, key: 63, name: "학원 대신 한 시간 걷기",
+           prog: [[0,4,7,10],[7,11,14,17],[5,9,12,16],[0,4,7,10]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.036, lp: 3000, div: 12, oct: 1, decay: 0.42, mode: "pendulum" },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [2, 4, 7, 9, 12, 9, 7, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "brush" },
+    s22: { bpm: 60, key: 49, name: "재운 뒤 30분, 하루 접기",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "sine", gain: 0.042, lp: 700, attack: 1.6 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s23: { bpm: 82, key: 68, name: "엄마가 만드는 앱",
+           prog: [[0,4,7,11],[2,6,9,13],[7,11,14,18],[0,4,7,11]],
+           pad: { type: "sine", gain: 0.028, lp: 2000, attack: 0.2 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [9, 7, 4, 2, 0, 2, 4, 7] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "tick" },
+    s24: { bpm: 58, key: 69, name: "찬양 연습 끝나고 혼자",
+           prog: [[0,7,11,14],[5,9,12,16],[7,11,14,19],[0,4,7,11]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 12, 7, 4, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s25: { bpm: 80, key: 48, name: "겨울학기 신청서 앞에서",
+           prog: [[0,2,7],[7,9,14],[5,7,12],[0,2,7]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "shakerSoft" },
+    s26: { bpm: 98, key: 70, name: "오후 네 시 반 하원",
+           prog: [[0,4,7,11],[2,6,9,13],[7,11,14,18],[0,4,7,11]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 3, 5, 7, 9, 10, 12] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s27: { bpm: 106, key: 71, name: "폰 메모 300개 정리",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 7, 4, 0, 4, 7, 12, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, echo: { delay: 0.22, fb: 0.22 }, drum: "tick" },
+    s28: { bpm: 76, key: 61, name: "학원 0개, 총회에서 들은 말",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "shakerSoft" },
+    s29: { bpm: 122, key: 63, name: "딴 데가 터진다 (웃픈 제작기)",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "square", gain: 0.024, lp: 1800, div: 16, oct: 1, decay: 0.22 },
+           bass: { type: "square", gain: 0.055, lp: 500, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "glitch" },
+    s30: { bpm: 63, key: 50, name: "밤 열한 시, 하루를 닫는 세 가지",
+           prog: [[0,3,7,10],[8,12,15,19],[3,7,10,14],[7,10,14,17]],
+           pad: { type: "sine", gain: 0.042, lp: 700, attack: 1.6 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s31: { bpm: 74, key: 66, name: "사진 3만 장 중에 세 장",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, air: 0.012, drum: "shakerSoft" },
+    s32: { bpm: 61, key: 54, name: "처음 마이크 앞에서 가사가 비었다",
+           prog: [[0,3,7,14],[8,12,15,19],[5,8,12,17],[3,7,10,14]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 7, 10, 12, 10, 7, 3] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s33: { bpm: 87, key: 58, name: "블로그는 안 망했는데, 안 읽게 됐다",
+           prog: [[0,4,7,9],[9,12,16,19],[5,9,12,16],[7,11,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 9, 7, 0, 4, 2, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s34: { bpm: 96, key: 56, name: "새벽 산책 미니멀",
+           prog: [[0,4,7,11],[5,9,12,16],[2,6,9,13],[7,11,14,18]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, null, 4, null, 7, null, 4, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: "tickSparse" },
+    s35: { bpm: 68, key: 67, name: "비 오는 창가",
+           prog: [[0,3,7,10],[0,5,10,14],[3,7,10,14],[5,8,12,15]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, air: 0.012, drum: null },
+    s36: { bpm: 126, key: 68, name: "월요일 출근 러닝",
+           prog: [[0,4,7,10],[7,11,14,17],[5,9,12,16],[0,4,7,10]],
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "sawtooth", gain: 0.095, lp: 600, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 3, 5, 7, 9, 10, 12] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s37: { bpm: 78, key: 52, name: "할머니 댁 골목",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 4, 2, 0, 2, 4, 7, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s38: { bpm: 70, key: 53, name: "첫차 기다리며",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] }, air: 0.012, drum: "rim" },
+    s39: { bpm: 124, key: 64, name: "금요일 퇴근 신남",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 2, 5, 4, 7, 5, 9] }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s40: { bpm: 88, key: 51, name: "겨울 코트 재즈",
+           prog: [[2,5,9,12],[7,11,14,17],[0,4,7,11],[9,12,16,19]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "square", gain: 0.02, lp: 1600, div: 8, oct: 1, decay: 0.3, swing: 0.33 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "swing" },
+    s41: { bpm: 100, key: 59, name: "봄 이사 준비",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 4, 9, 4, 7, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "bossa" },
+    s42: { bpm: 110, key: 69, name: "아이 첫 자전거",
+           prog: [[0,4,7,11],[2,6,9,13],[7,11,14,18],[0,4,7,11]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "clapBright" },
+    s43: { bpm: 82, key: 49, name: "주말 빨래방",
+           prog: [[0,4,7,10],[5,9,12,16],[7,11,14,17],[0,4,7,10]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 0, 4, 4, 7, 7, 4, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s44: { bpm: 92, key: 70, name: "카페 오픈 준비",
+           prog: [[0,3,7,10],[5,9,12,15],[7,10,14,17],[0,3,7,10]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.036, lp: 3000, div: 12, oct: 1, decay: 0.42, mode: "pendulum" },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [3, 7, 10, 12, 10, 7, 3, 0] }, echo: { delay: 0.22, fb: 0.22 }, drum: "shakerSoft" },
+    s45: { bpm: 66, key: 50, name: "새벽 라면",
+           prog: [[0,3,7,10],[3,7,10,14],[5,8,12,15],[0,3,7,10]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 5, 7, 10, 7, 5, 3] }, air: 0.012, drum: "rim" },
+    s46: { bpm: 120, key: 71, name: "바다 드라이브",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "sawtooth", gain: 0.095, lp: 600, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s47: { bpm: 72, key: 56, name: "책방 오후",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] }, air: 0.012, drum: "tickSparse" },
+    s48: { bpm: 58, key: 48, name: "비밀 일기",
+           prog: [[2,5,8,12],[7,10,14,17],[0,3,7,10],[8,12,15,19]],
+           pad: { type: "sine", gain: 0.042, lp: 700, attack: 1.6 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s49: { bpm: 108, key: 52, name: "엘리베이터 기다림",
+           prog: [[0,5,10],[3,8,13],[5,10,15],[0,5,10]],
+           arp: { type: "square", gain: 0.024, lp: 1800, div: 16, oct: 1, decay: 0.22 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 0, 5, 0, 3, 0, 2] }, echo: { delay: 0.22, fb: 0.22 }, drum: "tickSparse" },
+    s50: { bpm: 76, key: 59, name: "회의 전 심호흡",
+           prog: [[0,2,7],[7,9,14],[5,7,12],[0,2,7]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 7, 12, 10, 7, 5, 2] }, air: 0.012, drum: "heart" },
+    s51: { bpm: 84, key: 61, name: "야근 라디오",
+           prog: [[0,3,7,10],[5,9,12,15],[7,10,14,17],[0,3,7,10]],
+           pad: { type: "sawtooth", gain: 0.016, lp: 1400, attack: 0.7 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sawtooth", gain: 0.075, lp: 420, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 7, 10, 12, 10, 7, 3] }, air: 0.012, drum: "lofi" },
+    s52: { bpm: 64, key: 66, name: "첫 눈",
+           prog: [[0,7,11,14],[5,9,12,16],[7,11,14,19],[0,4,7,11]],
+           pad: { type: "sine", gain: 0.028, lp: 2000, attack: 0.2 },
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 12, 7, 4, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s53: { bpm: 104, key: 67, name: "여름 수영장",
+           prog: [[0,4,7,11],[2,6,9,13],[7,11,14,18],[0,4,7,11]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [2, 4, 7, 9, 12, 9, 7, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s54: { bpm: 74, key: 54, name: "가을 낙엽",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s55: { bpm: 60, key: 53, name: "겨울 온천",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] }, air: 0.012, drum: null },
+    s56: { bpm: 95, key: 63, name: "봄 벚꽃",
+           prog: [[0,4,7,11],[2,6,9,13],[7,11,14,18],[0,4,7,11]],
+           pad: { type: "sine", gain: 0.028, lp: 2000, attack: 0.2 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "shakerSoft" },
+    s57: { bpm: 90, key: 52, name: "새벽 편의점",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] }, air: 0.012, drum: "lofi" },
+    s58: { bpm: 112, key: 69, name: "당근마켓 거래",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 0, 4, 4, 7, 7, 4, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "boomBap" },
+    s59: { bpm: 86, key: 50, name: "첫 차",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "snap" },
+    s60: { bpm: 94, key: 67, name: "이사 첫날",
+           prog: [[0,4,7],[7,11,14],[9,12,16],[5,9,12]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 4, 9, 4, 7, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "bossa" },
+    s61: { bpm: 77, key: 51, name: "육아 퇴근",
+           prog: [[0,7,14],[0,5,12],[0,3,10],[0,7,16]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 9, 7, 0, 4, 2, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "snap" },
+    s62: { bpm: 62, key: 67, name: "아이 재우고 커피",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "sine", gain: 0.042, lp: 700, attack: 1.6 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s63: { bpm: 98, key: 49, name: "주방 설거지",
+           prog: [[0,7,14],[0,5,12],[0,3,10],[0,7,16]],
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 0, 5, 0, 3, 0, 2] }, echo: { delay: 0.22, fb: 0.22 }, drum: "shakerSoft" },
+    s64: { bpm: 87, key: 68, name: "빨래 널기",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 4, 2, 0, 2, 4, 7, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s65: { bpm: 118, key: 69, name: "운동 첫날",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "sawtooth", gain: 0.095, lp: 600, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 3, 5, 7, 9, 10, 12] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s66: { bpm: 106, key: 59, name: "다이어트 3일째",
+           prog: [[0,4,7,10],[5,9,12,16],[7,11,14,17],[0,4,7,10]],
+           pad: { type: "square", gain: 0.012, lp: 700, attack: 0.6 },
+           arp: { type: "square", gain: 0.024, lp: 1800, div: 16, oct: 1, decay: 0.22 },
+           bass: { type: "square", gain: 0.055, lp: 500, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 2, 5, 4, 7, 5, 9] }, echo: { delay: 0.22, fb: 0.22 }, drum: "boomBap" },
+    s67: { bpm: 71, key: 70, name: "면접 대기",
+           prog: [[0,2,7],[7,9,14],[5,7,12],[0,2,7]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 7, 12, 10, 7, 5, 2] }, air: 0.012, drum: "heart" },
+    s68: { bpm: 120, key: 64, name: "월급날",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s69: { bpm: 93, key: 48, name: "가계부 정리",
+           prog: [[0,4,7],[7,11,14],[9,12,16],[5,9,12]],
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 7, 4, 0, 4, 7, 12, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "tick" },
+    s70: { bpm: 99, key: 71, name: "여행 짐싸기",
+           prog: [[0,4,7,9],[9,12,16,19],[5,9,12,16],[7,11,14,17]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [2, 4, 7, 9, 12, 9, 7, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "shaker" },
+    s71: { bpm: 69, key: 58, name: "공항 새벽",
+           prog: [[0,4,7,11],[5,9,12,16],[2,6,9,13],[7,11,14,18]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, null, 4, null, 7, null, 4, null] }, air: 0.012, drum: "tickSparse" },
+    s72: { bpm: 83, key: 61, name: "기차 창가",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.036, lp: 3000, div: 12, oct: 1, decay: 0.42, mode: "pendulum" },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s73: { bpm: 75, key: 54, name: "캠핑 밤",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, air: 0.012, drum: "rim" },
+    s74: { bpm: 107, key: 59, name: "등산 정상",
+           prog: [[0,7,12],[5,12,17],[7,14,19],[0,7,12]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sawtooth", gain: 0.095, lp: 600, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 4, 9, 4, 7, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "march" },
+    s75: { bpm: 97, key: 65, name: "수영장 오전",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "triangle", gain: 0.024, lp: 2600, attack: 0.25 },
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "shakerSoft" },
+    s76: { bpm: 80, key: 57, name: "필라테스",
+           prog: [[0,5,10],[3,8,13],[5,10,15],[0,5,10]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 7, 9, 7, 2, 0, null] }, air: 0.012, drum: "shakerSoft" },
+    s77: { bpm: 102, key: 63, name: "미용실",
+           prog: [[0,4,7,10],[5,9,12,16],[7,11,14,17],[0,4,7,10]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 0, 4, 4, 7, 7, 4, null] }, echo: { delay: 0.22, fb: 0.22 }, drum: "fourFloor" },
+    s78: { bpm: 95, key: 55, name: "카페 알바",
+           prog: [[2,5,9,12],[7,11,14,17],[0,4,7,11],[9,12,16,19]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 9, 7, 0, 4, 2, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "bossa" },
+    s79: { bpm: 89, key: 62, name: "첫 자취",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "snap" },
+    s80: { bpm: 103, key: 53, name: "룸메 갈등",
+           prog: [[0,3,7,10],[0,5,10,14],[3,7,10,14],[5,8,12,15]],
+           pad: { type: "sawtooth", gain: 0.018, lp: 900, attack: 0.4 },
+           arp: { type: "sawtooth", gain: 0.022, lp: 1500, div: 8, oct: 1, decay: 0.34 },
+           bass: { type: "sawtooth", gain: 0.075, lp: 420, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [3, 7, 10, 12, 10, 7, 3, 0] }, air: 0.012, drum: "boomBap" },
+    s81: { bpm: 81, key: 57, name: "친구와 다툼",
+           prog: [[0,3,6,10],[5,8,12,15],[0,3,6,10],[3,6,10,13]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 3, 7, 10, 12, 10, 7, 3] }, air: 0.012, drum: "lofi" },
+    s82: { bpm: 73, key: 60, name: "화해",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 12, 7, 4, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s83: { bpm: 116, key: 64, name: "생일",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "sine", gain: 0.028, lp: 2000, attack: 0.2 },
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 7, 4, 0, 4, 7, 12, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s84: { bpm: 77, key: 60, name: "결혼기념일", meter: 3,
+           prog: [[0,4,7,9],[9,12,16,19],[5,9,12,16],[7,11,14,17]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "waltz" },
+    s85: { bpm: 85, key: 62, name: "아이 졸업",
+           prog: [[0,5,7],[7,10,14],[5,9,12],[0,5,10]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 4, 9, 4, 7, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "snap" },
+    s86: { bpm: 99, key: 65, name: "입학",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "triangle", gain: 0.085, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [2, 4, 7, 9, 12, 9, 7, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "clapBright" },
+    s87: { bpm: 91, key: 55, name: "첫 시험",
+           prog: [[0,2,7],[7,9,14],[5,7,12],[0,2,7]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "sine", gain: 0.03, lp: 2000, div: 4, oct: 2, decay: 1.4, restEvery: 2 },
+           bass: { type: "sine", gain: 0.075, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 7, 12, 10, 7, 5, 2] }, air: 0.012, drum: "heart" },
+    s88: { bpm: 110, key: 60, name: "방학",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.028, lp: 3600, div: 16, oct: 2, decay: 0.18 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 2, 5, 4, 7, 5, 9] }, echo: { delay: 0.22, fb: 0.22 }, drum: "shaker" },
+    s89: { bpm: 105, key: 53, name: "개학",
+           prog: [[0,7,14],[0,5,12],[0,3,10],[0,7,16]],
+           arp: { type: "square", gain: 0.024, lp: 1800, div: 16, oct: 1, decay: 0.22 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 0, 5, 0, 3, 0, 2] }, echo: { delay: 0.22, fb: 0.22 }, drum: "boomBap" },
+    s90: { bpm: 59, key: 62, name: "책 읽는 밤",
+           prog: [[0,4,7,11,14],[5,9,12,16,21],[7,11,14,18,21],[2,6,9,13,18]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 2, 4, 7, 4, 2, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: "tickSparse" },
+    s91: { bpm: 57, key: 55, name: "일기 쓰는 밤",
+           prog: [[0,3,7,10,14],[8,12,15,19,22],[5,8,12,15,19],[3,7,10,14,17]],
+           pad: { type: "triangle", gain: 0.034, lp: 800, attack: 0.95 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s92: { bpm: 85, key: 58, name: "산책 음악",
+           prog: [[0,4,7,10],[7,11,14,17],[5,9,12,16],[0,4,7,10]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [2, 4, 7, 9, 12, 9, 7, 4] }, echo: { delay: 0.22, fb: 0.22 }, drum: "brush" },
+    s93: { bpm: 101, key: 64, name: "고양이",
+           prog: [[0,4,7,9],[5,9,12,14],[7,11,14,16],[0,4,7,9]],
+           pad: { type: "triangle", gain: 0.024, lp: 2600, attack: 0.25 },
+           arp: { type: "sine", gain: 0.038, lp: 4200, div: 12, oct: 2, decay: 0.3 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 5, 9, 12, 9, 5, 0, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "tick" },
+    s94: { bpm: 114, key: 62, name: "강아지 산책",
+           prog: [[0,4,7,10],[7,11,14,17],[5,9,12,16],[0,4,7,10]],
+           pad: { type: "square", gain: 0.01, lp: 2200, attack: 0.3 },
+           arp: { type: "triangle", gain: 0.055, lp: 2800, div: 8, oct: 1, decay: 0.5, echo: 1 },
+           bass: { type: "sine", gain: 0.095, div: 2 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 0, 4, 4, 7, 7, 4, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "clapBright" },
+    s95: { bpm: 73, key: 57, name: "식물 키우기",
+           prog: [[0,4,7,11],[7,11,14,18],[9,12,16,19],[5,9,12,16]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.055, div: 4 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 4, 2, 0, 2, 4, 7, null] }, air: 0.012, drum: "shakerSoft" },
+    s96: { bpm: 81, key: 60, name: "커피 두 잔",
+           prog: [[0,5,7],[7,10,14],[5,9,12],[0,5,10]],
+           pad: { type: "triangle", gain: 0.032, lp: 1100, attack: 1.1 },
+           arp: { type: "triangle", gain: 0.042, lp: 2200, div: 6, oct: 1, decay: 0.75 },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 9, 7, 0, 4, 2, null] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "brush" },
+    s97: { bpm: 93, key: 65, name: "빵 굽는 아침",
+           prog: [[0,4,7,11],[9,12,16,19],[5,9,12,16],[7,11,14,18]],
+           pad: { type: "sine", gain: 0.03, lp: 1200, attack: 0.55 },
+           arp: { type: "triangle", gain: 0.04, lp: 2600, div: 8, oct: 1, decay: 0.6, echo: 1 },
+           bass: { type: "triangle", gain: 0.07, div: 8 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [7, 9, 12, 9, 7, 4, 2, 4] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "bossa" },
+    s98: { bpm: 89, key: 55, name: "주말 농장",
+           prog: [[0,7,12],[5,12,17],[7,14,19],[0,7,12]],
+           pad: { type: "triangle", gain: 0.026, lp: 1500, attack: 0.35 },
+           arp: { type: "triangle", gain: 0.036, lp: 3000, div: 12, oct: 1, decay: 0.42, mode: "pendulum" },
+           bass: { type: "sine", gain: 0.08, div: 2, alt: 7 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 7, 4, 7, 9, 7, 4, 2] },
+           bell: { gain: 0.026, at: 1.2, len: 2.2 }, drum: "shaker" },
+    s99: { bpm: 63, key: 57, name: "별 보는 밤",
+           prog: [[0,7,11,14],[5,9,12,16],[7,11,14,19],[0,4,7,11]],
+           pad: { type: "sine", gain: 0.038, lp: 1000, attack: 1.3 },
+           arp: { type: "sine", gain: 0.022, lp: 1800, div: 12, oct: 2, decay: 0.9 },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [0, 4, 7, 12, 7, 4, 0, null] },
+           chime: { gain: 0.018, at: 2.0, len: 1.8 }, air: 0.012, drum: null },
+    s100: { bpm: 61, key: 65, name: "새벽 다섯 시 창문",
+           prog: [[0,3,7,10],[8,12,15,19],[3,7,10,14],[7,10,14,17]],
+           pad: { type: "sawtooth", gain: 0.016, lp: 1400, attack: 0.7 },
+           arp: { type: "sine", gain: 0.034, lp: 2400, div: 8, oct: 2, decay: 0.55, mode: "down" },
+           bass: { type: "sine", gain: 0.1, div: 1 },
+           mel: { type: "triangle", gain: 0.026, lp: 2600, div: 8, oct: 1, dec: 0.45, steps: [12, 10, 7, 10, 12, 15, 12, null] },
+           intro: { sec: 3, notes: [69, 71, 76], gap: 0.9 }, air: 0.012, drum: null }
   };
-  var BGM_ALIAS = { cine: "s04", editorial: "s01", radio: "s06", memo: "s07", polaroid: "s03", talk: "s05", mindmap: "s06" };
-  /* v1.8.5 — 3단계에 띄우는 '무음 표준 MP4 정책 + 인스타 음원 검색어/무드' 한 줄 */
+  var BGM_KEYS = [];
+  for(var _bk in BGMS){ if(BGMS.hasOwnProperty(_bk)) BGM_KEYS.push(_bk); }
+  BGM_KEYS.sort(function(a, b){
+    return parseInt(String(a).replace(/[^0-9]/g, ""), 10) - parseInt(String(b).replace(/[^0-9]/g, ""), 10);
+  });
+  /* v1.8.5 — 3단계에 띄우는 '무음 표준 MP4 정책 + 인스타 음원 검색어/무드' 한 줄 (100곡) */
   var MUSIC_FALLBACK = {
-    s01: { label: "경쾌 반전 피아노", search: "upbeat pluck piano", mood: "밝고 경쾌한 반전" },
-    s02: { label: "따뜻한 육아 어쿠스틱", search: "warm acoustic guitar", mood: "포근하고 느긋한" },
-    s03: { label: "산뜻한 나들이 그루브", search: "sunny ukulele groove", mood: "가볍고 산뜻한" },
-    s04: { label: "밤 11시 고요한 로파이", search: "calm night lofi", mood: "고요하고 나른한" },
-    s05: { label: "덕질 칠 신스비트", search: "chill synthwave beat", mood: "설레고 가벼운" },
-    s06: { label: "긴장→안정 엠비언트", search: "ambient piano tension release", mood: "긴장이 풀리는" },
-    s07: { label: "정리·실행 맑은 플럭", search: "clean marimba pluck", mood: "맑고 또렷한" },
-    s08: { label: "잔잔한 위로 패드", search: "soft comforting pad", mood: "잔잔하고 따뜻한" },
-    s09: { label: "혼자 다 하는 리드미컬 로파이", search: "lofi beat focus", mood: "집중되는 리듬" }
+    s01: { label: "경쾌 반전 피아노", bpm: 116, search: "upbeat pluck piano", mood: "밝고 경쾌한 반전" },
+    s02: { label: "따뜻한 육아 어쿠스틱", bpm: 84, search: "warm acoustic guitar", mood: "포근하고 느긋한" },
+    s03: { label: "산뜻한 나들이 그루브", bpm: 104, search: "sunny ukulele groove", mood: "가볍고 산뜻한" },
+    s04: { label: "밤 11시 고요한 로파이", bpm: 62, search: "calm night lofi", mood: "고요하고 나른한" },
+    s05: { label: "덕질 칠 신스비트", bpm: 100, search: "chill synthwave beat", mood: "설레고 가벼운" },
+    s06: { label: "긴장→안정 엠비언트", bpm: 70, search: "ambient piano tension release", mood: "긴장이 풀리는" },
+    s07: { label: "정리·실행 맑은 플럭", bpm: 108, search: "clean marimba pluck", mood: "맑고 또렷한" },
+    s08: { label: "혼자 일하는 하루", bpm: 96, search: "editorial cafe pluck", mood: "나른하게 흐르는" },
+    s09: { label: "혼자 다 하는 리드미컬 로파이", bpm: 92, search: "lofi beat focus", mood: "집중되는 리듬" },
+    s10: { label: "토요일 두 시 통통 튀는 밈", bpm: 112, search: "playful bouncy ukulele", mood: "발랄하고 통통 튀는" },
+    s11: { label: "열정이 닳았을 때", bpm: 66, search: "gentle piano hope", mood: "지친 마음에 놓는 온기" },
+    s12: { label: "첫 앱은 메모 앱", bpm: 88, search: "typewriter jazz pluck", mood: "톡톡 찍히는 담백함" },
+    s13: { label: "주일 오후 세 시의 고요", bpm: 72, search: "quiet sunday piano", mood: "조용히 내려앉는 오후" },
+    s14: { label: "아들딸 단정 엄마는 힙", bpm: 102, search: "quirky swing jazz", mood: "익살스런 취향" },
+    s15: { label: "일요일 밤 라디오", bpm: 68, search: "midnight radio ambient", mood: "심야 라디오 같은" },
+    s16: { label: "스토어 문 앞에서 멈췄다", bpm: 78, search: "cinematic build piano", mood: "문턱 앞의 긴장" },
+    s17: { label: "모래가 안 나온 날", bpm: 64, search: "sparse essay piano", mood: "사소한 서운함" },
+    s18: { label: "월요일 8시 양말 한 짝", bpm: 118, search: "comic morning chase", mood: "아침의 소동" },
+    s19: { label: "댓글 한 줄이 다음 글", bpm: 90, search: "warm reply lo-fi", mood: "다정한 답장" },
+    s20: { label: "딸이 커피를 먼저 마셨다", bpm: 86, search: "cozy family jazz", mood: "웃음 나는 따뜻함" },
+    s21: { label: "학원 대신 한 시간 걷기", bpm: 94, search: "walking acoustic", mood: "같이 걷는 리듬" },
+    s22: { label: "재운 뒤 30분, 하루 접기", bpm: 60, search: "late night journal", mood: "하루를 접는 밤" },
+    s23: { label: "엄마가 만드는 앱", bpm: 82, search: "curious music box", mood: "궁금한 아이 눈" },
+    s24: { label: "찬양 연습 끝나고 혼자", bpm: 58, search: "church air pad", mood: "빈 예배당의 여운" },
+    s25: { label: "겨울학기 신청서 앞에서", bpm: 80, search: "hesitant warm piano", mood: "망설이는 마음" },
+    s26: { label: "오후 네 시 반 하원", bpm: 98, search: "busy afternoon pop", mood: "하원의 분주함" },
+    s27: { label: "폰 메모 300개 정리", bpm: 106, search: "tidy marimba", mood: "정리되는 맑음" },
+    s28: { label: "학원 0개, 총회에서 들은 말", bpm: 76, search: "gentle playground", mood: "느긋한 오후" },
+    s29: { label: "딴 데가 터진다 (웃픈 제작기)", bpm: 122, search: "comical glitch beat", mood: "웃픈 제작기" },
+    s30: { label: "밤 열한 시, 하루를 닫는 세 가지", bpm: 63, search: "deep night calm", mood: "하루를 닫는 밤" },
+    s31: { label: "사진 3만 장 중에 세 장", bpm: 74, search: "nostalgic photo piano", mood: "앨범 넘기는 마음" },
+    s32: { label: "처음 마이크 앞에서 가사가 비었다", bpm: 61, search: "tender hymn piano", mood: "서툰 첫 소절" },
+    s33: { label: "블로그는 안 망했는데, 안 읽게 됐다", bpm: 87, search: "mellow blog lo-fi", mood: "담백한 습관" },
+    s34: { label: "새벽 산책 미니멀", bpm: 96, search: "minimal dawn walk", mood: "새벽 공기" },
+    s35: { label: "비 오는 창가", bpm: 68, search: "rainy window ambient", mood: "비 오는 창가" },
+    s36: { label: "월요일 출근 러닝", bpm: 126, search: "running beat", mood: "달리는 아침" },
+    s37: { label: "할머니 댁 골목", bpm: 78, search: "old alley acoustic", mood: "정겨운 골목" },
+    s38: { label: "첫차 기다리며", bpm: 70, search: "first train dawn", mood: "새벽 정류장" },
+    s39: { label: "금요일 퇴근 신남", bpm: 124, search: "friday disco pop", mood: "퇴근의 들뜸" },
+    s40: { label: "겨울 코트 재즈", bpm: 88, search: "winter coat jazz", mood: "코트 깃의 재즈" },
+    s41: { label: "봄 이사 준비", bpm: 100, search: "moving day sunshine", mood: "설레는 이사" },
+    s42: { label: "아이 첫 자전거", bpm: 110, search: "first bike joy", mood: "첫 자전거" },
+    s43: { label: "주말 빨래방", bpm: 82, search: "laundromat sunday", mood: "빨래방 오후" },
+    s44: { label: "카페 오픈 준비", bpm: 92, search: "cafe open morning", mood: "오픈 준비" },
+    s45: { label: "새벽 라면", bpm: 66, search: "midnight ramen blues", mood: "새벽 라면" },
+    s46: { label: "바다 드라이브", bpm: 120, search: "coastal drive synth", mood: "바다로 달리기" },
+    s47: { label: "책방 오후", bpm: 72, search: "bookshop afternoon", mood: "책장 넘기는 소리" },
+    s48: { label: "비밀 일기", bpm: 58, search: "secret diary piano", mood: "나만 보는 밤" },
+    s49: { label: "엘리베이터 기다림", bpm: 108, search: "elevator wait pop", mood: "짧은 기다림" },
+    s50: { label: "회의 전 심호흡", bpm: 76, search: "breathe before meeting", mood: "심호흡" },
+    s51: { label: "야근 라디오", bpm: 84, search: "overtime radio lofi", mood: "야근의 라디오" },
+    s52: { label: "첫 눈", bpm: 64, search: "first snow bells", mood: "첫 눈" },
+    s53: { label: "여름 수영장", bpm: 104, search: "summer pool pop", mood: "물장구" },
+    s54: { label: "가을 낙엽", bpm: 74, search: "autumn leaves guitar", mood: "낙엽 밟는 소리" },
+    s55: { label: "겨울 온천", bpm: 60, search: "winter onsen calm", mood: "김이 오르는 온천" },
+    s56: { label: "봄 벚꽃", bpm: 95, search: "spring blossom", mood: "벚꽃 바람" },
+    s57: { label: "새벽 편의점", bpm: 90, search: "dawn convenience lo-fi", mood: "형광등 아래 새벽" },
+    s58: { label: "당근마켓 거래", bpm: 112, search: "secondhand trade beat", mood: "동네 거래" },
+    s59: { label: "첫 차", bpm: 86, search: "first car excitement", mood: "첫 차" },
+    s60: { label: "이사 첫날", bpm: 94, search: "moving day warm", mood: "새 집 첫날" },
+    s61: { label: "육아 퇴근", bpm: 77, search: "parenting off duty", mood: "애들 잠든 뒤" },
+    s62: { label: "아이 재우고 커피", bpm: 62, search: "coffee after bedtime", mood: "조용한 커피" },
+    s63: { label: "주방 설거지", bpm: 98, search: "kitchen tidy beat", mood: "물소리 리듬" },
+    s64: { label: "빨래 널기", bpm: 87, search: "hang laundry tune", mood: "널어 말리기" },
+    s65: { label: "운동 첫날", bpm: 118, search: "workout day one", mood: "첫 운동" },
+    s66: { label: "다이어트 3일째", bpm: 106, search: "diet day three funk", mood: "3일째의 의지" },
+    s67: { label: "면접 대기", bpm: 71, search: "interview waiting", mood: "면접 대기" },
+    s68: { label: "월급날", bpm: 120, search: "payday happy pop", mood: "월급날" },
+    s69: { label: "가계부 정리", bpm: 93, search: "budget tidy marimba", mood: "숫자 정리" },
+    s70: { label: "여행 짐싸기", bpm: 99, search: "packing for travel", mood: "설레는 짐싸기" },
+    s71: { label: "공항 새벽", bpm: 69, search: "airport dawn", mood: "공항 새벽" },
+    s72: { label: "기차 창가", bpm: 83, search: "train window guitar", mood: "기차 창가" },
+    s73: { label: "캠핑 밤", bpm: 75, search: "camping night", mood: "텐트 밖 별" },
+    s74: { label: "등산 정상", bpm: 107, search: "summit march", mood: "정상의 바람" },
+    s75: { label: "수영장 오전", bpm: 97, search: "morning pool calm", mood: "물결" },
+    s76: { label: "필라테스", bpm: 80, search: "pilates flow", mood: "천천히 호흡" },
+    s77: { label: "미용실", bpm: 102, search: "salon upbeat", mood: "가위 소리" },
+    s78: { label: "카페 알바", bpm: 95, search: "cafe part time", mood: "카운터 리듬" },
+    s79: { label: "첫 자취", bpm: 89, search: "first apartment", mood: "첫 자취" },
+    s80: { label: "룸메 갈등", bpm: 103, search: "roommate tension", mood: "신경전" },
+    s81: { label: "친구와 다툼", bpm: 81, search: "friendship quarrel", mood: "서운한 마음" },
+    s82: { label: "화해", bpm: 73, search: "make up warm", mood: "화해" },
+    s83: { label: "생일", bpm: 116, search: "birthday party", mood: "생일" },
+    s84: { label: "결혼기념일", bpm: 77, search: "anniversary jazz", mood: "기념일" },
+    s85: { label: "아이 졸업", bpm: 85, search: "graduation warm", mood: "졸업" },
+    s86: { label: "입학", bpm: 99, search: "entrance ceremony", mood: "입학" },
+    s87: { label: "첫 시험", bpm: 91, search: "first exam nerves", mood: "첫 시험" },
+    s88: { label: "방학", bpm: 110, search: "vacation bounce", mood: "방학" },
+    s89: { label: "개학", bpm: 105, search: "back to school", mood: "개학" },
+    s90: { label: "책 읽는 밤", bpm: 59, search: "reading night", mood: "책 읽는 밤" },
+    s91: { label: "일기 쓰는 밤", bpm: 57, search: "diary night", mood: "일기 쓰는 밤" },
+    s92: { label: "산책 음악", bpm: 85, search: "walk with music", mood: "산책" },
+    s93: { label: "고양이", bpm: 101, search: "cat pounce", mood: "고양이" },
+    s94: { label: "강아지 산책", bpm: 114, search: "puppy walk", mood: "강아지 산책" },
+    s95: { label: "식물 키우기", bpm: 73, search: "plant growing calm", mood: "새 잎" },
+    s96: { label: "커피 두 잔", bpm: 81, search: "two cups of coffee", mood: "커피 두 잔" },
+    s97: { label: "빵 굽는 아침", bpm: 93, search: "baking morning", mood: "빵 굽는 아침" },
+    s98: { label: "주말 농장", bpm: 89, search: "weekend farm", mood: "주말 농장" },
+    s99: { label: "별 보는 밤", bpm: 63, search: "starry night calm", mood: "별 보는 밤" },
+    s100: { label: "새벽 다섯 시 창문", bpm: 61, search: "dawn window radio", mood: "새벽 다섯 시" }
   };
   function musicOf(v){
     var id = (v && v.id) ? String(v.id) : "";
@@ -8935,12 +9617,28 @@ var AiriaMp4 = (function(){
     if(q.key === "shorts") return "🎬 이 영상엔 BGM '" + m.label + "'이 함께 들어가요 · " + tail;
     return "🔇 릴스는 무음 표준 MP4(H.264)로 만들어요 — 올린 뒤 인스타에서 음악을 붙여요 · " + tail;
   }
+  /* id → 곡. BGMS 에 있으면 그 곡(s01~s100 은 1:1), 없으면 번호/해시로 100곡 풀에 고르게 분산. */
+  function bgmHash(s){
+    var h = 2166136261, i;
+    s = String(s || "");
+    for(i = 0; i < s.length; i++){
+      h ^= s.charCodeAt(i);
+      h = (typeof Math.imul === "function") ? Math.imul(h, 16777619) : (h * 16777619);
+      h = h >>> 0;
+    }
+    return h >>> 0;
+  }
   function bgmKeyOf(v, p){
     var id = (v && v.id) ? String(v.id) : "";
     if(BGMS[id]) return id;
-    var a = BGM_ALIAS[tplOf(v)];
-    if(a) return a;
-    return (p === "shorts") ? "s09" : "s04";
+    if(!BGM_KEYS.length) return "s04";
+    var m = /^s(\d+)$/i.exec(id);
+    if(m){
+      var n = parseInt(m[1], 10);
+      if(n > BGM_KEYS.length) return BGM_KEYS[(n - 1) % BGM_KEYS.length];
+    }
+    var seed = id || (v && (v.title || v.name || v.tone)) || tplOf(v) || (p || "x");
+    return BGM_KEYS[bgmHash(seed) % BGM_KEYS.length];
   }
   function bgmKick(ctx, t, gain, out){
     var o = ctx.createOscillator(), g = ctx.createGain();
@@ -8963,28 +9661,82 @@ var AiriaMp4 = (function(){
     s.connect(f); f.connect(g); g.connect(out);
     s.start(t);
   }
-  function bgmDrums(ctx, tb, beat, out, kind){
-    var b;
+  /* 드럼 21종 — kind 이름 하나가 곡의 리듬 시그니처가 된다 (beats: 4 또는 3) */
+  function bgmDrums(ctx, tb, beat, out, kind, beats){
+    var b, n = beats || 4;
     if(kind === "clapBright"){
       bgmKick(ctx, tb, 0.30, out); bgmKick(ctx, tb + beat * 2, 0.26, out);
       bgmTick(ctx, tb + beat, 1800, 0.10, out); bgmTick(ctx, tb + beat * 3, 1800, 0.10, out);
-      for(b = 0; b < 8; b++) bgmTick(ctx, tb + b * beat / 2, 9000, b % 2 ? 0.03 : 0.05, out);
+      for(b = 0; b < n * 2; b++) bgmTick(ctx, tb + b * beat / 2, 9000, b % 2 ? 0.03 : 0.05, out);
     } else if(kind === "shaker"){
-      for(b = 0; b < 8; b++) bgmTick(ctx, tb + b * beat / 2, 8200, b % 2 ? 0.025 : 0.05, out);
+      for(b = 0; b < n * 2; b++) bgmTick(ctx, tb + b * beat / 2, 8200, b % 2 ? 0.025 : 0.05, out);
       bgmKick(ctx, tb, 0.16, out);
+    } else if(kind === "shakerSoft"){
+      for(b = 0; b < n * 2; b++) bgmTick(ctx, tb + b * beat / 2, 8200, 0.022, out);
     } else if(kind === "lofi"){
       bgmKick(ctx, tb, 0.24, out); bgmKick(ctx, tb + beat * 2.5, 0.18, out);
       bgmTick(ctx, tb + beat * 2, 1500, 0.07, out); bgmTick(ctx, tb + beat * 3.5, 9000, 0.03, out);
     } else if(kind === "lofiBusy"){
       bgmKick(ctx, tb, 0.26, out); bgmKick(ctx, tb + beat * 1.75, 0.16, out);
       bgmTick(ctx, tb + beat * 2, 1500, 0.08, out); bgmTick(ctx, tb + beat * 3.75, 1500, 0.06, out);
-      for(b = 0; b < 8; b++) bgmTick(ctx, tb + b * beat / 2, 8800, b % 2 ? 0.02 : 0.04, out);
+      for(b = 0; b < n * 2; b++) bgmTick(ctx, tb + b * beat / 2, 8800, b % 2 ? 0.02 : 0.04, out);
     } else if(kind === "tick"){
       bgmTick(ctx, tb, 2400, 0.10, out); bgmTick(ctx, tb + beat * 2, 2400, 0.08, out);
       bgmTick(ctx, tb + beat * 3.5, 3200, 0.05, out);
+    } else if(kind === "tickSparse"){
+      bgmTick(ctx, tb, 2400, 0.08, out); bgmTick(ctx, tb + beat * 2.5, 3000, 0.04, out);
+    } else if(kind === "fourFloor"){
+      for(b = 0; b < n; b++){
+        bgmKick(ctx, tb + b * beat, 0.22, out);
+        bgmTick(ctx, tb + b * beat + beat * 0.5, 9000, 0.035, out);
+      }
+    } else if(kind === "halftime"){
+      bgmKick(ctx, tb, 0.28, out); bgmTick(ctx, tb + beat * 2, 1600, 0.09, out);
+      bgmTick(ctx, tb + beat * 2, 9000, 0.03, out);
+    } else if(kind === "boomBap"){
+      bgmKick(ctx, tb, 0.28, out); bgmKick(ctx, tb + beat * 2.5, 0.20, out);
+      bgmTick(ctx, tb + beat * 2, 1500, 0.09, out); bgmTick(ctx, tb + beat * 3.5, 8800, 0.028, out);
+      for(b = 0; b < 8; b++) bgmTick(ctx, tb + b * beat / 2, 8600, b % 2 ? 0.018 : 0.032, out);
+    } else if(kind === "bossa"){
+      bgmKick(ctx, tb, 0.16, out); bgmKick(ctx, tb + beat * 2.5, 0.12, out);
+      bgmTick(ctx, tb + beat, 1200, 0.07, out); bgmTick(ctx, tb + beat * 2, 1200, 0.05, out);
+      bgmTick(ctx, tb + beat * 3, 1200, 0.06, out); bgmTick(ctx, tb + beat * 3.75, 1200, 0.04, out);
+      for(b = 0; b < 4; b++) bgmTick(ctx, tb + b * beat, 8800, 0.02, out);
+    } else if(kind === "waltz"){
+      bgmKick(ctx, tb, 0.20, out);
+      bgmTick(ctx, tb + beat, 8800, 0.03, out); bgmTick(ctx, tb + beat * 2, 8800, 0.03, out);
+      bgmTick(ctx, tb + beat * 2, 1400, 0.04, out);
+    } else if(kind === "brush"){
+      bgmKick(ctx, tb, 0.18, out);
+      for(b = 1; b < n; b++) bgmTick(ctx, tb + b * beat, 7000, 0.035, out);
+    } else if(kind === "rim"){
+      bgmKick(ctx, tb, 0.20, out); bgmTick(ctx, tb + beat, 1250, 0.07, out);
+      bgmTick(ctx, tb + beat * 3, 1250, 0.06, out); bgmTick(ctx, tb + beat * 2.5, 8400, 0.02, out);
+    } else if(kind === "heart"){
+      bgmKick(ctx, tb, 0.16, out); bgmKick(ctx, tb + beat * 0.45, 0.10, out);
+    } else if(kind === "snap"){
+      bgmKick(ctx, tb, 0.20, out);
+      bgmTick(ctx, tb + beat * 2, 1800, 0.08, out); bgmTick(ctx, tb + beat * 2.02, 2600, 0.03, out);
+    } else if(kind === "march"){
+      for(b = 0; b < n; b++){
+        if(b % 2 === 0) bgmKick(ctx, tb + b * beat, 0.24, out);
+        else bgmTick(ctx, tb + b * beat, 1500, 0.06, out);
+      }
+      for(b = 0; b < n * 2; b++) bgmTick(ctx, tb + b * beat / 2, 8600, 0.018, out);
+    } else if(kind === "glitch"){
+      var gp = [0, 0.75, 1.625, 2.25, 3.4, 3.62];
+      for(b = 0; b < gp.length; b++) bgmTick(ctx, tb + gp[b] * beat, b % 2 ? 2600 : 1500, 0.05, out);
+      bgmKick(ctx, tb + beat * 2, 0.14, out);
+    } else if(kind === "trap"){
+      bgmKick(ctx, tb, 0.26, out); bgmKick(ctx, tb + beat * 2.75, 0.18, out);
+      for(b = 0; b < n * 4; b++) bgmTick(ctx, tb + b * beat / 4, 9000, b % 2 ? 0.012 : 0.024, out);
+    } else if(kind === "swing"){
+      bgmKick(ctx, tb, 0.22, out); bgmKick(ctx, tb + beat * 3.4, 0.14, out);
+      bgmTick(ctx, tb + beat, 1600, 0.05, out);
+      for(b = 0; b < 4; b++) bgmTick(ctx, tb + b * beat + (b % 2 ? beat * 0.62 : 0), 9000, 0.03, out);
     }
   }
-  /* s06 — 처음 3초: 맑은 벨/피아노 단음으로 긴장 → 3초 뒤 따뜻한 화음으로 풀린다 */
+  /* intro 가 있는 곡 — 처음 3초는 맑은 단음, 3초 뒤 따뜻한 화음으로 풀린다 */
   function bgmIntro(ctx, t0, total, out, send, R){
     var notes = (R.intro && R.intro.notes) || [69, 71, 76];
     var gap = (R.intro && R.intro.gap) || 0.9;
@@ -8998,7 +9750,6 @@ var AiriaMp4 = (function(){
       tone(ctx, t, nn - 12, 1.5, "sine", 0.028, out, { attack: 0.02 });
     }
     tone(ctx, t0, R.key - 12, sec, "triangle", 0.028, out, { attack: 0.7, lp: 700 });
-    /* 풀리는 지점 — 따뜻한 안정 화음 */
     var tr = t0 + sec;
     var ch = R.prog[0];
     for(var j = 0; j < ch.length; j++){
@@ -9007,7 +9758,8 @@ var AiriaMp4 = (function(){
     tone(ctx, tr, R.key - 12, 4.4, "sine", 0.05, out, { attack: 0.7 });
   }
   function bgmPlay(ctx, t0, total, out, send, R){
-    var beat = 60 / R.bpm, barLen = beat * 4;
+    var beats = R.meter || 4;
+    var beat = 60 / R.bpm, barLen = beat * beats;
     var bars = Math.ceil(total / barLen) + 1;
     var introSec = (R.intro && R.intro.sec) || 0;
     for(var b = 0; b < bars; b++){
@@ -9017,19 +9769,28 @@ var AiriaMp4 = (function(){
       var intro = introSec && (tb - t0) < introSec;
       var i, t;
       if(R.pad && !intro){
+        var poct = 12 * (R.pad.oct || 0);
         for(i = 0; i < ch.length; i++){
-          tone(ctx, tb, R.key + ch[i], barLen * 1.02 + 0.3, R.pad.type, R.pad.gain, out,
+          tone(ctx, tb, R.key + ch[i] + poct, barLen * 1.02 + 0.3, R.pad.type, R.pad.gain, out,
                { attack: R.pad.attack || 0.3, lp: R.pad.lp, detune: i % 2 ? 3 : -3 });
         }
       }
       if(R.arp && !intro){
         var div = R.arp.div || 8, step = barLen / div;
+        var order = ch;
+        if(R.arp.mode === "down") order = ch.slice().reverse();
+        else if(R.arp.mode === "pendulum" && ch.length > 2) order = ch.concat(ch.slice(1, -1).reverse());
         for(i = 0; i < div; i++){
-          t = tb + i * step;
+          if(R.arp.restEvery && i % R.arp.restEvery === R.arp.restEvery - 1) continue;
+          t = tb + i * step + (R.arp.swing && (i % 2) ? step * R.arp.swing : 0);
           if(t > t0 + total) break;
-          var note = R.key + ch[i % ch.length] + 12 * (R.arp.oct || 1);
+          var note = R.key + order[i % order.length] + 12 * (R.arp.oct || 1);
           tone(ctx, t, note, R.arp.decay || 0.6, R.arp.type, i % 4 === 0 ? R.arp.gain * 1.3 : R.arp.gain, out,
                { attack: 0.006, lp: R.arp.lp });
+          if(R.arp.pairs){
+            tone(ctx, t + step * 0.5, R.key + order[(i + 2) % order.length] + 12 * (R.arp.oct || 1),
+                 (R.arp.decay || 0.6) * 0.8, "sine", R.arp.gain * 0.5, out, { attack: 0.008, lp: R.arp.lp });
+          }
           if(R.arp.echo) tone(ctx, t, note, 0.5, "sine", R.arp.gain * 0.3, send);
         }
       }
@@ -9038,16 +9799,33 @@ var AiriaMp4 = (function(){
         for(i = 0; i < bdiv; i++){
           t = tb + i * bstep;
           if(t > t0 + total) break;
-          var bn = R.key - 24 + ch[0] + (R.bass.alt && i % 2 ? R.bass.alt : 0);
+          var bn = R.key - 24 + ch[0] + (R.bass.alt && i % 2 ? R.bass.alt : 0) + 12 * (R.bass.oct || 0);
           tone(ctx, t, bn, bstep * 0.95, R.bass.type, R.bass.gain, out, { attack: 0.02, lp: R.bass.lp });
         }
       }
-      if(R.drum && !intro) bgmDrums(ctx, tb, beat, out, R.drum);
+      if(R.mel && !intro){
+        var mdiv = R.mel.div || 8, mstep = barLen / mdiv;
+        var steps = R.mel.steps || [0, 4, 7, 4];
+        for(i = 0; i < mdiv; i++){
+          var off = steps[i % steps.length];
+          if(off === null || off === undefined) continue;
+          t = tb + i * mstep + (R.mel.swing && (i % 2) ? mstep * R.mel.swing : 0);
+          if(t > t0 + total) break;
+          tone(ctx, t, R.key + off + 12 * (R.mel.oct || 1), R.mel.dec || 0.45, R.mel.type,
+               i % 4 === 0 ? (R.mel.gain || 0.03) * 1.25 : (R.mel.gain || 0.03), out,
+               { attack: 0.008, lp: R.mel.lp });
+        }
+      }
+      if(R.drum && !intro) bgmDrums(ctx, tb, beat, out, R.drum, beats);
       if(R.bell && !intro){
         tone(ctx, tb + (R.bell.at || 0), R.key + 12 + ch[0] + 12, R.bell.len || 2.2, "sine", R.bell.gain, send,
              { attack: 0.01 });
         if(R.bell.hi) tone(ctx, tb + (R.bell.at || 0) + 0.5, R.key + 24 + ch[1], 1.6, "sine", R.bell.gain * 0.55, send,
              { attack: 0.02 });
+      }
+      if(R.chime && !intro){
+        tone(ctx, tb + (R.chime.at || 2.0), R.key + 19, R.chime.len || 1.8, "sine", R.chime.gain, send,
+             { attack: 0.01 });
       }
       if(R.pulse && !intro && (b % 2 === 0)) bgmKick(ctx, tb, 0.10, out);
       if(R.air && !intro) noiseBurst(ctx, tb, Math.min(1.3, barLen), R.air, out, 0);
@@ -9073,9 +9851,9 @@ var AiriaMp4 = (function(){
       master.connect(comp);
       comp.connect(dest);
       var dl = ctx.createDelay(0.6);
-      dl.delayTime.value = (key === "s01" || key === "s03") ? 0.2 : 0.3;
+      dl.delayTime.value = (R.echo && R.echo.delay) || 0.3;
       var fb = ctx.createGain();
-      fb.gain.value = (key === "s07") ? 0.12 : 0.24;
+      fb.gain.value = (R.echo && R.echo.fb != null) ? R.echo.fb : 0.24;
       var lp = ctx.createBiquadFilter();
       lp.type = "lowpass";
       lp.frequency.value = 2200;
@@ -9086,7 +9864,7 @@ var AiriaMp4 = (function(){
       var t0 = ctx.currentTime + 0.08;
       bgmPlay(ctx, t0, total, master, send, R);
       /* 끝 1.2초 여운 — 볼륨을 0으로 부드럽게 내린다 */
-      var fade = Math.min(1.2, Math.max(0.4, total * 0.2));
+      var fade = Math.min((R.bpm && R.bpm < 72) ? 1.8 : 1.2, Math.max(0.4, total * 0.22));
       master.gain.setValueAtTime(0.85, t0 + Math.max(0, total - fade));
       master.gain.linearRampToValueAtTime(0.0001, t0 + total);
       if(ctx.state === "suspended" && ctx.resume) ctx.resume();
@@ -14684,7 +15462,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 69;
+  var OTA_APP_BUILD = 70;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -17715,7 +18493,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 69;
+    var BUILD = 70;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
