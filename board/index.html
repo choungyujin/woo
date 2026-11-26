@@ -2589,6 +2589,10 @@
   }
   .a71-pubrow .row2{display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap}
   .a71-pubrow .when{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--a-muted)}
+  /* 빌드 76 — 이미 올린 대본 [발행 취소] */
+  .a71-unpub{border:1px solid rgba(232,102,74,.38); background:#fff; color:#D2502F; font:inherit; font-size:10.5px;
+    font-weight:800; padding:3px 9px; border-radius:999px; cursor:pointer; line-height:1.5}
+  .a71-unpub:active{background:#FDEEE9}
   .a71-donechip{
     display:inline-block; font-size:10px; font-weight:800; letter-spacing:.04em;
     padding:2px 7px; border-radius:999px; background:var(--a-ok-bg); color:var(--a-ok);
@@ -2748,7 +2752,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 75</span>
+      <span class="a71-build" id="a71Build">빌드 76</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2809,7 +2813,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 75</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 76</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16222,7 +16226,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 75;
+  var OTA_APP_BUILD = 76;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19174,7 +19178,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 75;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 76;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -19543,6 +19547,7 @@ var AiriaMp4 = (function(){
         return '<div class="a71-pubrow"><div class="row"><b>' + esc(String(x.title || x.id)) + '</b>' +
           '<span class="a71-pubflag">발행됨</span></div>' +
           '<div class="row2">' + (chips || '<span class="a71-pf threads">기록</span>') +
+          '<button class="a71-unpub" type="button" data-unpub="' + esc(x.id) + '" title="이 발행 기록을 지우고 미발행 대본으로 되돌립니다">발행 취소</button>' +
           '<span class="when">' + esc(String(S.pub[x.id] || "")) + "</span></div></div>";
       }).join("");
       return '<details class="a71-fold"><summary>이미 올린 대본 ' + total + "편 보기" +
@@ -20087,16 +20092,18 @@ var AiriaMp4 = (function(){
       }catch(e){ return false; }
       return true;
     }
-    /* 빌드 75 — 공유 시트로 넘기면 그 자리에서 발행 완료로 기록하고 다음 대본으로 넘어간다.
-       실수로 공유를 취소하고 돌아온 경우는 토스트 [되돌리기] 한 번으로 직전 대본·슬롯으로 돌아간다. */
+    /* 빌드 76 — 유진님 지시 “발행한거 내가 발행버튼 누르게해줘”.
+       [사진+본문 바로 올리기] 는 본문 복사 + 공유 시트까지만 하고, 발행 기록은 남기지 않는다.
+       실제 게시를 마친 뒤 카드의 [✓ 발행 완료 · 다음] 을 유진님이 직접 눌렀을 때만 기록되고 다음 대본으로 넘어간다. */
     function sharePhotoNow(du, text, imgName, ch, it){
       text = String(text || "");
       if(!du){ toast("공유할 사진이 없어요 — 이 대본에 사진을 먼저 붙여 주세요"); return; }
       if(!text){ toast("공유할 본문이 없어요"); return; }
       /* ① 본문+해시태그를 먼저 클립보드에 — 공유 시트에서 글이 빠지는 앱 대비 */
       copyTextSilent(text, function(ok){ recordCopy(text); });
-      if(nativeSharePhoto(text, du, imgName)){ markUploaded(it, ch); return; }
-      if(webSharePhoto(text, du, imgName, function(ok){ if(ok) markUploaded(it, ch); })) return;
+      var hint = "올린 뒤 [✓ 발행 완료 · 다음] 을 눌러 주세요";
+      if(nativeSharePhoto(text, du, imgName)){ toast("사진+본문을 공유 창으로 넘겼어요 — " + hint, null, null, 6000); return; }
+      if(webSharePhoto(text, du, imgName, function(ok){ if(ok) toast("공유를 마쳤어요 — " + hint, null, null, 6000); })) return;
       toast("이 기기 앱에선 사진+글 공유가 제한돼 있어요 — 본문은 복사했어요. 앱에서 사진을 골라 붙여 주세요");
       openUrl(uploadUrl(ch || "threads", text));
     }
@@ -20315,7 +20322,8 @@ var AiriaMp4 = (function(){
           '<button class="a71-btn coral full" type="button" id="a71Publish">✓ 발행 완료 · 새 콘텐츠 생성</button>' +
           '<button class="a71-btn" type="button" id="a71RefreshDesign">🎨 디자인 · 사진만 새로고침</button>' +
           '<button class="a71-btn ghost" type="button" id="a71NextPkg">다음 패키지 →</button>' +
-        "</div>";
+        "</div>" +
+        publishedListHtml();
 
       paintCover($("a71Cover"), coverOpt(it, S.pkgIdx || 0));
       S.curIdea = it.id;
@@ -20374,6 +20382,9 @@ var AiriaMp4 = (function(){
             '<div class="a71-btnrow" style="margin-top:10px">' +
               '<button class="a71-btn solid sm" type="button" data-copych="' + ch + '" style="flex:1">복사</button>' +
               '<button class="a71-btn sm" type="button" data-opench="' + ch + '">바로 열기</button>' +
+            "</div>" +
+            '<div class="a71-btnrow" style="margin-top:6px">' +
+              '<button class="a71-btn coral sm wide" type="button" data-pubdone="' + ch + '" data-idea="' + esc(it.id) + '">✓ 발행 완료 · 다음</button>' +
             "</div>" +
           "</div>";
       });
@@ -20918,7 +20929,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-cycle],[data-qskip],[data-qreset]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-pubdone],[data-unpub],[data-cycle],[data-qskip],[data-qreset]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -21068,6 +21079,18 @@ var AiriaMp4 = (function(){
           sharePhotoNow(duSN, finalScript(itSN, chSN), shareImgName(itSN, chSN, duSN), chSN, itSN);
           return;
         }
+        if(t.hasAttribute("data-pubdone")){
+          /* 빌드 76 — 유진님이 직접 누르는 [✓ 발행 완료 · 다음] */
+          var chPD = t.getAttribute("data-pubdone") || S.chan || "threads";
+          var itPD = ideaById(t.getAttribute("data-idea")) || it || pkgIdea(0);
+          markUploaded(itPD, chPD, CHLABEL[chPD] + " 발행 완료 · 다음 대본");
+          return;
+        }
+        if(t.hasAttribute("data-unpub")){
+          /* 빌드 76 — 이미 올린 대본의 [발행 취소] */
+          unpublish(ideaById(t.getAttribute("data-unpub")));
+          return;
+        }
         if(t.hasAttribute("data-limit")){ S.bot.limit = parseInt(t.getAttribute("data-limit"), 10) || 45; save(); renderGuard(); renderGuardTop(); return; }
       });
 
@@ -21111,7 +21134,7 @@ var AiriaMp4 = (function(){
           copyPhotoAndText(duPT, finalScript(it, S.chan || "threads"), shareImgName(it, S.chan || "threads", duPT, true));
         }
         if(id === "a71ShareNow"){
-          /* 빌드 74 — 커버 캔버스를 갤러리에 저장하지 않고 바로 공유 시트로. 빌드 75 — 넘기면 자동 발행 완료 + 다음 대본 */
+          /* 빌드 74 — 커버 캔버스를 갤러리에 저장하지 않고 바로 공유 시트로. 빌드 76 — 발행 기록은 [✓ 발행 완료 · 다음] 을 직접 눌렀을 때만 */
           var cvSN2 = $("a71Cover");
           var duSN2 = "";
           try { duSN2 = cvSN2 ? cvSN2.toDataURL("image/png") : ""; } catch(e){ duSN2 = ""; }
@@ -21152,10 +21175,10 @@ var AiriaMp4 = (function(){
       if(!it) return;
       markUploaded(it, S.chan || "threads", "발행 완료 · 성장 기록에 남겼어요");
     }
-    /* ---------------------------------------------------------------- 업로드 = 발행 완료 (빌드 75)
-       [사진+본문 바로 올리기] 로 공유 시트에 넘기면, [발행 완료] 를 따로 누르지 않아도
-       그 대본·채널을 기록하고 다음 미발행 대본으로 넘어간다. 직전 상태는 LAST_UNDO 에 담아 두고,
-       토스트 [되돌리기] 한 번으로 대본·발행 기록·슬롯·오늘 발행 수를 그대로 되돌린다. */
+    /* ---------------------------------------------------------------- 발행 기록 · 발행 취소 (빌드 76)
+       유진님이 직접 누르는 [✓ 발행 완료 · 다음] = markUploaded — 대본·채널을 기록하고 다음 미발행 대본으로.
+       [발행 취소] = unpublish — 언제든 발행 기록을 지우고 그 대본을 미발행으로 되돌린다.
+       직전 상태는 LAST_UNDO 에 담아 두고, 토스트 [되돌리기] 한 번으로 통째로 되돌린다. */
     var LAST_UNDO = null;
     function snapshotState(){
       try{
@@ -21185,6 +21208,35 @@ var AiriaMp4 = (function(){
       save();
       renderPackage(); renderTab(S.tab || "package"); renderSummary(); renderManage();
       toast(msg || (CHLABEL[ch] + " 업로드 완료 · 다음 대본"), "되돌리기", undoLast, 8000);
+    }
+    /* 빌드 76 — 발행 취소: 언제든 되돌린다.
+       발행 기록(S.pub·S.pubCh)을 지우고, 오늘 올린 것이면 오늘 발행 수(최소 0)와
+       그 채널의 오늘의 발행 슬롯 ✓ 도 함께 푼다(같은 날·같은 채널에 다른 발행 기록이 없을 때만).
+       지운 대본은 다시 미발행 줄 맨 앞으로 돌아와 바로 뜬다. */
+    function unpublish(it){
+      if(!it) return;
+      var t = today(), day = S.pub[it.id], pch = (S.pubCh && S.pubCh[it.id]) || {};
+      var chs = CH.filter(function(c){ return !!pch[c]; });
+      LAST_UNDO = snapshotState();
+      delete S.pub[it.id];
+      if(S.pubCh) delete S.pubCh[it.id];
+      S.pubSeq = (Array.isArray(S.pubSeq) ? S.pubSeq : []).filter(function(x){ return x !== it.id; });
+      if(day === t){
+        if(!S.counts[t]) S.counts[t] = { posts: 0, comments: 0, replies: 0 };
+        S.counts[t].posts = Math.max(0, (S.counts[t].posts || 0) - 1);
+        chs.forEach(function(c){
+          var still = false;
+          for(var k in S.pubCh){
+            if(k === it.id) continue;
+            var o = S.pubCh[k];
+            if(o && o[c] === t){ still = true; break; }
+          }
+          if(!still && S.slotDone[t] && S.slotDone[t][c]) S.slotDone[t][c] = false;
+        });
+      }
+      save();
+      renderPackage(); renderTab(S.tab || "package"); renderSummary(); renderManage();
+      toast("발행을 취소했어요 — 미발행 대본으로 되돌렸어요", "되돌리기", undoLast, 8000);
     }
     /* 업로드든 선댓글이든 대댓글이든 — 마지막 한 걸음을 통째로 되돌린다 */
     function undoLast(){
@@ -21376,7 +21428,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 75;
+    var BUILD = 76;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
