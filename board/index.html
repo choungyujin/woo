@@ -2561,6 +2561,35 @@
     box-shadow:0 10px 28px -12px rgba(0,0,0,.5);
   }
   #a71Toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+  /* 빌드 75 — 업로드 자동 갱신 뒤 [되돌리기] 버튼이 붙는 토스트 */
+  #a71Toast.has-act{
+    display:flex; align-items:center; gap:9px; max-width:94vw; text-align:left;
+    padding:9px 9px 9px 14px; border-radius:18px; pointer-events:auto;
+  }
+  #a71Toast .a71-toast-txt{flex:1; line-height:1.4; font-size:12px}
+  #a71Toast .a71-toast-act{
+    flex:none; border:0; border-radius:999px; background:#fff; color:var(--a-char);
+    font:inherit; font-size:12px; font-weight:800; letter-spacing:-.01em;
+    padding:8px 12px; cursor:pointer; white-space:nowrap;
+  }
+  #a71Toast .a71-toast-act:active{background:#EDECE8}
+  /* 발행됨 배지 · 이미 올린 대본 목록 · 35편 순환 안내 */
+  .a71-pubbadge{
+    display:inline-block; font-size:10.5px; font-weight:800; letter-spacing:-.01em;
+    color:#B3261E; background:#FDEDEC; border:1px solid #F6D6D3;
+    padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; white-space:nowrap;
+  }
+  .a71-pubrow{border-top:1px solid var(--a-line2); padding:10px 13px}
+  .a71-pubrow:first-of-type{border-top:0}
+  .a71-pubrow .row{display:flex; align-items:center; gap:7px}
+  .a71-pubrow .row b{font-size:12.5px; font-weight:700; color:var(--a-ink2); line-height:1.45}
+  .a71-pubrow .row2{display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap}
+  .a71-pubrow .when{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--a-muted)}
+  .a71-donechip{
+    display:inline-block; font-size:10px; font-weight:800; letter-spacing:.04em;
+    padding:2px 7px; border-radius:999px; background:var(--a-ok-bg); color:var(--a-ok);
+  }
+  .a71-cycle{border-color:#F6D6D3 !important; background:#FFF8F6 !important}
 
   /* ---------- 옮겨 온 기존 블록(영상 스튜디오 · 관리)을 새 판에 맞춘다 ---------- */
   #v71App .panel{display:block !important; padding:0; border:0; background:transparent}
@@ -2715,7 +2744,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 74</span>
+      <span class="a71-build" id="a71Build">빌드 75</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2776,7 +2805,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 74</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 75</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16189,7 +16218,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 74;
+  var OTA_APP_BUILD = 75;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19141,7 +19170,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 74;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 75;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -19165,7 +19194,10 @@ var AiriaMp4 = (function(){
       if(n == null || n === "" || isNaN(n)) return "—";
       return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-    function pad2(n){ return (n < 10 ? "0" : "") + n; }    function today(){
+    function pad2(n){ return (n < 10 ? "0" : "") + n; }
+    /* 핸들에 @ 가 이미 붙어 오는 경우가 있어 두 번 붙지 않게 */
+    function atName(h){ var s = String(h == null ? "" : h).trim(); if(!s) return ""; return s.charAt(0) === "@" ? s : "@" + s; }
+    function today(){
       var d = new Date();
       return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
     }
@@ -19175,13 +19207,25 @@ var AiriaMp4 = (function(){
     function nl(s){ return String(s == null ? "" : s).replace(/\\n/g, "\n"); }
 
     var toastTimer = null;
-    function toast(msg){
+    /* 빌드 75 — 토스트에 [되돌리기] 같은 한 번짜리 버튼을 붙일 수 있다: toast(글, "되돌리기", fn, 8000) */
+    function toast(msg, actLabel, actFn, ms){
       var t = $("a71Toast");
       if(!t) return;
-      t.textContent = msg;
-      t.classList.add("on");
+      var html = '<span class="a71-toast-txt">' + esc(msg) + "</span>";
+      if(actLabel) html += '<button class="a71-toast-act" type="button">' + esc(actLabel) + "</button>";
+      t.innerHTML = html;
+      t.className = actLabel ? "has-act on" : "on";
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 1900);
+      if(actLabel && actFn){
+        var btn = t.querySelector(".a71-toast-act");
+        if(btn) btn.addEventListener("click", function(ev){
+          try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+          clearTimeout(toastTimer);
+          t.classList.remove("on");
+          actFn();
+        });
+      }
+      toastTimer = setTimeout(function(){ t.classList.remove("on"); }, ms || (actLabel ? 8000 : 1900));
     }
     function openUrl(url){
       if(!url) return;
@@ -19217,13 +19261,14 @@ var AiriaMp4 = (function(){
     function blank(){
       return {
         v: 1, qi: 0, tab: "package",
-        slotDone: {}, counts: {}, pub: {},
+        slotDone: {}, counts: {}, pub: {}, pubCh: {}, pubSeq: [], pubCycle: false,
         theme: {}, photo: {}, design: {}, subOn: true, badge: "@arisia949",
         gallery: { kids: [], mine: [] },
         tags: {},
         bot: { limit: 45, log: [] },
         quick: { cat: "육아 공감", idx: 0 },
         replyDone: {}, replyRot: 0,
+        quickDone: {}, quickCopied: {}, replyCopied: {},
         chan: "threads", studioIdea: "", studioAll: false,
         seen: {}
       };
@@ -19240,7 +19285,14 @@ var AiriaMp4 = (function(){
       if(!Array.isArray(s.gallery.mine)) s.gallery.mine = [];
       if(!s.bot || typeof s.bot !== "object") s.bot = { limit: 45, log: [] };
       if(!Array.isArray(s.bot.log)) s.bot.log = [];
+      if(!s.pub || typeof s.pub !== "object") s.pub = {};
+      if(!s.pubCh || typeof s.pubCh !== "object") s.pubCh = {};
+      if(!Array.isArray(s.pubSeq)) s.pubSeq = Object.keys(s.pub);
+      s.pubCycle = !!s.pubCycle;
       if(!s.quick || typeof s.quick !== "object") s.quick = { cat: "육아 공감", idx: 0 };
+      if(!s.quickDone || typeof s.quickDone !== "object") s.quickDone = {};
+      if(!s.quickCopied || typeof s.quickCopied !== "object") s.quickCopied = {};
+      if(!s.replyCopied || typeof s.replyCopied !== "object") s.replyCopied = {};
       return s;
     }
     function save(){
@@ -19415,10 +19467,81 @@ var AiriaMp4 = (function(){
       PLAN = out;
       return out;
     }
+    /* ---------------------------------------------------------------- 발행 기록 · 다음 대본 (빌드 75)
+       유진님 지시: “업로드된건 자동갱신해”.
+       · S.pub[대본 id] = 발행한 날짜, S.pubCh[대본 id][채널] = 그 채널 발행 날짜, S.pubSeq = 최근 발행 순
+       · 대본 줄(plan)은 그대로 두고, 이미 발행한 대본을 건너뛴 ‘미발행 줄’을 앞에서부터 세운다.
+         업로드해서 S.pub 에 하나 들어가면 그 대본이 줄에서 빠지므로 다음 대본이 저절로 맨 앞에 온다.
+       · 35편을 다 쓰면 줄이 비므로 안내 카드를 띄우고, 그때는 이미 올린 대본을 순환해서 보여 준다. */
+    var QUEUE_CYCLE = false;
+    function isPublished(it){ return !!(it && S.pub && S.pub[it.id]); }
+    function publishedCount(){
+      var all = ideas(), n = 0;
+      for(var i = 0; i < all.length; i++) if(all[i] && S.pub[all[i].id]) n++;
+      return n;
+    }
+    function planQueue(){
+      var pl = plan(), out = [], all = [], seen = {};
+      for(var k = 0; k < pl.length; k++){
+        var it = pl[k];
+        if(!it || seen[it.id]) continue;
+        seen[it.id] = 1; all.push(it);
+        if(S.pubCycle || !S.pub[it.id]) out.push(it);
+      }
+      QUEUE_CYCLE = false;
+      if(!out.length && all.length){ QUEUE_CYCLE = true; out = all; }
+      return out;
+    }
     function pkgIdea(i){
-      var pl = plan();
-      if(!pl.length) return null;
-      return pl[(S.qi + i) % pl.length];
+      var q = planQueue();
+      if(!q.length) return null;
+      return q[(i || 0) % q.length];
+    }
+    function publishedIdeas(n){
+      var seq = Array.isArray(S.pubSeq) ? S.pubSeq : [], out = [];
+      for(var i = seq.length - 1; i >= 0 && out.length < (n || 8); i--){
+        var it = ideaById(seq[i]);
+        if(it && isPublished(it)) out.push(it);
+      }
+      return out;
+    }
+    /* 배지 — 지금 회전에 이미 발행한 대본이면 어느 채널로 올라갔는지 보여 준다(순환·되돌리기 뒤에도 구분) */
+    function pubBadgeHtml(it, ch){
+      if(!isPublished(it)) return "";
+      var pch = (S.pubCh && S.pubCh[it.id]) || {};
+      var done = CH.filter(function(c){ return pch[c]; });
+      var lbl = done.length ? done.map(function(c){ return CHLABEL[c]; }).join("·") : String(S.pub[it.id] || "").slice(5);
+      return '<span class="a71-pubbadge" title="이미 올린 대본">발행됨 · ' + esc(lbl) + "</span>";
+    }
+    /* 35편을 다 썼거나 순환 모드일 때 맨 위에 뜨는 안내 — 한 번 누르면 순환/초기화 */
+    function cycleNoticeHtml(){
+      if(!QUEUE_CYCLE && !S.pubCycle) return "";
+      var total = ideas().length, pub = publishedCount();
+      return '<div class="a71-card tight a71-cycle">' +
+        '<div class="a71-h"><h2>' + (S.pubCycle ? "순환 모드" : "35편을 다 올리셨더라구요") + '</h2><span class="right">' + pub + " / " + total + " 발행</span></div>" +
+        '<p class="a71-note">' + (S.pubCycle ?
+          "발행 기록은 그대로 두고, 이미 올린 대본까지 다시 돌려 보여 드려요." :
+          "아직 안 올린 대본이 없어서 이미 올린 " + total + "편을 순환해서 보여 드려요. 새 대본을 채우면 그때부터 새 대본이 먼저 나옵니다.") + "</p>" +
+        '<div class="a71-btnrow" style="margin-top:8px">' +
+          (S.pubCycle ? "" : '<button class="a71-btn sm" type="button" data-cycle="on">순환해서 계속 보기</button>') +
+          '<button class="a71-btn solid sm" type="button" data-cycle="reset">발행 기록 지우고 처음부터</button>' +
+        "</div></div>";
+    }
+    /* 이미 올린 대본은 뒤로 — 탭 아래에 접어 둔 목록으로 남긴다 */
+    function publishedListHtml(){
+      var list = publishedIdeas(8), total = publishedCount();
+      if(!list.length) return "";
+      var rows = list.map(function(x){
+        var pch = (S.pubCh && S.pubCh[x.id]) || {};
+        var chips = CH.filter(function(c){ return pch[c]; }).map(function(c){
+          return '<span class="a71-pf ' + CHPF[c] + '">' + CHLABEL[c].replace("인스타 ", "").replace("유튜브 ", "") + "</span>";
+        }).join("");
+        return '<div class="a71-pubrow"><div class="row"><b>' + esc(String(x.title || x.id)) + '</b>' +
+          '<span class="a71-pend">발행됨</span></div>' +
+          '<div class="row2">' + (chips || '<span class="a71-pf threads">기록</span>') +
+          '<span class="when">' + esc(String(S.pub[x.id] || "")) + "</span></div></div>";
+      }).join("");
+      return '<details class="a71-fold"><summary>이미 올린 대본 ' + (total > list.length ? "… " : "") + total + "편 보기</summary>" + rows + "</details>";
     }
     var PARENT_WORDS = ["아이", "육아", "등원", "어린이집", "첫째", "둘째", "엄마", "기저귀", "쪽쪽이",
                         "재우", "놀이터", "학교", "학부모", "아기", "키즈", "가족", "딸", "아들"];
@@ -19938,7 +20061,7 @@ var AiriaMp4 = (function(){
       })();
       return true;
     }
-    function webSharePhoto(text, du, name){
+    function webSharePhoto(text, du, name, cb){
       if(!(navigator.share && navigator.canShare && typeof File === "function")) return false;
       var blob = shareBlob(du);
       if(!blob) return false;
@@ -19951,21 +20074,24 @@ var AiriaMp4 = (function(){
       try{
         var pr = navigator.share({ files: [file], text: text });
         if(pr && pr.then) pr.then(function(){
-          toast("공유 창에서 올릴 앱을 골라 주세요");
+          if(cb) cb(true); else toast("공유 창에서 올릴 앱을 골라 주세요");
         })["catch"](function(){
           toast("공유를 마치지 않았어요 — 본문은 클립보드에 있어요");
+          if(cb) cb(false);
         });
       }catch(e){ return false; }
       return true;
     }
-    function sharePhotoNow(du, text, imgName, ch){
+    /* 빌드 75 — 공유 시트로 넘기면 그 자리에서 발행 완료로 기록하고 다음 대본으로 넘어간다.
+       실수로 공유를 취소하고 돌아온 경우는 토스트 [되돌리기] 한 번으로 직전 대본·슬롯으로 돌아간다. */
+    function sharePhotoNow(du, text, imgName, ch, it){
       text = String(text || "");
       if(!du){ toast("공유할 사진이 없어요 — 이 대본에 사진을 먼저 붙여 주세요"); return; }
       if(!text){ toast("공유할 본문이 없어요"); return; }
       /* ① 본문+해시태그를 먼저 클립보드에 — 공유 시트에서 글이 빠지는 앱 대비 */
       copyTextSilent(text, function(ok){ recordCopy(text); });
-      if(nativeSharePhoto(text, du, imgName)) return;
-      if(webSharePhoto(text, du, imgName)) return;
+      if(nativeSharePhoto(text, du, imgName)){ markUploaded(it, ch); return; }
+      if(webSharePhoto(text, du, imgName, function(ok){ if(ok) markUploaded(it, ch); })) return;
       toast("이 기기 앱에선 사진+글 공유가 제한돼 있어요 — 본문은 복사했어요. 앱에서 사진을 골라 붙여 주세요");
       openUrl(uploadUrl(ch || "threads", text));
     }
@@ -20134,6 +20260,7 @@ var AiriaMp4 = (function(){
       }).join("");
       var qr = D().quickReach || {};
       host.innerHTML =
+        cycleNoticeHtml() +
         '<div class="a71-pkgswitch">' + pkgBtns + '<span class="a71-ratio">일상 70<br>몽글 30</span></div>' +
 
         '<div class="a71-card" style="padding:10px">' +
@@ -20158,15 +20285,15 @@ var AiriaMp4 = (function(){
         "</div>" +
 
         '<div class="a71-card">' +
-          '<div class="a71-h"><h2>채널별 대본</h2><span class="right">' + esc(String(it.title || "")) + "</span></div>" +
+          '<div class="a71-h"><h2>채널별 대본</h2>' + pubBadgeHtml(it, S.chan || "threads") + '<span class="right">' + esc(String(it.title || "")) + "</span></div>" +
           '<div class="a71-chan">' + chBtns + "</div>" +
           '<div class="a71-script"><span class="hook">' + esc(hook) + "</span>" + esc(body) + "</div>" +
           tagChips +
           '<div class="a71-btnrow" style="margin-top:11px">' +
-            '<button class="a71-btn solid phototext" type="button" id="a71CopyPhotoText">사진+본문 한번에 복사</button>' +
+            '<button class="a71-btn solid phototext" type="button" id="a71CopyPhotoText" data-idea="' + esc(it.id) + '">사진+본문 한번에 복사</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin-top:6px">' +
-            '<button class="a71-btn coral phototext" type="button" id="a71ShareNow">사진+본문 바로 올리기</button>' +
+            '<button class="a71-btn coral phototext" type="button" id="a71ShareNow" data-idea="' + esc(it.id) + '">사진+본문 바로 올리기</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin-top:6px">' +
             '<button class="a71-btn" type="button" id="a71CopyScript" style="flex:1">원클릭 복사</button>' +
@@ -20203,17 +20330,17 @@ var AiriaMp4 = (function(){
       var ST = { done: "완료", pending: "답변 대기", skip: "보류", "좋아요만": "좋아요만" };
       return list.map(function(c){
         var state = c.state === "pending" ? '<span class="a71-pend">답변 대기</span>' : '<span class="a71-pf">' + esc(ST[c.state] || c.state || "") + "</span>";
-        return '<div class="a71-qitem"><div class="row"><b>@' + esc(c.handle || "") + "</b>" + state + "</div>" +
+        return '<div class="a71-qitem"><div class="row"><b>' + esc(atName(c.handle)) + "</b>" + state + "</div>" +
           '<div class="t">' + esc(nl(String(c.text || c.note || c.post || "")).slice(0, 130)) + "</div></div>";
       }).join("");
     }
     function renderChannel(tab){
       var host = $(tab === "threads" ? "a71Threads" : (tab === "insta" ? "a71Insta" : "a71Youtube"));
       if(!host) return;
-      var it = pkgIdea(S.pkgIdx || 0);
+      var it = pkgIdea(0);
       if(!it){ host.innerHTML = '<div class="a71-card"><p class="a71-note">데이터를 기다리는 중이에요.</p></div>'; return; }
       var list = tab === "threads" ? ["threads"] : (tab === "insta" ? ["feed", "reels"] : ["shorts"]);
-      var html = "";
+      var html = cycleNoticeHtml();
       list.forEach(function(ch){
         var sc = scriptOf(it, ch) || {};
         var ph = photoOf(it);
@@ -20226,14 +20353,14 @@ var AiriaMp4 = (function(){
             '<button class="a71-btn sm" type="button" data-copyphoto="' + ch + '" style="flex:1">사진 복사</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin:0 0 11px">' +
-            '<button class="a71-btn solid sm phototext" type="button" data-copyphototext="' + ch + '">사진+본문 한번에 복사</button>' +
+            '<button class="a71-btn solid sm phototext" type="button" data-copyphototext="' + ch + '" data-idea="' + esc(it.id) + '">사진+본문 한번에 복사</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin:0 0 11px">' +
-            '<button class="a71-btn coral sm phototext" type="button" data-sharenow="' + ch + '">사진+본문 바로 올리기</button>' +
+            '<button class="a71-btn coral sm phototext" type="button" data-sharenow="' + ch + '" data-idea="' + esc(it.id) + '">사진+본문 바로 올리기</button>' +
           "</div>" : "";
         html +=
           '<div class="a71-card">' +
-            '<div class="a71-h"><span class="n">' + esc(CHLABEL[ch]) + '</span><h2 style="font-size:14.5px">' + esc(hookOf(it, ch)) + "</h2></div>" +
+            '<div class="a71-h"><span class="n">' + esc(CHLABEL[ch]) + '</span>' + pubBadgeHtml(it, ch) + '<h2 style="font-size:14.5px">' + esc(hookOf(it, ch)) + "</h2></div>" +
             shot +
             '<div class="a71-script">' + esc(bodyOf(it, ch)) + "</div>" +
             (sc.cta && nl(bodyOf(it, ch)).indexOf(nl(sc.cta)) < 0 ? '<p class="a71-note" style="margin-top:8px">마무리 · ' + esc(nl(sc.cta)) + "</p>" : "") +
@@ -20246,6 +20373,7 @@ var AiriaMp4 = (function(){
           "</div>";
       });
       var pf = tab === "threads" ? "threads" : (tab === "insta" ? "instagram" : "youtube");
+      html += publishedListHtml();
       html += '<div class="a71-sec"><h2>최근 소통</h2><span>미답변 ' + pendingCount(pf) + "건</span></div>" +
               commentRows(recentComments(pf, 6));
       if(tab === "youtube"){
@@ -20276,7 +20404,7 @@ var AiriaMp4 = (function(){
       if(id) return id;
       var cur = ideaById(S.curIdea);
       if(cur) return cur;
-      return pkgIdea(S.pkgIdx || 0);
+      return pkgIdea(S.pkgIdx || 0) || plan()[0] || null;
     }
     function renderStudio(){
       var host = $("a71Studio");
@@ -20551,22 +20679,102 @@ var AiriaMp4 = (function(){
       }
       return out.slice(0, 4);
     }
+    /* ---------------------------------------------------------------- 선댓글·대댓글 자동 갱신 (빌드 75)
+       유진님 지시: “댓글 선댓도 달었으면 바로 다음거로 갱신시켜”.
+       · 선댓글: 후보를 복사한 뒤 [바로 열기]를 누르거나 [✓ 완료]를 누르면 그 항목은 완료 → 대기 줄에서 빠지고
+         다음 미완료 항목이 골라진다(S.quickDone). 복사만 하고 안 누르면 그대로 남겨 둔다.
+       · 대댓글: 대댓글 후보 복사 + [열기], 또는 [✓ 답변 완료] → S.replyDone (기존 기록 그대로 사용).
+       · 둘 다 토스트 [되돌리기] 한 번으로 완료 상태를 되돌린다. */
+    function quickItemById(id){
+      var all = quickItems();
+      for(var i = 0; i < all.length; i++) if(String(all[i].id) === String(id)) return all[i];
+      return null;
+    }
+    function replyItemById(id){
+      var q = (D().replyQueue && Array.isArray(D().replyQueue.items)) ? D().replyQueue.items : [];
+      for(var i = 0; i < q.length; i++) if(String(q[i].id) === String(id)) return q[i];
+      return null;
+    }
+    function quickDoneToday(it){ return !!(it && S.quickDone && S.quickDone[it.id]); }
+    function quickPool(){
+      var pool = quickItems().filter(function(it){ return (it.cat || "일상·생각정리") === S.quick.cat; });
+      if(!pool.length) pool = quickItems();
+      return pool;
+    }
+    /* 지금 카테고리에서 아직 안 끝낸 항목만 — 완료된 항목이 빠지면 같은 자리에 다음 항목이 온다 */
+    function quickQueue(){
+      return quickPool().filter(function(it){ return !quickDoneToday(it); });
+    }
+    function quickCurrent(){
+      var q = quickQueue();
+      if(!q.length) return null;
+      return q[(S.quick.idx || 0) % Math.max(1, q.length)];
+    }
+    function markCommentDone(x){
+      if(!x) return;
+      var t = today();
+      LAST_UNDO = snapshotState();
+      S.quickDone[x.id] = t;
+      if(S.quickCopied) delete S.quickCopied[x.id];
+      if(!S.counts[t]) S.counts[t] = { posts: 0, comments: 0, replies: 0 };
+      S.counts[t].comments = (S.counts[t].comments || 0) + 1;
+      save();
+      renderQuick(); renderSummary(); renderManage();
+      toast("선댓글 완료 · 다음 항목", "되돌리기", undoLast, 8000);
+    }
+    function markReplyDone(id){
+      var x = replyItemById(id);
+      var t = today();
+      LAST_UNDO = snapshotState();
+      S.replyDone[id] = t;
+      if(S.replyCopied) delete S.replyCopied[id];
+      S.replyRot = (S.replyRot || 0) + 1;
+      if(!S.counts[t]) S.counts[t] = { posts: 0, comments: 0, replies: 0 };
+      S.counts[t].replies = (S.counts[t].replies || 0) + 1;
+      save();
+      renderQuick(); renderSummary(); renderManage();
+      toast((x ? atName(x.handle) + " " : "") + "답글 완료 · 다음 항목", "되돌리기", undoLast, 8000);
+    }
+    function quickDoneHtml(){
+      var done = quickPool().filter(function(x){ return quickDoneToday(x); });
+      if(!done.length) return "";
+      return '<details class="a71-fold"><summary>마친 선댓글 ' + done.length + "건 보기</summary>" +
+        done.map(function(x){
+          return '<div class="a71-pubrow"><div class="row"><b>' + esc(atName(x.handle)) + '</b>' +
+            '<span class="a71-donechip">완료</span></div>' +
+            '<div class="row2"><span class="a71-pf ' + esc(x.platform) + '">' +
+              esc(x.platform === "youtube" ? "유튜브" : (x.platform === "instagram" ? "인스타" : "스레드")) + "</span>" +
+            '<span class="when">' + esc(String(S.quickDone[x.id] || "")) + "</span></div></div>";
+        }).join("") + "</details>";
+    }
+    function replyDoneHtml(open){
+      var rq = (D().replyQueue && Array.isArray(D().replyQueue.items)) ? D().replyQueue.items : [];
+      var done = rq.filter(function(x){ return !!(S.replyDone && S.replyDone[x.id]); });
+      if(!done.length) return "";
+      var rows = done.slice(-6).reverse().map(function(x){
+        return '<div class="a71-pubrow"><div class="row"><b>' + esc(atName(x.handle)) + '</b>' +
+          '<span class="a71-donechip">완료</span></div>' +
+          '<div class="row2"><span class="a71-pf ' + esc(x.platform) + '">' + esc(x.kind || "답글") + "</span>" +
+          '<span class="when">' + esc(String(S.replyDone[x.id] || "")) + "</span></div></div>";
+      }).join("");
+      return '<details class="a71-fold"><summary>마친 댓글·DM 답글 ' + done.length + "건 보기</summary>" + rows + "</details>";
+    }
     function renderQuick(){
       var host = $("a71Quick");
       if(!host) return;
       var cats = quickCats();
       if(cats.indexOf(S.quick.cat) < 0) S.quick.cat = cats[0];
-      var pool = quickItems().filter(function(it){ return (it.cat || "일상·생각정리") === S.quick.cat; });
-      if(!pool.length) pool = quickItems();
-      var it = pool[(S.quick.idx || 0) % Math.max(1, pool.length)];
+      var qpool = quickQueue();
+      var it = qpool.length ? qpool[(S.quick.idx || 0) % Math.max(1, qpool.length)] : null;
       var opts = it ? fourOptions(it) : [];
       var rq = (D().replyQueue && Array.isArray(D().replyQueue.items)) ? D().replyQueue.items : [];
       var open = rq.filter(function(x){ return !S.replyDone[x.id]; });
       var rot = (S.replyRot || 0);
+      var doneQ = quickPool().filter(function(x){ return quickDoneToday(x); }).length;
       host.innerHTML =
         '<div id="a71Guard"></div>' +
         '<div class="a71-card tight">' +
-          '<div class="a71-h"><h2>선댓글 4지선다</h2><span class="right">' + num(quickItems().length) + "개 대기</span></div>" +
+          '<div class="a71-h"><h2>선댓글 4지선다</h2><span class="right">' + qpool.length + "개 대기" + (doneQ ? " · " + doneQ + " 마쳤음" : "") + "</span></div>" +
           '<div class="a71-chiprow" style="margin-bottom:9px">' +
             cats.map(function(c){
               return '<button class="a71-chip" type="button" data-qcat="' + esc(c) + '" aria-pressed="' + (S.quick.cat === c) + '">' + esc(c) + "</button>";
@@ -20575,9 +20783,9 @@ var AiriaMp4 = (function(){
           '<div class="a71-btnrow"><button class="a71-btn" type="button" id="a71Reshuffle" style="flex:1">↻ 새 선댓글 4지선다 뽑기</button></div>' +
         "</div>" +
         (it ?
-          '<div class="a71-target">' +
+          '<div class="a71-target" data-qid="' + esc(it.id) + '">' +
             '<div class="who"><span class="a71-pf ' + esc(it.platform) + '">' + esc(it.platform === "youtube" ? "유튜브" : (it.platform === "instagram" ? "인스타" : "스레드")) + "</span>" +
-              "@" + esc(it.handle || "") + '<span style="margin-left:auto;font-size:11px;color:#767680;font-weight:700">' + esc(it.tone || "") + "</span></div>" +
+              esc(atName(it.handle)) + '<span style="margin-left:auto;font-size:11px;color:#767680;font-weight:700">' + esc(it.tone || "") + "</span></div>" +
             '<div class="sum">' + esc(nl(it.summary || "")) + "</div>" +
             '<div class="why">' + esc(nl(String(it.why || "")).slice(0, 220)) + "</div>" +
           "</div>" +
@@ -20588,9 +20796,16 @@ var AiriaMp4 = (function(){
           }).join("") +
           '<div class="a71-btnrow" style="margin:10px 0 4px">' +
             '<button class="a71-btn ghost sm" type="button" id="a71OpenTarget" style="flex:1">🔗 바로 열기</button>' +
-            '<button class="a71-btn ghost sm" type="button" data-opendone="' + esc(it.id) + '" style="flex:1">다음 항목 →</button>' +
-          "</div>"
-          : '<div class="a71-card"><p class="a71-note">대기 중인 선댓글 항목이 없습니다.</p></div>') +
+            '<button class="a71-btn coral sm" type="button" data-opendone="' + esc(it.id) + '" style="flex:1">✓ 완료 · 다음</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin:0 0 4px">' +
+            '<button class="a71-btn ghost sm" type="button" data-qskip="1" style="flex:1">이 항목은 건너뛰기 →</button>' +
+          "</div>" +
+          '<p class="a71-note" style="margin-top:2px">후보를 복사한 뒤 [바로 열기]를 누르면 그 항목은 완료되고 다음 항목으로 넘어갑니다.</p>' +
+          quickDoneHtml()
+          : '<div class="a71-card"><p class="a71-note">이 카테고리 선댓글은 다 마쳤어요. 다른 카테고리를 고르거나 아래로 다시 돌려볼 수 있어요.</p>' +
+            '<div class="a71-btnrow" style="margin-top:8px"><button class="a71-btn sm" type="button" data-qreset="1">↺ 마친 선댓글 다시 보기</button></div></div>' +
+            quickDoneHtml()) +
 
         '<div class="a71-sec"><h2>들어온 댓글 · DM 답글</h2><span>남은 ' + open.length + "건</span></div>" +
         '<p class="a71-note" style="margin:-4px 0 8px">새로 온 항목은 다음 점검 때 이 목록에 초안과 함께 올라옵니다 — 지금 없으면 폰에서 직접 답해 주세요.</p>' +
@@ -20599,7 +20814,7 @@ var AiriaMp4 = (function(){
           var sh = (rot + xi) % Math.max(1, oo.length);
           var rotated = oo.slice(sh).concat(oo.slice(0, sh));
           return '<div class="a71-qitem">' +
-            '<div class="row"><span class="a71-pf ' + esc(x.platform) + '">' + esc(x.kind) + "</span><b>@" + esc(x.handle) + "</b>" +
+            '<div class="row"><span class="a71-pf ' + esc(x.platform) + '">' + esc(x.kind) + "</span><b>" + esc(atName(x.handle)) + "</b>" +
               (x.owner ? '<span class="a71-pend" style="margin-left:auto">직접 응대</span>' : "") + "</div>" +
             '<div class="t">' + esc(nl(x.text || x.post || "")) + "</div>" +
             rotated.map(function(o, oi){
@@ -20608,11 +20823,12 @@ var AiriaMp4 = (function(){
                 '<span class="oc">복사</span></button>';
             }).join("") +
             '<div class="a71-btnrow" style="margin-top:8px">' +
-              '<button class="a71-btn" type="button" data-replydone="' + esc(x.id) + '" style="flex:1">✓ 답변 완료</button>' +
+              '<button class="a71-btn" type="button" data-replydone="' + esc(x.id) + '" style="flex:1">✓ 답변 완료 · 다음</button>' +
               (x.postUrl ? '<button class="a71-btn ghost" type="button" data-openreply="' + esc(x.id) + '">열기</button>' : "") +
             "</div>" +
           "</div>";
-        }).join("") : '<div class="a71-card"><p class="a71-note">오늘 들어온 댓글·DM 답글을 모두 정리했어요.</p></div>');
+        }).join("") : '<div class="a71-card"><p class="a71-note">오늘 들어온 댓글·DM 답글을 모두 정리했어요.</p></div>') +
+        replyDoneHtml();
       renderGuard();
       window.__ariaBadge = S.badge;
     }
@@ -20697,9 +20913,23 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-cycle],[data-qskip],[data-qreset]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
+
+        if(t.hasAttribute("data-cycle")){
+          /* 빌드 75 — 35편을 다 썼거나 순환 중일 때: 순환으로 계속 / 발행 기록 지우고 처음부터(되돌리기 가능) */
+          if(t.getAttribute("data-cycle") === "reset"){
+            LAST_UNDO = snapshotState();
+            S.pub = {}; S.pubCh = {}; S.pubSeq = []; S.pubCycle = false; S.qi = 0; S.pkgIdx = 0;
+            save(); renderTab(S.tab || "package"); renderSummary(); renderManage();
+            toast("발행 기록 지우고 35편 처음부터 시작해요", "되돌리기", undoLast, 8000);
+          } else {
+            S.pubCycle = true; save(); renderTab(S.tab || "package");
+            toast("순환 모드 — 이미 올린 대본까지 다시 보여 드려요");
+          }
+          return;
+        }
 
         if(t.hasAttribute("data-pkg")){ S.pkgIdx = parseInt(t.getAttribute("data-pkg"), 10) || 0; save(); renderPackage(); return; }
         if(t.hasAttribute("data-chan")){ S.chan = t.getAttribute("data-chan"); save(); renderPackage(); return; }
@@ -20762,40 +20992,51 @@ var AiriaMp4 = (function(){
         }
         if(t.hasAttribute("data-qcat")){ S.quick.cat = t.getAttribute("data-qcat"); S.quick.idx = 0; save(); renderQuick(); return; }
         if(t.hasAttribute("data-copyopt")){
-          var pool = quickItems().filter(function(x){ return (x.cat || "일상·생각정리") === S.quick.cat; });
-          if(!pool.length) pool = quickItems();
-          var cur = pool[(S.quick.idx || 0) % Math.max(1, pool.length)];
-          var o = fourOptions(cur)[parseInt(t.getAttribute("data-copyopt"), 10)];
-          if(o){ copyText(o.text); recordCopy(o.text); }
+          var cur = quickCurrent();
+          var o = cur ? fourOptions(cur)[parseInt(t.getAttribute("data-copyopt"), 10)] : null;
+          if(o && cur){
+            copyText(o.text); recordCopy(o.text);
+            S.quickCopied[cur.id] = nowMs(); save();
+          }
           return;
         }
-        if(t.hasAttribute("data-opendone")){ S.quick.idx = (S.quick.idx || 0) + 1; save(); renderQuick(); return; }
+        if(t.hasAttribute("data-opendone")){ markCommentDone(quickItemById(t.getAttribute("data-opendone")) || quickCurrent()); return; }
+        if(t.hasAttribute("data-qskip")){
+          S.quick.idx = (S.quick.idx || 0) + 1; save(); renderQuick();
+          toast("이 항목은 그대로 두고 다음 항목으로 넘어갔어요");
+          return;
+        }
+        if(t.hasAttribute("data-qreset")){
+          /* 마친 선댓글을 다시 대기로 돌린다 — 한 번 더 볼 때 */
+          LAST_UNDO = snapshotState();
+          var back = 0, poolNow = quickPool();
+          for(var qi2 = 0; qi2 < poolNow.length; qi2++){
+            if(S.quickDone && S.quickDone[poolNow[qi2].id]){ delete S.quickDone[poolNow[qi2].id]; back++; }
+          }
+          S.quick.idx = 0;
+          save(); renderQuick();
+          toast("마친 선댓글 " + back + "건을 다시 대기로 돌렸어요", "되돌리기", undoLast, 8000);
+          return;
+        }
         if(t.hasAttribute("data-copyreply")){
           var parts = t.getAttribute("data-copyreply").split("|");
-          var item = ((D().replyQueue || {}).items || []).filter(function(x){ return x.id === parts[0]; })[0];
+          var item = replyItemById(parts[0]);
           if(item){
             var rot = (S.replyRot || 0) % Math.max(1, (item.options || []).length);
             var rots = (item.options || []).slice(rot).concat((item.options || []).slice(0, rot));
             var oo = rots[parseInt(parts[1], 10)];
-            if(oo){ copyText(nl(oo.text)); recordCopy(oo.text); }
+            if(oo){ copyText(nl(oo.text)); recordCopy(oo.text); S.replyCopied[item.id] = nowMs(); save(); }
           }
           return;
         }
-        if(t.hasAttribute("data-replydone")){
-          var rid = t.getAttribute("data-replydone");
-          S.replyDone[rid] = today();
-          S.replyRot = (S.replyRot || 0) + 1;
-          var dt2 = today();
-          if(!S.counts[dt2]) S.counts[dt2] = { posts: 0, comments: 0, replies: 0 };
-          S.counts[dt2].replies = (S.counts[dt2].replies || 0) + 1;
-          save(); renderQuick(); renderSummary(); renderManage();
-          toast("답변 완료 — 다음 항목이 올라왔어요");
-          return;
-        }
+        if(t.hasAttribute("data-replydone")){ markReplyDone(t.getAttribute("data-replydone")); return; }
         if(t.hasAttribute("data-openreply")){
           var rid2 = t.getAttribute("data-openreply");
-          var ritem = ((D().replyQueue || {}).items || []).filter(function(x){ return x.id === rid2; })[0];
+          var ritem = replyItemById(rid2);
           if(ritem && ritem.postUrl) openUrl(ritem.postUrl);
+          /* 빌드 75 — 후보를 복사해 둔 항목이면 열면서 바로 답변 완료로 넘긴다 */
+          if(ritem && S.replyCopied && S.replyCopied[rid2]) markReplyDone(rid2);
+          else if(ritem) toast("후보를 복사한 뒤 [열기]를 누르면 답변 완료로 넘어가요");
           return;
         }
         if(t.hasAttribute("data-savephoto")){
@@ -20810,14 +21051,16 @@ var AiriaMp4 = (function(){
         }
         if(t.hasAttribute("data-copyphototext")){
           var chPT = t.getAttribute("data-copyphototext") || "threads";
-          var duPT = photoOf(it).src;
-          copyPhotoAndText(duPT, finalScript(it, chPT), shareImgName(it, chPT, duPT));
+          var itPT = ideaById(t.getAttribute("data-idea")) || it || pkgIdea(0);
+          var duPT = photoOf(itPT).src;
+          copyPhotoAndText(duPT, finalScript(itPT, chPT), shareImgName(itPT, chPT, duPT));
           return;
         }
         if(t.hasAttribute("data-sharenow")){
           var chSN = t.getAttribute("data-sharenow") || "threads";
-          var duSN = photoOf(it).src;
-          sharePhotoNow(duSN, finalScript(it, chSN), shareImgName(it, chSN, duSN), chSN);
+          var itSN = ideaById(t.getAttribute("data-idea")) || it || pkgIdea(0);
+          var duSN = photoOf(itSN).src;
+          sharePhotoNow(duSN, finalScript(itSN, chSN), shareImgName(itSN, chSN, duSN), chSN, itSN);
           return;
         }
         if(t.hasAttribute("data-limit")){ S.bot.limit = parseInt(t.getAttribute("data-limit"), 10) || 45; save(); renderGuard(); renderGuardTop(); return; }
@@ -20863,12 +21106,12 @@ var AiriaMp4 = (function(){
           copyPhotoAndText(duPT, finalScript(it, S.chan || "threads"), shareImgName(it, S.chan || "threads", duPT, true));
         }
         if(id === "a71ShareNow"){
-          /* 빌드 74 — 커버 캔버스를 갤러리에 저장하지 않고 바로 공유 시트로 */
+          /* 빌드 74 — 커버 캔버스를 갤러리에 저장하지 않고 바로 공유 시트로. 빌드 75 — 넘기면 자동 발행 완료 + 다음 대본 */
           var cvSN2 = $("a71Cover");
           var duSN2 = "";
           try { duSN2 = cvSN2 ? cvSN2.toDataURL("image/png") : ""; } catch(e){ duSN2 = ""; }
           var chPkg = S.chan || "threads";
-          sharePhotoNow(duSN2, finalScript(it, chPkg), shareImgName(it, chPkg, duSN2, true), chPkg);
+          sharePhotoNow(duSN2, finalScript(it, chPkg), shareImgName(it, chPkg, duSN2, true), chPkg, it);
         }
         if(id === "a71CopyScript"){
           var body = bodyOf(it, S.chan || "threads"), hook = hookOf(it, S.chan || "threads");
@@ -20887,10 +21130,11 @@ var AiriaMp4 = (function(){
         if(id === "a71NextPkg"){ S.pkgIdx = ((S.pkgIdx || 0) + 1) % 3; save(); renderPackage(); }
         if(id === "a71Reshuffle"){ S.quick.idx = (S.quick.idx || 0) + 1 + Math.floor(Math.random() * 2); save(); renderQuick(); toast("새 4지선다를 뽑았어요"); }
         if(id === "a71OpenTarget"){
-          var pool = quickItems().filter(function(x){ return (x.cat || "일상·생각정리") === S.quick.cat; });
-          if(!pool.length) pool = quickItems();
-          var cur = pool[(S.quick.idx || 0) % Math.max(1, pool.length)];
-          if(cur) openUrl(cur.postUrl);
+          var cur2 = quickCurrent();
+          if(cur2) openUrl(cur2.postUrl);
+          /* 빌드 75 — 후보를 복사한 뒤 열었으면 그 자리에서 완료하고 다음 항목으로 */
+          if(cur2 && S.quickCopied && S.quickCopied[cur2.id]) markCommentDone(cur2);
+          else if(cur2) toast("후보를 복사한 뒤 [바로 열기]를 누르면 완료되고 다음 항목으로 넘어가요");
         }
       });
     }
@@ -20901,17 +21145,64 @@ var AiriaMp4 = (function(){
     }
     function publish(it){
       if(!it) return;
+      markUploaded(it, S.chan || "threads", "발행 완료 · 성장 기록에 남겼어요");
+    }
+    /* ---------------------------------------------------------------- 업로드 = 발행 완료 (빌드 75)
+       [사진+본문 바로 올리기] 로 공유 시트에 넘기면, [발행 완료] 를 따로 누르지 않아도
+       그 대본·채널을 기록하고 다음 미발행 대본으로 넘어간다. 직전 상태는 LAST_UNDO 에 담아 두고,
+       토스트 [되돌리기] 한 번으로 대본·발행 기록·슬롯·오늘 발행 수를 그대로 되돌린다. */
+    var LAST_UNDO = null;
+    function snapshotState(){
+      try{
+        return JSON.parse(JSON.stringify({
+          counts: S.counts, slotDone: S.slotDone, pub: S.pub, pubCh: S.pubCh,
+          pubSeq: S.pubSeq, pubCycle: S.pubCycle, qi: S.qi, pkgIdx: S.pkgIdx,
+          quick: S.quick, quickDone: S.quickDone, quickCopied: S.quickCopied,
+          replyDone: S.replyDone, replyCopied: S.replyCopied, replyRot: S.replyRot
+        }));
+      }catch(e){ return null; }
+    }
+    function markUploaded(it, ch, msg){
+      if(!it) return;
+      ch = ch || S.chan || "threads";
       var t = today();
+      LAST_UNDO = snapshotState();
       if(!S.counts[t]) S.counts[t] = { posts: 0, comments: 0, replies: 0 };
       S.counts[t].posts = (S.counts[t].posts || 0) + 1;
       if(!S.slotDone[t]) S.slotDone[t] = {};
-      var ch = S.chan || "threads";
       S.slotDone[t][ch] = true;
       S.pub[it.id] = t;
-      S.qi = (S.qi || 0) + 1;
+      if(!S.pubCh[it.id] || typeof S.pubCh[it.id] !== "object") S.pubCh[it.id] = {};
+      S.pubCh[it.id][ch] = t;
+      S.pubSeq = (Array.isArray(S.pubSeq) ? S.pubSeq : []).filter(function(x){ return x !== it.id; });
+      S.pubSeq.push(it.id);
+      S.pkgIdx = 0;
       save();
-      renderPackage(); renderSummary(); renderManage();
-      toast("발행 완료 · 성장 기록에 남겼어요. 새 콘텐츠를 채웠습니다");
+      renderPackage(); renderTab(S.tab || "package"); renderSummary(); renderManage();
+      toast(msg || (CHLABEL[ch] + " 업로드 완료 · 다음 대본"), "되돌리기", undoLast, 8000);
+    }
+    /* 업로드든 선댓글이든 대댓글이든 — 마지막 한 걸음을 통째로 되돌린다 */
+    function undoLast(){
+      var s = LAST_UNDO;
+      if(!s){ toast("되돌릴 기록이 없어요"); return; }
+      LAST_UNDO = null;
+      S.counts = s.counts || S.counts;
+      S.slotDone = s.slotDone || S.slotDone;
+      S.pub = s.pub || S.pub;
+      S.pubCh = s.pubCh || S.pubCh;
+      if(Array.isArray(s.pubSeq)) S.pubSeq = s.pubSeq;
+      S.pubCycle = !!s.pubCycle;
+      if(typeof s.qi === "number") S.qi = s.qi;
+      S.pkgIdx = s.pkgIdx || 0;
+      if(s.quick && typeof s.quick === "object") S.quick = s.quick;
+      if(s.quickDone && typeof s.quickDone === "object") S.quickDone = s.quickDone;
+      if(s.quickCopied && typeof s.quickCopied === "object") S.quickCopied = s.quickCopied;
+      if(s.replyDone && typeof s.replyDone === "object") S.replyDone = s.replyDone;
+      if(s.replyCopied && typeof s.replyCopied === "object") S.replyCopied = s.replyCopied;
+      if(typeof s.replyRot === "number") S.replyRot = s.replyRot;
+      save();
+      renderPackage(); renderTab(S.tab || "package"); renderSummary(); renderManage();
+      toast("되돌렸어요 — 직전 상태로 돌아갔어요");
     }
 
     /* ---------------------------------------------------------------- 초기화 */
@@ -21080,7 +21371,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 74;
+    var BUILD = 75;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
