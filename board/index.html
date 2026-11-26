@@ -19704,6 +19704,10 @@ var AiriaMp4 = (function(){
     function saveCanvasPng(cv, name){
       try{
         var url = cv.toDataURL("image/png");
+        if(window.AiriaSave && typeof window.AiriaSave.save === "function"){
+          try { window.AiriaSave.save(url, name || ("arisia949-" + today() + ".png"), "image/png");
+                toast("PNG로 저장했어요 — 갤러리를 확인해 주세요"); return; } catch(e0){}
+        }
         var a = document.createElement("a");
         a.href = url; a.download = name || ("arisia949-" + today() + ".png");
         document.body.appendChild(a); a.click();
@@ -19957,10 +19961,15 @@ var AiriaMp4 = (function(){
       var html = "";
       list.forEach(function(ch){
         var sc = scriptOf(it, ch) || {};
-        var tags = tagsOf(it, ch).join(" ");
+        var ph = photoOf(it);
+        var shot = (ch === "threads" || ch === "feed") && ph.src ?
+          '<div style="margin:0 0 11px;border-radius:12px;overflow:hidden;border:1px solid var(--a-line)">' +
+            '<img src="' + ph.src + '" alt="" style="display:block;width:100%;aspect-ratio:' + (ch === "threads" ? "4/3" : "4/5") + ';object-fit:cover">' +
+          "</div>" : "";
         html +=
           '<div class="a71-card">' +
             '<div class="a71-h"><span class="n">' + esc(CHLABEL[ch]) + '</span><h2 style="font-size:14.5px">' + esc(hookOf(it, ch)) + "</h2></div>" +
+            shot +
             '<div class="a71-script">' + esc(bodyOf(it, ch)) + "</div>" +
             (sc.cta && nl(bodyOf(it, ch)).indexOf(nl(sc.cta)) < 0 ? '<p class="a71-note" style="margin-top:8px">마무리 · ' + esc(nl(sc.cta)) + "</p>" : "") +
             (ch === "shorts" ? '<p class="a71-note" style="margin-top:6px">BGM · ' + esc(bgmLabelOf(it)) + "</p>" : "") +
