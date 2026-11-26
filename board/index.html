@@ -19862,12 +19862,18 @@ var AiriaMp4 = (function(){
             "image/png": blob
           });
         } catch(e){ fallback(); return; }
+        /* WebView 에서 write() 가 응답 없이 늘어지면 아무 일도 안 일어난 것처럼 보인다 — 3초 뒤엔 폴백을 먼저 끝낸다 */
+        var settled = false;
+        function once(fn){ return function(){ if(settled) return; settled = true; fn(); }; }
+        var okOnce = once(function(){
+          recordCopy(text);
+          toast("사진과 본문을 클립보드에 한 번에 복사했어요 (앱에 따라 텍스트만 붙으면 저장된 사진을 선택해 주세요)");
+        });
+        var fbOnce = once(fallback);
+        var timer = setTimeout(fbOnce, 3000);
         try{
-          navigator.clipboard.write([item]).then(function(){
-            recordCopy(text);
-            toast("사진과 본문을 클립보드에 한 번에 복사했어요 (앱에 따라 텍스트만 붙으면 저장된 사진을 선택해 주세요)");
-          })["catch"](function(){ fallback(); });
-        }catch(e){ fallback(); }
+          navigator.clipboard.write([item]).then(function(){ clearTimeout(timer); okOnce(); })["catch"](function(){ clearTimeout(timer); fbOnce(); });
+        }catch(e){ clearTimeout(timer); fbOnce(); }
       });
     }
 
