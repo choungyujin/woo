@@ -11820,10 +11820,13 @@ var AiriaMp4 = (function(){
     var o = ((cfg && cfg.deck) || {})[String(n)] || {};
     /* ✏️ 대본 수정으로 고친 문구가 있으면 그것이 가장 최신 — 그 장의 예전 저장값보다 우선한다 */
     var ed = (v && v.slideEdited && v.slideEdited[String(n)]) || {};
+    /* 빌드 77 — 옛 대본은 줄바꿈이 '\\n' 두 글자로 저장돼 있어 카드에 그대로 찍혔다.
+       새 대본(실제 줄바꿈)은 그대로 두고, 두 글자 표기만 진짜 줄바꿈으로 바꿔 조판한다. */
+    function nlFeed(x){ return String(x == null ? "" : x).replace(/\\n/g, "\n"); }
     return {
       no: s.no, role: s.role,
-      line: ed.line ? s.line : ((o.line !== undefined && o.line !== null) ? String(o.line) : s.line),
-      sub: ed.sub ? s.sub : ((o.sub !== undefined && o.sub !== null) ? String(o.sub) : s.sub),
+      line: nlFeed(ed.line ? s.line : ((o.line !== undefined && o.line !== null) ? String(o.line) : s.line)),
+      sub: nlFeed(ed.sub ? s.sub : ((o.sub !== undefined && o.sub !== null) ? String(o.sub) : s.sub)),
       scene: s.typeCard ? "" : (o.scene || s.scene),
       data: o.data || "",
       photo: s.photo !== false && !s.typeCard,
@@ -15207,7 +15210,8 @@ var AiriaMp4 = (function(){
     if(plainTxt){
       var Lp = fbFitBox(g, "900", plainTxt, W - pad * 2, bodyH * (boxTxt ? .56 : .92), cover ? 132 : 114, 54, 3, 1.10, "gothic", true);
       fbDraw(g, Lp, pad, bodyTop + Lp.size, INK, "left", "-3px", "900", "gothic", W - pad * 2);
-      bodyTop = bodyTop + Lp.h + (cover ? 64 : 52);
+      /* 빌드 77 — 키워드 박스가 둘째 줄 밑동에 붙던 것을 조금 띄운다 */
+      bodyTop = bodyTop + Lp.h + (cover ? 84 : 72);
     }
     if(boxTxt){
       var Lb = fbFitBox(g, "900", boxTxt, W - pad * 2 - 64, 300, cover ? 112 : 94, 46, 2, 1.14, "gothic", true);
