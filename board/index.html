@@ -2461,6 +2461,8 @@
   .a71-script{font-size:14px; line-height:1.72; color:var(--a-ink2); white-space:pre-wrap; letter-spacing:-.005em}
   .a71-script .hook{display:block; font-weight:800; color:var(--a-ink); margin-bottom:6px}
   .a71-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+  /* 빌드 74 — 세 탭 공통 해시태그 칩 줄 왼쪽 라벨 */
+  .a71-tags .a71-taglb{display:inline-flex; align-items:center; font-size:11px; font-weight:800; color:var(--a-faint); letter-spacing:.02em; padding-right:2px}
 
   .a71-actions{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:2px}
   .a71-actions .a71-btn{padding:12px 10px}
@@ -2713,7 +2715,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 73</span>
+      <span class="a71-build" id="a71Build">빌드 74</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2774,7 +2776,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 73</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 74</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16187,7 +16189,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 73;
+  var OTA_APP_BUILD = 74;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19139,7 +19141,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 73;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 74;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -19284,6 +19286,17 @@ var AiriaMp4 = (function(){
       tagsOf(it, ch).forEach(function(t){ if(!st.off[t]) out.push(t); });
       Object.keys(st.on).forEach(function(t){ if(st.on[t] && out.indexOf(t) < 0) out.push(t); });
       return out;
+    }
+    /* 해시태그 칩 — 패키지·스레드·인스타 세 탭이 같은 도우미로 그리고 같은 상태(S.tags)를 쓴다(빌드 74).
+       data-tagch 로 어느 채널 칩인지 함께 넘겨서, 다른 탭에서 켜고 꺼도 그 채널 상태로 이어진다. */
+    function tagChipsHtml(it, ch){
+      var tags = tagsOf(it, ch), tst = tagState(it, ch);
+      var chips = tags.map(function(t){
+        return '<button class="a71-chip tag" type="button" data-tag="' + esc(t) + '" data-tagch="' + esc(ch) + '" aria-pressed="' + (tst.off[t] ? "false" : "true") + '">' + esc(t) + "</button>";
+      }).join("") + sugTags(it).filter(function(t){ return tags.indexOf(t) < 0; }).map(function(t){
+        return '<button class="a71-chip" type="button" data-tag="' + esc(t) + '" data-tagch="' + esc(ch) + '" aria-pressed="' + (tst.on[t] ? "true" : "false") + '">＋ ' + esc(t) + "</button>";
+      }).join("");
+      return '<div class="a71-tags"><span class="a71-taglb">해시태그</span>' + chips + "</div>";
     }
     function bodyOf(it, ch){
       var sc = scriptOf(it, ch) || {};
@@ -19749,10 +19762,11 @@ var AiriaMp4 = (function(){
       }catch(e){ toast("저장이 막혔어요 — 화면을 길게 눌러 이미지로 저장해 주세요"); }
     }
 
-    /* ---------------------------------------------------------------- 사진 저장 · 사진 복사 (빌드 72)
-       · 사진 저장 = 기존 저장 경로 그대로 (APK AiriaSave.save 우선 → 웹 <a download>)
+    /* ---------------------------------------------------------------- 사진 저장 · 사진 복사 (빌드 72 · 74)
+       · 사진 저장 = 기존 저장 경로 그대로 (APK AiriaSave.save 우선 → 웹 <a download>), **직접 눌렀을 때만**
        · 사진 복사 = JPEG/WebP DataURL 을 Canvas 에 그려 PNG Blob 으로 만들어 클립보드에 넣는다.
-         WebView·브라우저가 클립보드 이미지 쓰기를 막으면 갤러리 저장으로 넘어가고 그 사실을 알린다. */
+         빌드 74부터 WebView·브라우저가 클립보드 이미지 쓰기를 막아도 **갤러리에 자동 저장하지 않고**
+         [바로 올리기]를 눌러 달라는 안내만 한다(유진님: “갤러리에 저장 안 되고”). */
     function saveDataUrl(du, name, mime){
       try{
         if(!du){ toast("저장할 사진이 없어요"); return false; }
@@ -19790,8 +19804,8 @@ var AiriaMp4 = (function(){
     }
     function copyPngBlob(blob, du, name){
       function fallback(){
-        saveDataUrl(du, name);
-        toast("이 환경에선 이미지 직접 복사가 제한돼 사진으로 저장했어요");
+        /* 빌드 74 — 자동 저장 없이 안내만. 저장은 [사진 저장]을 직접 눌렀을 때만 한다. */
+        toast("이 기기 앱에선 이미지 클립보드가 제한돼 있어요. '바로 올리기'를 눌러주세요");
       }
       try{
         if(!blob){ fallback(); return; }
@@ -19800,7 +19814,7 @@ var AiriaMp4 = (function(){
         try { item = new ClipboardItem({ "image/png": blob }); } catch(e){ fallback(); return; }
         navigator.clipboard.write([item]).then(function(){
           toast("사진을 복사했어요 — 게시 화면에서 붙여넣기 해 주세요");
-        }).catch(function(){ fallback(); });
+        })["catch"](function(){ fallback(); });
       }catch(e){ fallback(); }
     }
     function copyImageDataUrl(du, name){
@@ -19809,11 +19823,11 @@ var AiriaMp4 = (function(){
       dataUrlToPngBlob(du, function(blob){ copyPngBlob(blob, du, name); });
     }
 
-    /* ---------------------------------------------------------------- 사진+본문 한 번에 복사 (빌드 73)
+    /* ---------------------------------------------------------------- 사진+본문 한 번에 복사 (빌드 73 · 74)
        · 지금 화면에 뜬 사진(패키지=커버 캔버스 · 스레드/인스타=대본 사진)을 PNG Blob 으로 만들고,
          본문(+켜 둔 해시태그)을 text/plain Blob 으로 준비해 ClipboardItem 한 번에 넣는다.
-       · WebView·권한·구형 브라우저가 멀티 MIME 을 막으면(catch) ①본문 복사 ②사진 바로 저장 을
-         한 동작으로 실행하고 그 사실을 알린다 — 어느 쪽이든 손이 두 번 가지 않게.
+       · WebView·권한·구형 브라우저가 멀티 MIME 을 막으면(catch) **갤러리 자동 저장 없이**
+         ① 본문 복사 ② AiriaShare.shareImage · navigator.share 공유 시트를 연다 — 저장은 [사진 저장]으로만.
        · 성공·폴백 모두 기존 복사 로깅(recordCopy → 봇가드 오늘 실행·동일 문구)에 남긴다. */
     function finalScript(it, ch){
       var parts = [hookOf(it, ch), bodyOf(it, ch), activeTags(it, ch).join(" ")];
@@ -19844,12 +19858,11 @@ var AiriaMp4 = (function(){
       if(!du){ toast("복사할 사진이 없어요 — 이 대본에 사진을 먼저 붙여 주세요"); return; }
       if(!text){ toast("복사할 본문이 없어요"); return; }
       function fallback(){
-        saveDataUrl(du, imgName);
-        copyTextSilent(text, function(ok){
-          recordCopy(text);
-          toast(ok ? "본문은 복사했고 사진은 바로 저장했어요"
-                   : "사진은 바로 저장했어요 — 본문은 길게 눌러 복사해 주세요");
-        });
+        /* 빌드 74 — 갤러리에 저장하지 않는다. 본문+해시태그는 클립보드로, 사진은 공유 시트로 바로. */
+        copyTextSilent(text, function(ok){ recordCopy(text); });
+        if(nativeSharePhoto(text, du, imgName)) return;
+        if(webSharePhoto(text, du, imgName)) return;
+        toast("이 기기 앱에선 이미지 클립보드가 제한돼 있어요 — 본문은 복사했어요. '바로 올리기'를 눌러 주세요");
       }
       dataUrlToPngBlob(du, function(blob){
         var can = false;
@@ -19875,6 +19888,86 @@ var AiriaMp4 = (function(){
           navigator.clipboard.write([item]).then(function(){ clearTimeout(timer); okOnce(); })["catch"](function(){ clearTimeout(timer); fbOnce(); });
         }catch(e){ clearTimeout(timer); fbOnce(); }
       });
+    }
+
+    /* ---------------------------------------------------------------- 갤러리 저장 없이 바로 올리기 (빌드 74)
+       유진님 지시: “갤러리에 저장 안 되고 바로 올리게끔”.
+       ① 본문+해시태그를 먼저 조용히 클립보드에 (공유 시트에서 글이 빠지는 앱 대비)
+       ② 앱 브리지 AiriaShare.shareImage(이름, MIME, 글) → shareChunk(1MB)… → finishShare(공유 시트)
+       ③ 브라우저 navigator.share({ files:[사진], text })
+       ④ 둘 다 안 되면 네이티브 URL 로 게시 화면만 열고 안내 — **갤러리 자동 저장은 하지 않는다**. */
+    function shareImgName(it, ch, du, cover){
+      var m = /^data:([^;]+);/.exec(String(du || ""));
+      var ext = (m && /png/i.test(m[1])) ? "png" : "jpg";
+      var base = cover ? ("cover-" + (it ? it.id : "")) : ((it ? it.id : "") + "-" + ch);
+      return "arisia949-" + base + "." + ext;
+    }
+    function shareBlob(du){
+      var m = /^data:([^;]+);base64,(.*)$/.exec(String(du || ""));
+      if(!m) return null;
+      try{
+        var bin = atob(m[2]), u = new Uint8Array(bin.length);
+        for(var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        return new Blob([u], { type: m[1] || "image/jpeg" });
+      }catch(e){ return null; }
+    }
+    function nativeSharePhoto(text, du, name){
+      if(!(window.AiriaShare && typeof window.AiriaShare.shareImage === "function")) return false;
+      var m = /^data:([^;]+);base64,(.*)$/.exec(String(du || ""));
+      if(!m) return false;
+      var token = "";
+      try { token = String(window.AiriaShare.shareImage(name, m[1] || "image/jpeg", text) || ""); } catch(e){ token = ""; }
+      if(!token) return false;
+      var b64 = m[2], CHUNK = 1024 * 1024, off = 0;
+      toast("사진과 글을 공유 창으로 보내는 중…");
+      (function step(){
+        if(off >= b64.length){
+          try { window.AiriaShare.finishShare(token); } catch(e){ toast("공유 창을 열지 못했어요 — [바로 열기]로 앱에서 붙여넣어 주세요"); }
+          return;
+        }
+        var part = b64.slice(off, Math.min(b64.length, off + CHUNK));
+        var ok = false;
+        try { ok = window.AiriaShare.shareChunk(token, part); } catch(e){ ok = false; }
+        if(!ok){
+          try { window.AiriaShare.cancelShare(token); } catch(e){}
+          toast("사진을 공유 창으로 넘기지 못했어요 — 본문은 복사해 두었어요");
+          return;
+        }
+        off += CHUNK;
+        step();
+      })();
+      return true;
+    }
+    function webSharePhoto(text, du, name){
+      if(!(navigator.share && navigator.canShare && typeof File === "function")) return false;
+      var blob = shareBlob(du);
+      if(!blob) return false;
+      var file = null;
+      try { file = new File([blob], name, { type: blob.type || "image/png" }); } catch(e){ file = null; }
+      if(!file) return false;
+      var can = false;
+      try { can = navigator.canShare({ files: [file] }); } catch(e){ can = false; }
+      if(!can) return false;
+      try{
+        var pr = navigator.share({ files: [file], text: text });
+        if(pr && pr.then) pr.then(function(){
+          toast("공유 창에서 올릴 앱을 골라 주세요");
+        })["catch"](function(){
+          toast("공유를 마치지 않았어요 — 본문은 클립보드에 있어요");
+        });
+      }catch(e){ return false; }
+      return true;
+    }
+    function sharePhotoNow(du, text, imgName, ch){
+      text = String(text || "");
+      if(!du){ toast("공유할 사진이 없어요 — 이 대본에 사진을 먼저 붙여 주세요"); return; }
+      if(!text){ toast("공유할 본문이 없어요"); return; }
+      /* ① 본문+해시태그를 먼저 클립보드에 — 공유 시트에서 글이 빠지는 앱 대비 */
+      copyTextSilent(text, function(ok){ recordCopy(text); });
+      if(nativeSharePhoto(text, du, imgName)) return;
+      if(webSharePhoto(text, du, imgName)) return;
+      toast("이 기기 앱에선 사진+글 공유가 제한돼 있어요 — 본문은 복사했어요. 앱에서 사진을 골라 붙여 주세요");
+      openUrl(uploadUrl(ch || "threads", text));
     }
 
     /* ---------------------------------------------------------------- 요약 렌더 */
@@ -20023,17 +20116,11 @@ var AiriaMp4 = (function(){
           "패키지 " + (i + 1) + "<b>" + (pi && String(pi.group) === "mongle" ? "몽글노트" : "일상") + "</b></button>";
       }
       var ph = photoOf(it);
-      var tags = tagsOf(it, S.chan || "threads");
+      var tagChips = tagChipsHtml(it, S.chan || "threads");
       var body = bodyOf(it, S.chan || "threads");
       var hook = hookOf(it, S.chan || "threads");
       var chBtns = CH.map(function(c){
         return '<button class="a71-chip" type="button" data-chan="' + c + '" aria-pressed="' + (S.chan === c) + '">' + CHLABEL[c] + "</button>";
-      }).join("");
-      var tst = tagState(it, S.chan || "threads");
-      var tagChips = tags.map(function(t){
-        return '<button class="a71-chip tag" type="button" data-tag="' + esc(t) + '" aria-pressed="' + (tst.off[t] ? "false" : "true") + '">' + esc(t) + "</button>";
-      }).join("") + sugTags(it).filter(function(t){ return tags.indexOf(t) < 0; }).map(function(t){
-        return '<button class="a71-chip" type="button" data-tag="' + esc(t) + '" aria-pressed="' + (tst.on[t] ? "true" : "false") + '">＋ ' + esc(t) + "</button>";
       }).join("");
       var slots = CH.map(function(c, ci){
         var on = !!s[c];
@@ -20074,9 +20161,12 @@ var AiriaMp4 = (function(){
           '<div class="a71-h"><h2>채널별 대본</h2><span class="right">' + esc(String(it.title || "")) + "</span></div>" +
           '<div class="a71-chan">' + chBtns + "</div>" +
           '<div class="a71-script"><span class="hook">' + esc(hook) + "</span>" + esc(body) + "</div>" +
-          '<div class="a71-tags">' + tagChips + "</div>" +
+          tagChips +
           '<div class="a71-btnrow" style="margin-top:11px">' +
             '<button class="a71-btn solid phototext" type="button" id="a71CopyPhotoText">사진+본문 한번에 복사</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin-top:6px">' +
+            '<button class="a71-btn coral phototext" type="button" id="a71ShareNow">사진+본문 바로 올리기</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin-top:6px">' +
             '<button class="a71-btn" type="button" id="a71CopyScript" style="flex:1">원클릭 복사</button>' +
@@ -20137,6 +20227,9 @@ var AiriaMp4 = (function(){
           "</div>" +
           '<div class="a71-btnrow" style="margin:0 0 11px">' +
             '<button class="a71-btn solid sm phototext" type="button" data-copyphototext="' + ch + '">사진+본문 한번에 복사</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin:0 0 11px">' +
+            '<button class="a71-btn coral sm phototext" type="button" data-sharenow="' + ch + '">사진+본문 바로 올리기</button>' +
           "</div>" : "";
         html +=
           '<div class="a71-card">' +
@@ -20145,6 +20238,7 @@ var AiriaMp4 = (function(){
             '<div class="a71-script">' + esc(bodyOf(it, ch)) + "</div>" +
             (sc.cta && nl(bodyOf(it, ch)).indexOf(nl(sc.cta)) < 0 ? '<p class="a71-note" style="margin-top:8px">마무리 · ' + esc(nl(sc.cta)) + "</p>" : "") +
             (ch === "shorts" ? '<p class="a71-note" style="margin-top:6px">BGM · ' + esc(bgmLabelOf(it)) + "</p>" : "") +
+            tagChipsHtml(it, ch) +
             '<div class="a71-btnrow" style="margin-top:10px">' +
               '<button class="a71-btn solid sm" type="button" data-copych="' + ch + '" style="flex:1">복사</button>' +
               '<button class="a71-btn sm" type="button" data-opench="' + ch + '">바로 열기</button>' +
@@ -20603,7 +20697,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -20623,14 +20717,16 @@ var AiriaMp4 = (function(){
           return;
         }
         if(t.hasAttribute("data-tag")){
-          var tg = t.getAttribute("data-tag"), tch = S.chan || "threads";
+          /* 빌드 74 — 세 탭 공통: 칩이 가진 채널(data-tagch)의 상태를 바꾸고, 지금 탭만 다시 그린다 */
+          var tg = t.getAttribute("data-tag"), tch = t.getAttribute("data-tagch") || S.chan || "threads";
           var st = tagState(it, tch);
           if(tagsOf(it, tch).indexOf(tg) >= 0){
             if(st.off[tg]) delete st.off[tg]; else st.off[tg] = 1;
           } else {
             if(st.on[tg]) delete st.on[tg]; else st.on[tg] = 1;
           }
-          save(); renderPackage();
+          save(); renderTab(S.tab || "package");
+          toast(activeTags(it, tch).indexOf(tg) >= 0 ? "해시태그를 켰어요 · 복사문에 바로 붙습니다" : "해시태그를 뺐어요 · 복사문에서 빠집니다");
           return;
         }
         if(t.hasAttribute("data-opench")){ openUrl(uploadUrl(t.getAttribute("data-opench"), bodyOf(it, t.getAttribute("data-opench")))); return; }
@@ -20714,8 +20810,14 @@ var AiriaMp4 = (function(){
         }
         if(t.hasAttribute("data-copyphototext")){
           var chPT = t.getAttribute("data-copyphototext") || "threads";
-          copyPhotoAndText(photoOf(it).src, finalScript(it, chPT),
-                           "arisia949-" + (it ? it.id : "") + "-" + chPT + "-사진.png");
+          var duPT = photoOf(it).src;
+          copyPhotoAndText(duPT, finalScript(it, chPT), shareImgName(it, chPT, duPT));
+          return;
+        }
+        if(t.hasAttribute("data-sharenow")){
+          var chSN = t.getAttribute("data-sharenow") || "threads";
+          var duSN = photoOf(it).src;
+          sharePhotoNow(duSN, finalScript(it, chSN), shareImgName(it, chSN, duSN), chSN);
           return;
         }
         if(t.hasAttribute("data-limit")){ S.bot.limit = parseInt(t.getAttribute("data-limit"), 10) || 45; save(); renderGuard(); renderGuardTop(); return; }
@@ -20758,8 +20860,15 @@ var AiriaMp4 = (function(){
           var cvPT = $("a71Cover");
           var duPT = "";
           try { duPT = cvPT ? cvPT.toDataURL("image/png") : ""; } catch(e){ duPT = ""; }
-          copyPhotoAndText(duPT, finalScript(it, S.chan || "threads"),
-                           "arisia949-cover-" + (it ? it.id : "") + ".png");
+          copyPhotoAndText(duPT, finalScript(it, S.chan || "threads"), shareImgName(it, S.chan || "threads", duPT, true));
+        }
+        if(id === "a71ShareNow"){
+          /* 빌드 74 — 커버 캔버스를 갤러리에 저장하지 않고 바로 공유 시트로 */
+          var cvSN2 = $("a71Cover");
+          var duSN2 = "";
+          try { duSN2 = cvSN2 ? cvSN2.toDataURL("image/png") : ""; } catch(e){ duSN2 = ""; }
+          var chPkg = S.chan || "threads";
+          sharePhotoNow(duSN2, finalScript(it, chPkg), shareImgName(it, chPkg, duSN2, true), chPkg);
         }
         if(id === "a71CopyScript"){
           var body = bodyOf(it, S.chan || "threads"), hook = hookOf(it, S.chan || "threads");
@@ -20971,7 +21080,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 73;
+    var BUILD = 74;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
