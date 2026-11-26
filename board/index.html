@@ -2786,7 +2786,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 80</span>
+      <span class="a71-build" id="a71Build">빌드 81</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2852,7 +2852,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 80</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 81</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16279,7 +16279,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 80;
+  var OTA_APP_BUILD = 81;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19231,7 +19231,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 80;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 81;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "reels", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -20640,6 +20640,21 @@ var AiriaMp4 = (function(){
       if(cur) return cur;
       return pkgIdea(S.pkgIdx || 0) || plan()[0] || null;
     }
+    /* 빌드 81 — 카드뉴스 탭에도 [✓ 발행 완료 · 다음] + [발행 취소] 목록.
+       다른 발행 탭(스레드·인스타·릴스·유튜브)과 같은 기록(S.pub·S.pubCh·S.pubSeq)을 쓴다.
+       카드뉴스는 인스타 피드에 올리는 것이라 채널은 feed — 인스타 탭·성장 요약과 그대로 이어진다. */
+    function studioPubHtml(it){
+      if(!it || !scriptOf(it, "feed")) return "";
+      return '<div class="a71-card tight a71-stpub">' +
+        '<div class="a71-h"><h2>발행 기록</h2>' + pubBadgeHtml(it, "feed") +
+          '<span class="right">인스타 피드</span></div>' +
+        '<p class="a71-note">4장을 인스타에 올린 뒤 누르면 <b>' + esc(String(it.title || "")) +
+          '</b> 이 발행 완료로 기록되고, 다음 미발행 피드 대본으로 넘어갑니다. 인스타 탭·성장 기록과 같은 기록이에요.</p>' +
+        '<div class="a71-btnrow" style="margin-top:8px">' +
+          '<button class="a71-btn coral sm wide" type="button" data-pubdone="feed" data-pubfrom="studio" data-idea="' + esc(it.id) + '">✓ 발행 완료 · 다음</button>' +
+        "</div>" +
+      "</div>";
+    }
     function renderStudio(){
       var host = $("a71Studio");
       if(!host) return;
@@ -20664,12 +20679,14 @@ var AiriaMp4 = (function(){
           '<div class="a71-sec" style="margin:12px 0 6px"><h2 style="font-size:12.5px">브랜딩 배지</h2><span>' + esc(S.badge) + "</span></div>" +
           '<div class="a71-chiprow">' + badges + "</div>" +
         "</div>" +
+        studioPubHtml(it) +
         '<div class="a71-sec"><h2>시그니처 3종</h2><span>먼저 이 셋</span></div>' +
         '<div class="a71-sig" id="a71Sig"></div>' +
         '<div class="a71-sec"><h2>디자인 ' + num(rest.length) + "종</h2><span>눌러서 고르기</span></div>" +
         '<div class="a71-grid" id="a71ThemeGrid"></div>' +
-        '<p class="a71-note" style="margin-top:10px">[🚀 4장+본문 바로 올리기]는 본문+해시태그를 클립보드에 넣고 고른 디자인 4장을 만들어 새 앱(1.9.0)에선 공유 창으로 바로 넘깁니다 — 갤러리에 저장하지 않아요. 올린 뒤 [✓ 발행 완료] 는 직접 눌러 주세요.</p>' +
-        '<p class="a71-note" style="margin-top:10px">카드뉴스는 글과 조판으로 승부합니다 — 작은 캐릭터 사진을 끼워 넣는 형식은 쓰지 않아요.</p>';
+        '<p class="a71-note" style="margin-top:10px">[🚀 4장+본문 바로 올리기]는 본문+해시태그를 클립보드에 넣고 고른 디자인 4장을 만들어 새 앱(1.9.0)에선 공유 창으로 바로 넘깁니다 — 갤러리에 저장하지 않아요. 올린 뒤에는 맨 위 [✓ 발행 완료 · 다음] 을 직접 눌러 주세요.</p>' +
+        '<p class="a71-note" style="margin-top:10px">카드뉴스는 글과 조판으로 승부합니다 — 작은 캐릭터 사진을 끼워 넣는 형식은 쓰지 않아요.</p>' +
+        publishedListHtml();
       host.innerHTML = html;
 
       var sigHost = $("a71Sig");
@@ -21457,15 +21474,27 @@ var AiriaMp4 = (function(){
           return;
         }
         if(t.hasAttribute("data-pubdone")){
-          /* 빌드 76 — 유진님이 직접 누르는 [✓ 발행 완료 · 다음] */
+          /* 빌드 76 — 유진님이 직접 누르는 [✓ 발행 완료 · 다음]
+             빌드 81 — 카드뉴스 탭에서 누르면 그 대본을 인스타 피드로 기록하고 다음 미발행 피드 대본으로 */
           var chPD = t.getAttribute("data-pubdone") || S.chan || "threads";
           var itPD = ideaById(t.getAttribute("data-idea")) || it || pkgIdea(0);
+          var fromStudio = t.getAttribute("data-pubfrom") === "studio";
           markUploaded(itPD, chPD, CHLABEL[chPD] + " 발행 완료 · 다음 대본");
+          if(fromStudio || (S.tab === "studio" && chPD === "feed")){
+            var nxtPD = candIdea("feed", 0);
+            S.studioIdea = nxtPD ? nxtPD.id : "";
+            save(); renderStudio();
+          }
           return;
         }
         if(t.hasAttribute("data-unpub")){
-          /* 빌드 76 — 이미 올린 대본의 [발행 취소] */
-          unpublish(ideaById(t.getAttribute("data-unpub")));
+          /* 빌드 76 — 이미 올린 대본의 [발행 취소]
+             빌드 81 — 카드뉴스 탭에서 취소하면 그 대본이 다시 지금 대본으로 돌아온다 */
+          var itUP = ideaById(t.getAttribute("data-unpub"));
+          unpublish(itUP);
+          if(S.tab === "studio" && itUP && scriptOf(itUP, "feed") && S.studioIdea !== itUP.id){
+            S.studioIdea = itUP.id; save(); renderStudio();
+          }
           return;
         }
         if(t.hasAttribute("data-limit")){ S.bot.limit = parseInt(t.getAttribute("data-limit"), 10) || 45; save(); renderGuard(); renderGuardTop(); return; }
@@ -21562,6 +21591,7 @@ var AiriaMp4 = (function(){
         return JSON.parse(JSON.stringify({
           counts: S.counts, slotDone: S.slotDone, pub: S.pub, pubCh: S.pubCh,
           pubSeq: S.pubSeq, pubCycle: S.pubCycle, qi: S.qi, pkgIdx: S.pkgIdx, cand: S.cand,
+          studioIdea: S.studioIdea,
           quick: S.quick, quickDone: S.quickDone, quickCopied: S.quickCopied,
           replyDone: S.replyDone, replyCopied: S.replyCopied, replyRot: S.replyRot
         }));
@@ -21631,6 +21661,7 @@ var AiriaMp4 = (function(){
       if(typeof s.qi === "number") S.qi = s.qi;
       S.pkgIdx = s.pkgIdx || 0;
       if(s.cand && typeof s.cand === "object") S.cand = JSON.parse(JSON.stringify(s.cand));
+      if(typeof s.studioIdea === "string") S.studioIdea = s.studioIdea;   /* 빌드 81 */
       if(s.quick && typeof s.quick === "object") S.quick = s.quick;
       if(s.quickDone && typeof s.quickDone === "object") S.quickDone = s.quickDone;
       if(s.quickCopied && typeof s.quickCopied === "object") S.quickCopied = s.quickCopied;
@@ -21810,7 +21841,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 80;
+    var BUILD = 81;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
