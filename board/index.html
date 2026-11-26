@@ -2582,7 +2582,11 @@
   .a71-pubrow{border-top:1px solid var(--a-line2); padding:10px 13px}
   .a71-pubrow:first-of-type{border-top:0}
   .a71-pubrow .row{display:flex; align-items:center; gap:7px}
-  .a71-pubrow .row b{font-size:12.5px; font-weight:700; color:var(--a-ink2); line-height:1.45}
+  .a71-pubrow .row b{flex:1 1 auto; min-width:0; font-size:12.5px; font-weight:700; color:var(--a-ink2); line-height:1.45}
+  .a71-pubflag{
+    flex:none; display:inline-block; white-space:nowrap; font-size:10px; font-weight:800; letter-spacing:.04em;
+    padding:2px 7px; border-radius:999px; background:#FDEDEC; color:#B3261E; border:1px solid #F6D6D3;
+  }
   .a71-pubrow .row2{display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap}
   .a71-pubrow .when{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--a-muted)}
   .a71-donechip{
@@ -19537,11 +19541,12 @@ var AiriaMp4 = (function(){
           return '<span class="a71-pf ' + CHPF[c] + '">' + CHLABEL[c].replace("인스타 ", "").replace("유튜브 ", "") + "</span>";
         }).join("");
         return '<div class="a71-pubrow"><div class="row"><b>' + esc(String(x.title || x.id)) + '</b>' +
-          '<span class="a71-pend">발행됨</span></div>' +
+          '<span class="a71-pubflag">발행됨</span></div>' +
           '<div class="row2">' + (chips || '<span class="a71-pf threads">기록</span>') +
           '<span class="when">' + esc(String(S.pub[x.id] || "")) + "</span></div></div>";
       }).join("");
-      return '<details class="a71-fold"><summary>이미 올린 대본 ' + (total > list.length ? "… " : "") + total + "편 보기</summary>" + rows + "</details>";
+      return '<details class="a71-fold"><summary>이미 올린 대본 ' + total + "편 보기" +
+        (total > list.length ? " · 최근 " + list.length + "편" : "") + "</summary>" + rows + "</details>";
     }
     var PARENT_WORDS = ["아이", "육아", "등원", "어린이집", "첫째", "둘째", "엄마", "기저귀", "쪽쪽이",
                         "재우", "놀이터", "학교", "학부모", "아기", "키즈", "가족", "딸", "아들"];
