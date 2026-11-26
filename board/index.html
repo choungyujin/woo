@@ -2406,6 +2406,9 @@
   .a71-btn.solid{background:var(--a-char); border-color:var(--a-char); color:#fff}
   .a71-btn.coral{background:var(--a-coral); border-color:var(--a-coral); color:#fff}
   .a71-btn.ghost{background:transparent}
+  /* 빌드 79 — 인스타 카드에서 그 대본 카드뉴스로 넘어가는 버튼(라벤더) */
+  .a71-btn.cardnews{background:var(--a-lav-soft); border-color:#DED7F6; color:#5B4BA8}
+  .a71-btn.cardnews:active{background:#E6E0F8}
   .a71-btn.sm{padding:7px 10px; font-size:12px; border-radius:9px}
   .a71-btn.wide{width:100%}
   .a71-btnrow{display:flex; gap:8px; flex-wrap:wrap}
@@ -2780,7 +2783,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 78</span>
+      <span class="a71-build" id="a71Build">빌드 79</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2804,7 +2807,7 @@
     <button class="a71-tab" type="button" role="tab" data-tab="insta" aria-selected="false">인스타</button>
     <button class="a71-tab" type="button" role="tab" data-tab="reels" aria-selected="false">릴스</button>
     <button class="a71-tab" type="button" role="tab" data-tab="youtube" aria-selected="false">유튜브</button>
-    <button class="a71-tab" type="button" role="tab" data-tab="studio" aria-selected="false">스튜디오</button>
+    <button class="a71-tab" type="button" role="tab" data-tab="studio" aria-label="카드뉴스" aria-selected="false">카드뉴스</button>
     <button class="a71-tab" type="button" role="tab" data-tab="gallery" aria-selected="false">사진함</button>
     <button class="a71-tab" type="button" role="tab" data-tab="quick" aria-selected="false">선댓글·답글</button>
     <button class="a71-tab" type="button" role="tab" data-tab="manage" aria-selected="false">관리</button>
@@ -2832,7 +2835,7 @@
     <div id="a71VideoHost"></div>
   </section>
 
-  <section class="a71-panel" data-p="studio" role="tabpanel" aria-label="카드뉴스 스튜디오">
+  <section class="a71-panel" data-p="studio" role="tabpanel" aria-label="카드뉴스">
     <div id="a71Studio"></div>
   </section>
 
@@ -2846,7 +2849,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 78</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 79</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16273,7 +16276,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 78;
+  var OTA_APP_BUILD = 79;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19225,7 +19228,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 78;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 79;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "reels", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -20537,6 +20540,14 @@ var AiriaMp4 = (function(){
     }
     /* ---------------------------------------------------------------- 채널 패널 (빌드 77)
        각 플랫폼마다 서로 다른 대본 5개. 맨 위 선택 바에서 제목·훅을 보고 고르면 그 카드가 그 자리에서 바뀐다. */
+    /* 빌드 79 — 인스타 탭에서 보던 피드 대본을 그대로 카드뉴스 탭으로 넘긴다 */
+    function cardNewsHtml(it, ch){
+      if(ch !== "feed" || !it) return "";
+      return '<div class="a71-btnrow" style="margin:0 0 11px">' +
+          '<button class="a71-btn cardnews sm wide" type="button" data-opencardnews="1" data-idea="' + esc(it.id) + '">🎨 이 대본 카드뉴스 4장 보기</button>' +
+        "</div>" +
+        '<p class="a71-note" style="margin:-4px 0 10px">피드 단컷 대신 카드뉴스 4장으로 올리려면 위 버튼을 눌러 주세요.</p>';
+    }
     function renderChannel(tab){
       var chs = tab === "insta" ? ["feed"] : (tab === "reels" ? ["reels"] : (tab === "threads" ? ["threads"] : ["shorts"]));
       var host = $(tab === "threads" ? "a71Threads" : (tab === "insta" ? "a71Insta" : (tab === "reels" ? "a71Reels" : "a71Youtube")));
@@ -20567,6 +20578,7 @@ var AiriaMp4 = (function(){
             '<div class="a71-h"><span class="n">' + esc(CHLABEL[ch]) + " · 후보 " + (candIdx(ch) + 1) + "</span>" + pubBadgeHtml(it, ch) +
               '<h2 style="font-size:14.5px">' + esc(hookOf(it, ch)) + "</h2></div>" +
             shot +
+            cardNewsHtml(it, ch) +
             '<p class="a71-note" style="margin:-2px 0 8px">' + esc(String(it.title || "")) + " · " + esc(String(it.group) === "mongle" ? "몽글노트" : "일상") + "</p>" +
             '<div class="a71-script">' + esc(bodyOf(it, ch)) + "</div>" +
             (sc.cta && nl(bodyOf(it, ch)).indexOf(nl(sc.cta)) < 0 ? '<p class="a71-note" style="margin-top:8px">마무리 · ' + esc(nl(sc.cta)) + "</p>" : "") +
@@ -20643,7 +20655,7 @@ var AiriaMp4 = (function(){
       }).join("");
       var html =
         '<div class="a71-card tight">' +
-          '<div class="a71-h"><h2>카드뉴스 스튜디오</h2><span class="right">' + num(th.length) + "종 · PNG 저장</span></div>" +
+          '<div class="a71-h"><h2>인스타 카드뉴스</h2><span class="right">' + num(th.length) + "종 · PNG 저장</span></div>" +
           '<p class="a71-note">대본 <b>' + esc(it.title) + "</b> — 카드뉴스 4장은 이 피드 대본의 문장 그대로(1장 훅 → 2·3장 장면·핵심 → 4장 열린 질문)입니다. 디자인을 고르면 1080×1350 네 장으로 저장됩니다.</p>" +
           '<div class="a71-chiprow" style="margin-top:9px">' + ideaBar + "</div>" +
           '<div class="a71-sec" style="margin:12px 0 6px"><h2 style="font-size:12.5px">브랜딩 배지</h2><span>' + esc(S.badge) + "</span></div>" +
@@ -21081,9 +21093,8 @@ var AiriaMp4 = (function(){
     }
 
     /* ---------------------------------------------------------------- 탭 */
-    function setTab(tab, silent){
+    function applyTabClasses(tab){
       if(TABS.indexOf(tab) < 0) tab = "package";
-      S.tab = tab; save();
       var btns = document.querySelectorAll("#a71Tabs .a71-tab");
       for(var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-selected", btns[i].getAttribute("data-tab") === tab ? "true" : "false");
       var panels = document.querySelectorAll("#v71App .a71-panel");
@@ -21091,6 +21102,21 @@ var AiriaMp4 = (function(){
         var on = panels[j].getAttribute("data-p") === tab;
         panels[j].classList.toggle("on", on);
       }
+      /* 탭 줄은 가로로 넘어간다 — 고른 탭(카드뉴스 등)이 보이게 가운데로 */
+      try{
+        var bar = $("a71Tabs"), sel = bar ? bar.querySelector(".a71-tab[aria-selected='true']") : null;
+        if(sel){
+          var br = bar.getBoundingClientRect(), sr = sel.getBoundingClientRect();
+          var left = bar.scrollLeft + (sr.left - br.left) - (br.width - sr.width) / 2;
+          left = Math.max(0, Math.min(left, bar.scrollWidth - bar.clientWidth));
+          try{ bar.scrollTo({ left: left, behavior: "smooth" }); }catch(e2){ bar.scrollLeft = left; }
+        }
+      }catch(e){}
+      return tab;
+    }
+    function setTab(tab, silent){
+      tab = applyTabClasses(tab);
+      S.tab = tab; save();
       renderTab(tab);
       if(!silent){
         var bar = $("a71Tabs");
@@ -21132,7 +21158,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -21190,6 +21216,14 @@ var AiriaMp4 = (function(){
           toast("배지를 " + S.badge + " 로 바꿨어요"); return;
         }
         if(t.hasAttribute("data-studioidea")){ S.studioIdea = t.getAttribute("data-studioidea"); save(); renderStudio(); return; }
+        if(t.hasAttribute("data-opencardnews")){
+          /* 빌드 79 — 이 대본을 선택한 채 카드뉴스 탭으로 */
+          var cnId = t.getAttribute("data-idea") || (candIdea("feed", 0) || {}).id || "";
+          if(cnId) S.studioIdea = cnId;
+          save(); setTab("studio");
+          toast("이 대본 카드뉴스 4장을 열었어요 — 디자인을 고르면 바로 저장됩니다");
+          return;
+        }
         if(t.hasAttribute("data-galtab")){ GAL_TAB = t.getAttribute("data-galtab"); renderGallery(); return; }
         if(t.hasAttribute("data-setphoto")){
           var pk = t.getAttribute("data-setphoto");
@@ -21514,6 +21548,8 @@ var AiriaMp4 = (function(){
       paintDate();
       renderSummary();
       renderGuardTop();
+      /* 빌드 79 — 마지막에 보던 탭(예: 인스타에서 열어 둔 카드뉴스)으로 다시 열린다 */
+      applyTabClasses(S.tab || "package");
       renderTab(S.tab || "package");
     }
     var started = false;
@@ -21644,7 +21680,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 78;
+    var BUILD = 79;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
