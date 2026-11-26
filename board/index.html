@@ -2409,6 +2409,9 @@
   .a71-btn.sm{padding:7px 10px; font-size:12px; border-radius:9px}
   .a71-btn.wide{width:100%}
   .a71-btnrow{display:flex; gap:8px; flex-wrap:wrap}
+  /* 빌드 73 — 사진+본문 한 번에 복사는 한 줄을 다 쓴다(본문 복사 버튼과 헷갈리지 않게) */
+  .a71-btnrow > .a71-btn.phototext{flex:1 1 100%; white-space:nowrap; letter-spacing:-.02em}
+  .a71-btnrow > .a71-btn.sm.phototext{padding:9px 10px; font-size:12.5px}
 
   .a71-chiprow{display:flex; gap:6px; flex-wrap:wrap}
   .a71-chip{
@@ -2710,7 +2713,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 72</span>
+      <span class="a71-build" id="a71Build">빌드 73</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2771,7 +2774,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 72</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 73</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16184,7 +16187,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 72;
+  var OTA_APP_BUILD = 73;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -18813,6 +18816,10 @@ var AiriaMp4 = (function(){
        · [바로 올리기] = 인스타그램 열기(로그인은 유진님이 직접)
      ========================================================================== */
   var CN_THEMES = [
+    /* ---- 빌드 71 시그니처 3종 (AriaFeed.themes 와 같은 순서 — 빌드 73 에서 이 목록에 합류) ---- */
+    { key: "monglememo", label: "몽글 시그니처",   note: "파스텔 라벤더·코랄 글로우 · 둥근 글래스 메모 · MONGLE NOTE", cat: "시그니처", photo: false },
+    { key: "impact",     label: "매거진 임팩트",   note: "굵은 헤드라인 · 핵심 키워드 코랄 박스 · 강한 여백 대비",   cat: "시그니처", photo: false },
+    { key: "points",     label: "포인트 리스트",   note: "01·02·03 번호 블록 · 2단 비교 카드 · 크림 종이",          cat: "시그니처", photo: false },
     /* ---- 빌드 68 신규 16종 먼저 (스크롤 첫 화면에서 새 디자인이 보이게) ---- */
     { key: "swiss",      label: "스위스 그리드",   note: "오프화이트 · 12칼럼 헤어라인 · 검정 초대형 · 빨강 한 점", cat: "미니멀", photo: false },
     { key: "monomag",    label: "모노 매거진",     note: "순백 · 세리프 초대형 · 얇은 괘선 · 페이지 번호",       cat: "미니멀", photo: false },
@@ -18834,14 +18841,10 @@ var AiriaMp4 = (function(){
     { key: "minimal",    label: "미니멀 에디토리얼", note: "오프화이트 종이 · 얇은 괘선 · 큰 활자", cat: "미니멀", photo: false },
     { key: "compare",    label: "비교표",          note: "2단 비교표 · VS 원 · 딥그린 헤더",      cat: "도표",   photo: false },
     { key: "poll",       label: "질문·투표 훅",    note: "큰 물음표 · A/B 선택 바 · 코랄 포인트",  cat: "질문",   photo: false },
-    /* ---- 빌드 40 컬러·다크·아트 ---- */
-    { key: "butter",     label: "버터×코발트",     note: "버터옐로우 × 코발트 볼드 타이포",        cat: "컬러",   photo: false },
-    { key: "forest",     label: "포레스트 리포트", note: "딥그린 × 네온라임 체크리스트",           cat: "컬러",   photo: false },
+    /* ---- 빌드 40 컬러·다크·아트 (빌드 71에서 뺀 원색 4종은 제외) ---- */
     { key: "widget",     label: "위젯 다크",       note: "iOS 위젯 카드 · 클린 다크 UI",            cat: "다크",   photo: false },
-    { key: "brutal",     label: "브루탈 키네틱",   note: "차콜 + 형광 오렌지 · 초대형 활자",       cat: "다크",   photo: false },
     { key: "mesh",       label: "메쉬 인용",       note: "라벤더·스카이 메쉬 그라데이션 인용",     cat: "아트",   photo: false },
     { key: "pixel",      label: "픽셀 아카이브",   note: "딥네이비 그리드 · 모노 데이터",          cat: "아트",   photo: false },
-    { key: "listlabel",  label: "네온 라벨",       note: "화이트 격자 · 핑크 네온 번호 라벨",      cat: "컬러",   photo: false },
     /* ---- 사진형 (character photo 쓰는 대본용) ---- */
     { key: "darkmag",    label: "다크 매거진",     note: "사진 100% · 하단 그라데이션 · 큰 매거진 활자", cat: "사진", photo: true },
     { key: "glass",      label: "글래스",          note: "사진 100% · 프로스트 글래스 카드 · 쿨톤",      cat: "사진", photo: true },
@@ -19136,7 +19139,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 72;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 73;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -19806,6 +19809,68 @@ var AiriaMp4 = (function(){
       dataUrlToPngBlob(du, function(blob){ copyPngBlob(blob, du, name); });
     }
 
+    /* ---------------------------------------------------------------- 사진+본문 한 번에 복사 (빌드 73)
+       · 지금 화면에 뜬 사진(패키지=커버 캔버스 · 스레드/인스타=대본 사진)을 PNG Blob 으로 만들고,
+         본문(+켜 둔 해시태그)을 text/plain Blob 으로 준비해 ClipboardItem 한 번에 넣는다.
+       · WebView·권한·구형 브라우저가 멀티 MIME 을 막으면(catch) ①본문 복사 ②사진 바로 저장 을
+         한 동작으로 실행하고 그 사실을 알린다 — 어느 쪽이든 손이 두 번 가지 않게.
+       · 성공·폴백 모두 기존 복사 로깅(recordCopy → 봇가드 오늘 실행·동일 문구)에 남긴다. */
+    function finalScript(it, ch){
+      var parts = [hookOf(it, ch), bodyOf(it, ch), activeTags(it, ch).join(" ")];
+      return parts.filter(function(x){ return String(x == null ? "" : x).trim(); }).join("\n\n");
+    }
+    function copyTextSilent(text, cb){
+      text = String(text || "");
+      function fallback(){
+        var ok = false;
+        try{
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.setAttribute("readonly", "");
+          ta.style.position = "fixed"; ta.style.left = "-9999px"; ta.style.top = "0";
+          document.body.appendChild(ta);
+          ta.select(); ta.setSelectionRange(0, ta.value.length);
+          try { ok = document.execCommand("copy"); } catch(e){ ok = false; }
+          document.body.removeChild(ta);
+        }catch(e){ ok = false; }
+        if(cb) cb(ok);
+      }
+      if(!text){ if(cb) cb(false); return; }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){ if(cb) cb(true); })["catch"](fallback);
+      } else fallback();
+    }
+    function copyPhotoAndText(du, text, imgName){
+      text = String(text || "");
+      if(!du){ toast("복사할 사진이 없어요 — 이 대본에 사진을 먼저 붙여 주세요"); return; }
+      if(!text){ toast("복사할 본문이 없어요"); return; }
+      function fallback(){
+        saveDataUrl(du, imgName);
+        copyTextSilent(text, function(ok){
+          recordCopy(text);
+          toast(ok ? "본문은 복사했고 사진은 바로 저장했어요"
+                   : "사진은 바로 저장했어요 — 본문은 길게 눌러 복사해 주세요");
+        });
+      }
+      dataUrlToPngBlob(du, function(blob){
+        var can = false;
+        try { can = !!(blob && navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); } catch(e){ can = false; }
+        if(!can){ fallback(); return; }
+        var item = null;
+        try {
+          item = new ClipboardItem({
+            "text/plain": new Blob([text], { type: "text/plain" }),
+            "image/png": blob
+          });
+        } catch(e){ fallback(); return; }
+        try{
+          navigator.clipboard.write([item]).then(function(){
+            recordCopy(text);
+            toast("사진과 본문을 클립보드에 한 번에 복사했어요 (앱에 따라 텍스트만 붙으면 저장된 사진을 선택해 주세요)");
+          })["catch"](function(){ fallback(); });
+        }catch(e){ fallback(); }
+      });
+    }
+
     /* ---------------------------------------------------------------- 요약 렌더 */
     function renderSummary(){
       var rows = growthMerged();
@@ -20005,7 +20070,10 @@ var AiriaMp4 = (function(){
           '<div class="a71-script"><span class="hook">' + esc(hook) + "</span>" + esc(body) + "</div>" +
           '<div class="a71-tags">' + tagChips + "</div>" +
           '<div class="a71-btnrow" style="margin-top:11px">' +
-            '<button class="a71-btn solid" type="button" id="a71CopyScript" style="flex:1">원클릭 복사</button>' +
+            '<button class="a71-btn solid phototext" type="button" id="a71CopyPhotoText">사진+본문 한번에 복사</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin-top:6px">' +
+            '<button class="a71-btn" type="button" id="a71CopyScript" style="flex:1">원클릭 복사</button>' +
             '<button class="a71-btn" type="button" id="a71OpenScript">바로 열기</button>' +
           "</div>" +
         "</div>" +
@@ -20057,9 +20125,12 @@ var AiriaMp4 = (function(){
           '<div style="margin:0 0 11px;border-radius:12px;overflow:hidden;border:1px solid var(--a-line)">' +
             '<img src="' + ph.src + '" alt="" style="display:block;width:100%;aspect-ratio:' + (ch === "threads" ? "4/3" : "4/5") + ';object-fit:cover">' +
           "</div>" +
-          '<div class="a71-btnrow" style="margin:-3px 0 11px">' +
+          '<div class="a71-btnrow" style="margin:-3px 0 6px">' +
             '<button class="a71-btn sm" type="button" data-savephoto="' + ch + '" style="flex:1">사진 저장</button>' +
-            '<button class="a71-btn solid sm" type="button" data-copyphoto="' + ch + '" style="flex:1">사진 복사</button>' +
+            '<button class="a71-btn sm" type="button" data-copyphoto="' + ch + '" style="flex:1">사진 복사</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin:0 0 11px">' +
+            '<button class="a71-btn solid sm phototext" type="button" data-copyphototext="' + ch + '">사진+본문 한번에 복사</button>' +
           "</div>" : "";
         html +=
           '<div class="a71-card">' +
@@ -20526,7 +20597,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -20635,6 +20706,12 @@ var AiriaMp4 = (function(){
           copyImageDataUrl(photoOf(it).src, "arisia949-" + (it ? it.id : "") + "-" + chC + "-사진.png");
           return;
         }
+        if(t.hasAttribute("data-copyphototext")){
+          var chPT = t.getAttribute("data-copyphototext") || "threads";
+          copyPhotoAndText(photoOf(it).src, finalScript(it, chPT),
+                           "arisia949-" + (it ? it.id : "") + "-" + chPT + "-사진.png");
+          return;
+        }
         if(t.hasAttribute("data-limit")){ S.bot.limit = parseInt(t.getAttribute("data-limit"), 10) || 45; save(); renderGuard(); renderGuardTop(); return; }
       });
 
@@ -20670,6 +20747,14 @@ var AiriaMp4 = (function(){
           save(); renderPackage(); toast("디자인만 바꿨어요");
         }
         if(id === "a71SubOn"){ S.subOn = !!e.target.checked; save(); renderPackage(); }
+        if(id === "a71CopyPhotoText"){
+          /* 패키지 = 지금 화면의 커버 캔버스(디자인·자막 포함) + 지금 채널 본문 */
+          var cvPT = $("a71Cover");
+          var duPT = "";
+          try { duPT = cvPT ? cvPT.toDataURL("image/png") : ""; } catch(e){ duPT = ""; }
+          copyPhotoAndText(duPT, finalScript(it, S.chan || "threads"),
+                           "arisia949-cover-" + (it ? it.id : "") + ".png");
+        }
         if(id === "a71CopyScript"){
           var body = bodyOf(it, S.chan || "threads"), hook = hookOf(it, S.chan || "threads");
           copyText(hook + "\n\n" + body + "\n\n" + activeTags(it, S.chan || "threads").join(" "));
@@ -20880,7 +20965,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 72;
+    var BUILD = 73;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
