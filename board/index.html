@@ -2490,6 +2490,8 @@
   .a71-thumb img{display:block; width:100%; aspect-ratio:4/5; object-fit:cover}
   .a71-thumb .lb{padding:7px 8px 8px; font-size:11.5px; font-weight:800; letter-spacing:-.01em; line-height:1.28}
   .a71-thumb .lb small{display:block; font-size:10px; font-weight:600; color:var(--a-muted); margin-top:2px; line-height:1.3}
+  .a71-thumb .sh4{padding:0 8px 8px}
+  .a71-thumb .sh4 .a71-btn{width:100%; padding:6px 4px; font-size:10.5px; line-height:1.22; letter-spacing:-.03em; white-space:normal}
   .a71-thumb.sel{border-color:var(--a-char); box-shadow:0 0 0 2px rgba(43,43,49,.12)}
   .a71-thumb .pick{
     position:absolute; right:6px; top:6px; border:0; border-radius:999px; padding:4px 8px;
@@ -2505,8 +2507,9 @@
   .a71-sigcard .head span{margin-left:auto; font-size:11px; color:var(--a-muted); font-weight:700}
   .a71-sigcard .shots{display:flex; gap:4px; padding:0 12px}
   .a71-sigcard .shots img{width:25%; border-radius:8px; border:1px solid var(--a-line2); display:block}
-  .a71-sigcard .foot{display:flex; gap:6px; padding:10px 12px 12px}
+  .a71-sigcard .foot{display:flex; gap:6px; padding:10px 12px 12px; flex-wrap:wrap}
   .a71-sigcard .foot .a71-btn{flex:1}
+  .a71-sigcard .foot .a71-btn.share4{flex:1 1 100%}
 
   /* ---------- 봇가드 ---------- */
   .a71-guard{border-radius:var(--a-r); border:1px solid var(--a-line); padding:12px 13px; margin-bottom:10px; background:var(--a-card)}
@@ -2783,7 +2786,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 79</span>
+      <span class="a71-build" id="a71Build">빌드 80</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2849,7 +2852,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 79</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 80</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -16276,7 +16279,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 79;
+  var OTA_APP_BUILD = 80;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19221,14 +19224,14 @@ var AiriaMp4 = (function(){
        · 고독성 클린 성장 대시보드: KPI · 멀티라인 추이 · 채널 표 · 8탭
        · 오늘의 패키지(1·2·3 슬롯 → 4:5 프리뷰 · 내 사진 교체 · 감성 자막 · 채널별 대본 ·
          해시태그 칩 · 원클릭 복사 · 발행 완료 → 성장 기록 · 디자인/사진만 새로고침)
-       · 스튜디오(시그니처 3종 + 34종 · 배지 선택 · PNG 4장 저장)
+       · 스튜디오(시그니처 3종 + 34종 · 배지 선택 · PNG 4장 저장 · 4장+본문 바로 올리기)
        · 사진함(내 캐릭터 4장 · 아이들 · 감성 실사 · 내 사진) 과 대본 주제 자동 매칭
        · 선댓글 4지선다 · 들어온 댓글/DM 3지선다 · 봇 감지 예방 가드
        기존 엔진(BGM 100종·녹화, 카드뉴스 34종, 실사 97장)은 그대로 두고 이 판이 위에서 부른다.
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 79;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 80;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "reels", "youtube", "studio", "gallery", "quick", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -20665,6 +20668,7 @@ var AiriaMp4 = (function(){
         '<div class="a71-sig" id="a71Sig"></div>' +
         '<div class="a71-sec"><h2>디자인 ' + num(rest.length) + "종</h2><span>눌러서 고르기</span></div>" +
         '<div class="a71-grid" id="a71ThemeGrid"></div>' +
+        '<p class="a71-note" style="margin-top:10px">[🚀 4장+본문 바로 올리기]는 본문+해시태그를 클립보드에 넣고 고른 디자인 4장을 만들어 새 앱(1.9.0)에선 공유 창으로 바로 넘깁니다 — 갤러리에 저장하지 않아요. 올린 뒤 [✓ 발행 완료] 는 직접 눌러 주세요.</p>' +
         '<p class="a71-note" style="margin-top:10px">카드뉴스는 글과 조판으로 승부합니다 — 작은 캐릭터 사진을 끼워 넣는 형식은 쓰지 않아요.</p>';
       host.innerHTML = html;
 
@@ -20676,6 +20680,7 @@ var AiriaMp4 = (function(){
           '<div class="foot">' +
             '<button class="a71-btn sm" type="button" data-settheme="' + esc(t.key) + '">이 디자인 쓰기</button>' +
             '<button class="a71-btn solid sm" type="button" data-save4="' + esc(t.key) + '">4장 PNG 저장</button>' +
+            '<button class="a71-btn cardnews sm share4" type="button" data-share4="' + esc(t.key) + '">🚀 4장+본문 바로 올리기</button>' +
           "</div>" +
           '<p class="a71-note" style="padding:0 12px 12px">' + esc(t.note || "") + "</p>" +
         "</div>";
@@ -20686,6 +20691,7 @@ var AiriaMp4 = (function(){
         return '<div class="a71-thumb" data-theme="' + esc(t.key) + '">' +
           '<div data-thumb="' + esc(t.key) + '"><div style="aspect-ratio:4/5;background:#F2F1EC"></div></div>' +
           '<div class="lb">' + esc(t.label) + "<small>" + esc(t.note || "") + "</small></div>" +
+          '<div class="sh4"><button class="a71-btn cardnews sm" type="button" data-share4="' + esc(t.key) + '">🚀 4장+본문 바로 올리기</button></div>' +
           '<button class="pick" type="button" data-settheme="' + esc(t.key) + '">쓰기</button>' +
         "</div>";
       }).join("");
@@ -20735,6 +20741,129 @@ var AiriaMp4 = (function(){
       }
       step(0);
       toast(count + "장을 PNG로 저장합니다 — 한 장씩 저장돼요");
+    }
+
+    /* ---------------------------------------------------------------- 4장+본문 바로 올리기 (빌드 80)
+       유진님 지시: “카드뉴스 4장을 갤러리에 저장하지 않고 본문까지 한 번에 올리기”.
+       ① 대본 본문+해시태그를 클립보드에 먼저 넣는다 (공유 시트에서 글이 빠지는 앱 대비)
+       ② 고른 디자인으로 1080×1350 PNG 4장을 만든다 (AriaFeed.renderFor → 캔버스 → PNG)
+       ③ 새 앱(v1.9.0 · 빌드 80)의 AiriaShare.multiShare* 가 있으면 ACTION_SEND_MULTIPLE 공유 시트
+       ④ 브라우저·구 APK 는 navigator.share({files: 4장, text})
+       ⑤ 둘 다 안 되면 새 앱 설치·[4장 PNG 저장] 안내만 — **갤러리 자동 저장은 하지 않는다**
+       실제 발행 기록은 남기지 않는다 (빌드 76 규칙 그대로: 올린 뒤 [✓ 발행 완료] 를 직접 누른다). */
+    function share4Text(it){ try { return finalScript(it, "feed"); } catch(e){ return ""; } }
+    function pngFromDataUrl(du, cb){
+      try{
+        var im = new Image();
+        im.onload = function(){
+          try{
+            var cv = document.createElement("canvas");
+            cv.width = 1080; cv.height = 1350;
+            var g = cv.getContext("2d");
+            g.fillStyle = "#ffffff"; g.fillRect(0, 0, 1080, 1350);
+            g.drawImage(im, 0, 0, 1080, 1350);
+            cb(cv.toDataURL("image/png"));
+          }catch(e){ cb(""); }
+        };
+        im.onerror = function(){ cb(""); };
+        im.src = du;
+      }catch(e){ cb(""); }
+    }
+    function slidesPng(it, key, cb){
+      var out = [], i = 0;
+      function step(){
+        if(i >= 4){ cb(out); return; }
+        var du = "";
+        try { du = window.AriaFeed.renderFor(it.id, key, i, 1080, 1350); } catch(e){ du = ""; }
+        if(!du){ cb(null); return; }
+        pngFromDataUrl(du, function(png){
+          if(!png){ cb(null); return; }
+          out.push(png);
+          i++;
+          setTimeout(step, 24);
+        });
+      }
+      step();
+    }
+    function nativeShareSlides(text, list, base){
+      if(!(window.AiriaShare && typeof window.AiriaShare.multiShareBegin === "function")) return false;
+      var token = "";
+      try { token = String(window.AiriaShare.multiShareBegin(text, list.length) || ""); } catch(e){ token = ""; }
+      if(!token) return false;
+      var i = 0;
+      function fail(){
+        try { window.AiriaShare.multiShareCancel(token); } catch(e){}
+        toast("4장을 공유 창으로 넘기지 못했어요 — 본문은 복사해 두었어요");
+      }
+      function step(){
+        if(i >= list.length){
+          try { window.AiriaShare.multiShareFinish(token); }
+          catch(e){ toast("공유 창을 열지 못했어요 — [4장 PNG 저장]으로 저장해 주세요"); }
+          return;
+        }
+        var m = /^data:([^;]+);base64,(.*)$/.exec(String(list[i] || ""));
+        if(!m){ fail(); return; }
+        var idx = i, name = base + "-" + (idx + 1) + ".png";
+        var started = false;
+        try { started = window.AiriaShare.multiShareImageBegin(token, idx, name, m[1] || "image/png"); } catch(e){ started = false; }
+        if(!started){ fail(); return; }
+        var b64 = m[2], CHUNK = 1024 * 1024, off = 0;
+        (function chunk(){
+          if(off >= b64.length){
+            var ended = false;
+            try { ended = window.AiriaShare.multiShareImageEnd(token, idx); } catch(e){ ended = false; }
+            if(!ended){ fail(); return; }
+            i++;
+            step();
+            return;
+          }
+          var part = b64.slice(off, Math.min(b64.length, off + CHUNK));
+          var good = false;
+          try { good = window.AiriaShare.multiShareImageChunk(token, idx, part); } catch(e){ good = false; }
+          if(!good){ fail(); return; }
+          off += CHUNK;
+          chunk();
+        })();
+      }
+      toast("4장과 본문을 공유 창으로 보내는 중…", null, null, 6000);
+      step();
+      return true;
+    }
+    function webShareSlides(text, list, base){
+      if(!(navigator.share && navigator.canShare && typeof File === "function")) return false;
+      var files = [];
+      for(var i = 0; i < list.length; i++){
+        var blob = shareBlob(list[i]);
+        if(!blob) continue;
+        try { files.push(new File([blob], base + "-" + (i + 1) + ".png", { type: "image/png" })); } catch(e){}
+      }
+      if(files.length < 2) return false;
+      var can = false;
+      try { can = navigator.canShare({ files: files }); } catch(e){ can = false; }
+      if(!can) return false;
+      try{
+        var pr = navigator.share({ files: files, text: text });
+        if(pr && pr.then) pr.then(function(){
+          toast("공유 창에서 올릴 앱을 골라 주세요 — 올린 뒤 [✓ 발행 완료 · 다음] 을 눌러 주세요", null, null, 6000);
+        })["catch"](function(){ toast("공유를 마치지 않았어요 — 본문은 클립보드에 있어요"); });
+      }catch(e){ return false; }
+      return true;
+    }
+    function share4Now(it, key){
+      if(!it){ toast("대본을 먼저 골라 주세요"); return; }
+      key = key || S.theme[it.id] || (themes()[0] || {}).key || "impact";
+      var text = share4Text(it);
+      if(!text){ toast("공유할 본문이 없어요"); return; }
+      /* ① 본문+해시태그를 먼저 클립보드에 */
+      copyTextSilent(text, function(){});
+      toast("4장을 만드는 중이에요…", null, null, 6000);
+      slidesPng(it, key, function(list){
+        if(!list || list.length < 4){ toast("4장을 만들지 못했어요 — 잠시 뒤 다시 눌러 주세요"); return; }
+        var base = "arisia949-" + it.id + "-" + key;
+        if(nativeShareSlides(text, list, base)) return;
+        if(webShareSlides(text, list, base)) return;
+        toast("4장 한 번에 올리기는 새 앱(1.9.0)에서 됩니다 — 본문은 복사했어요. [4장 PNG 저장]으로 저장한 뒤 올려 주세요", null, null, 7500);
+      });
     }
 
     /* ---------------------------------------------------------------- 사진함 */
@@ -21158,7 +21287,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-share4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -21211,6 +21340,7 @@ var AiriaMp4 = (function(){
           toast("이 대본의 카드뉴스 디자인을 바꿨어요"); return;
         }
         if(t.hasAttribute("data-save4")){ saveSlides(studioIdea(), t.getAttribute("data-save4"), 4); return; }
+        if(t.hasAttribute("data-share4")){ share4Now(studioIdea(), t.getAttribute("data-share4")); return; }
         if(t.hasAttribute("data-badge")){
           S.badge = t.getAttribute("data-badge"); window.__ariaBadge = S.badge; save(); renderStudio();
           toast("배지를 " + S.badge + " 로 바꿨어요"); return;
@@ -21680,7 +21810,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 79;
+    var BUILD = 80;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
