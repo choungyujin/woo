@@ -19460,8 +19460,26 @@ var AiriaMp4 = (function(){
       }
       return autoPhoto(it);
     }
-    function designOf(it, i){
-      var k = "d:" + (it ? it.id : "") + ":" + i;
+    /* 디자인·사진만 새로고침 — 지금 사진 바로 다음 사진으로 돌린다 */
+    function rotatePhoto(it){
+      var cur = photoOf(it), kids = S.gallery.kids || [];
+      var pals = (D().photoGroups && D().photoGroups.groups) || [];
+      function g(k){ for(var i = 0; i < pals.length; i++) if(pals[i].key === k) return pals[i]; return null; }
+      var list = [];
+      if(isParenting(it) && kids.length){ kids.forEach(function(p){ list.push(p.id); }); }
+      else if(String(it && it.group) === "mongle"){
+        (g("character") || { scenes: [] }).scenes.forEach(function(k){ list.push(k); });
+        (g("daily") || { scenes: [] }).scenes.forEach(function(k){ list.push(k); });
+      } else {
+        (g("daily") || { scenes: [] }).scenes.forEach(function(k){ list.push(k); });
+        if(kids.length) kids.forEach(function(p){ list.push(p.id); });
+      }
+      if(!list.length) return null;
+      var at = list.indexOf(cur.key);
+      var next = list[(at + 1 + list.length) % list.length];
+      return next || list[0];
+    }
+    function designOf(it, i){      var k = "d:" + (it ? it.id : "") + ":" + i;
       var n = S.design[k];
       if(typeof n === "number") return DESIGNS[n % DESIGNS.length];
       var seed = 0, s = String(it ? it.id : "") + i;
@@ -20573,8 +20591,8 @@ var AiriaMp4 = (function(){
           if(!it) return;
           var kk = "d:" + it.id + ":" + (S.pkgIdx || 0);
           S.design[kk] = ((typeof S.design[kk] === "number" ? S.design[kk] : DESIGNS.indexOf(designOf(it, S.pkgIdx || 0))) + 1) % DESIGNS.length;
-          var ph = autoPhoto(it);
-          S.photo[it.id] = ph.key;
+          var ph2 = rotatePhoto(it) || autoPhoto(it).key;
+          S.photo[it.id] = ph2;
           save(); renderPackage(); toast("디자인과 사진만 새로 바꿨어요 · 대본은 그대로");
         }
         if(id === "a71NextPkg"){ S.pkgIdx = ((S.pkgIdx || 0) + 1) % 3; save(); renderPackage(); }
