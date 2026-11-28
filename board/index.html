@@ -2787,6 +2787,42 @@
   .a71-yppsmall{margin:0 0 5px; font-size:9.5px; font-weight:700; color:var(--a-faint); line-height:1.5}
   .a71-yppnote{margin:0; font-size:10px; font-weight:600; color:var(--a-faint); line-height:1.5}
 
+  /* ---------- 빌드 93 카드뉴스 안전 규칙 · 인스타 프로필 가이드 ---------- */
+  .a71-cnrule{margin:6px 0 12px; padding:0 0 0 2px; list-style:none}
+  .a71-cnrule li{position:relative; padding:0 0 0 16px; margin:0 0 8px; font-size:12px; line-height:1.62; color:var(--a-ink2)}
+  .a71-cnrule li:last-child{margin-bottom:0}
+  .a71-cnrule li:before{content:""; position:absolute; left:2px; top:7px; width:5px; height:5px; border-radius:50%; background:var(--a-lav)}
+  .a71-cnrule b{font-weight:800; color:var(--a-ink)}
+  .a71-pg{margin-top:8px; background:var(--a-card); border:1px solid var(--a-line); border-radius:var(--a-r); padding:14px}
+  .a71-pg .a71-h{margin-bottom:8px}
+  .a71-pgbio{position:relative; background:var(--a-lav-soft); border:1px solid rgba(139,123,216,.22); border-radius:12px; padding:12px 12px 10px; white-space:pre-line; font-size:13.5px; font-weight:700; line-height:1.62; color:var(--a-ink)}
+  .a71-pgbio + .a71-btnrow{margin-top:8px}
+  .a71-pghl{display:flex; gap:6px; flex-wrap:wrap; margin-top:2px}
+  .a71-pghl span{display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border-radius:999px; border:1px solid var(--a-line); background:var(--a-bg2); font-size:11.5px; font-weight:700; color:var(--a-ink2)}
+  .a71-pghl span em{font-style:normal; font-size:10px; font-weight:800; color:var(--a-lav)}
+  .a71-pgrow{display:grid; grid-template-columns:52px 1fr; gap:8px; align-items:baseline; padding:7px 0; border-top:1px solid var(--a-line2); font-size:12px}
+  .a71-pgrow:first-of-type{border-top:0}
+  .a71-pgrow .k{font-weight:800; color:var(--a-muted); font-size:11px; letter-spacing:.02em}
+  .a71-pgrow .v{color:var(--a-ink2); line-height:1.55}
+  .a71-pgrow .v b{font-weight:800; color:var(--a-ink)}
+  .a71-pglist{margin:2px 0 0; padding:0; list-style:none}
+  .a71-pglist li{position:relative; padding:0 0 0 15px; margin:0 0 6px; font-size:12px; line-height:1.6; color:var(--a-ink2)}
+  .a71-pglist li:last-child{margin-bottom:0}
+  .a71-pglist li:before{content:"✓"; position:absolute; left:0; top:0; font-size:10px; font-weight:800; color:var(--a-ok)}
+  .a71-tone{display:inline-flex; align-items:center; padding:2px 7px; border-radius:999px; background:var(--a-lav-soft); color:var(--a-lav); font-size:10px; font-weight:800; letter-spacing:0}
+  .a71-pgtags{display:flex; flex-direction:column; gap:7px}
+  .a71-pgtags .row{display:flex; gap:5px; flex-wrap:wrap; align-items:center}
+  .a71-pgtags .lb{flex:0 0 34px; font-size:10.5px; font-weight:800; letter-spacing:.02em}
+  .a71-pgtags .lb.out{color:var(--a-danger)} .a71-pgtags .lb.keep{color:var(--a-muted)} .a71-pgtags .lb.add{color:var(--a-ok)}
+  .a71-pgtags .tg{padding:4px 9px; border-radius:999px; border:1px solid var(--a-line); background:var(--a-bg2); font-size:11px; font-weight:700; color:var(--a-ink2)}
+  .a71-pgtags .tg.out{color:var(--a-faint); text-decoration:line-through; background:var(--a-danger-bg); border-color:rgba(192,57,43,.16)}
+  .a71-pgtags .tg.keep{color:var(--a-ink2)}
+  .a71-pgtags .tg.add{color:var(--a-ok); background:var(--a-ok-bg); border-color:rgba(31,122,87,.18)}
+  .a71-pgpin{display:flex; flex-direction:column; gap:3px; border:1px solid var(--a-line); border-radius:12px; padding:10px 12px; background:var(--a-bg2)}
+  .a71-pgpin b{font-size:11.5px; font-weight:800; color:var(--a-ink); letter-spacing:.02em}
+  .a71-pgpin span{font-size:11.5px; font-weight:600; color:var(--a-ink2); line-height:1.5}
+  .a71-pgpin a{margin-top:3px; font-size:11.5px; font-weight:800; color:var(--a-lav); text-decoration:none}
+
   @media (max-width:420px){
     .a71-kpis{grid-template-columns:repeat(3,1fr)}
     .a71-kpi .v{font-size:20px}
@@ -2855,7 +2891,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 92</span>
+      <span class="a71-build" id="a71Build">빌드 93</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2927,7 +2963,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 92</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 93</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -3641,6 +3677,7 @@
       quickReach: (d.quickReach && Array.isArray(d.quickReach.items)) ? d.quickReach : null,
       replyQueue: (d.replyQueue && Array.isArray(d.replyQueue.items)) ? d.replyQueue : null,
       photoGroups: (d.photoGroups && typeof d.photoGroups === "object") ? d.photoGroups : null,
+      profileGuide: (d.profileGuide && typeof d.profileGuide === "object") ? d.profileGuide : null,
       youtube: (d.youtube && typeof d.youtube === "object") ? d.youtube : null
     };
   }
@@ -12445,6 +12482,8 @@ var AiriaMp4 = (function(){
      ========================================================================== */
 
   var FEED_THEMES = [
+    /* ---- 빌드 93 한 템플릿 (카드뉴스는 이 디자인 하나만 쓴다) ---- */
+    { key: "monglelav",  label: "몽글 연보라",  note: "연보라 한 색 · 카드뉴스 한 템플릿 · 좌우 15% 안전 여백 · 제목 2줄 · 하단 25% 비움", cat: "시그니처", photo: false, sig: 1 },
     /* ---- 빌드 71 시그니처 3종 (맨 앞 — 스튜디오 첫 화면) ---- */
     { key: "monglememo", label: "몽글 시그니처",  note: "파스텔 라벤더·코랄 글로우 · 둥근 글래스 메모 · MONGLE NOTE", cat: "시그니처", photo: false, sig: 1 },
     { key: "impact",     label: "매거진 임팩트",  note: "굵은 헤드라인 · 핵심 키워드 코랄 박스 · 강한 여백 대비",   cat: "시그니처", photo: false, sig: 1 },
@@ -12494,7 +12533,7 @@ var AiriaMp4 = (function(){
     butter: "impact", brutal: "impact", forest: "points", listlabel: "points"
   };
   var FEED_THEME_KEY = "arisia949_feedtheme_v1";
-  var FEED_THEME_DEFAULT = "darkmag";
+  var FEED_THEME_DEFAULT = "monglelav";
 
   function feedThemeOf(v){
     var saved = null;
@@ -14284,6 +14323,10 @@ var AiriaMp4 = (function(){
     g.textAlign = "left"; g.textBaseline = "alphabetic";
     g.shadowBlur = 0; g.shadowColor = "rgba(0,0,0,0)"; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
     try {
+      if(th === "monglelav"){
+        try { return fbMongleLav(g, v, cfg, s, idx, total); }
+        catch(e){ return fbMongleMemo(g, v, cfg, s, idx, total); }
+      }
       if(th === "monglememo"){
         try { return fbMongleMemo(g, v, cfg, s, idx, total); }
         catch(e){ return fbMinimal(g, v, cfg, s, idx, total); }
@@ -15302,6 +15345,88 @@ var AiriaMp4 = (function(){
     for(var i = 0; i < dots; i++){
       g.fillStyle = (i === idx) ? LAV : "rgba(126,108,208,.26)";
       g.beginPath(); g.arc(dx + i * (dw + gap) + dw / 2, dy, (i === idx) ? 6 : 4.5, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+  }
+
+  /* ==========================================================================
+     빌드 93 — 몽글 연보라 한 템플릿 (카드뉴스 전면 통일 · 인스타 3:4 그리드 안전 여백)
+       유진님 피드백(2026-11-28): “흰색·남색·갈색·연보라가 섞여 조각조각 나 보인다”,
+       “3:4 그리드에서 좌우·하단이 잘린다”, “표지 제목은 두 줄까지만”.
+       → 카드뉴스는 이 한 템플릿만 쓴다. 모든 장이 같은 바탕·같은 카드·같은 위치.
+
+       안전 여백 규칙 (1080×1350 기준)
+         · 좌우: 글자는 x 164~916 안쪽에만 (12% 이상 여백, 카드도 88~992)
+         · 표지 제목: 최대 2줄 (fbFit 이 2줄에 맞춰 크기를 줄인다 — 말줄임 없음)
+         · 하단 25% (y ≥ 1012) 에는 **글자 금지** — 인스타 그리드 조회수 자리와 겹치지 않게
+         · 마지막 글자 기준선 860, 페이지 점 990 (점은 글자가 아니다)
+     ========================================================================== */
+  function fbMongleLav(g, v, cfg, s, idx, total){
+    var W = TWD, H = THT, cover = (idx === 0), last = (idx === total - 1);
+    var INK = "#2A2440", MUTED = "#6A6288", LAV = "#7C68CF", CORAL = "#E9785F";
+    g.save(); g.textBaseline = "alphabetic"; g.textAlign = "left"; g.shadowBlur = 0;
+
+    /* 바탕 — 연보라 한 색 (슬라이드마다 같은 값) */
+    g.fillStyle = "#F6F3FD"; g.fillRect(0, 0, W, H);
+    fbGlow(g, "#CBB8F7", W * 0.10, H * 0.05, W * 0.86, .50);
+    fbGlow(g, "#FFC9B6", W * 0.99, H * 0.28, W * 0.58, .30);
+    fbGlow(g, "#BFDDF7", W * 0.05, H * 0.66, W * 0.72, .26);
+
+    /* 종이 카드 — 좌우 88px (8.1%) · 위 104 · 아래 956 (하단 25% 는 비워 둔다) */
+    var x = 88, y = 104, w = W - 176, h = 900, r = 56;
+    g.save();
+    g.shadowColor = "rgba(84,70,120,.16)"; g.shadowBlur = 56; g.shadowOffsetY = 22;
+    g.fillStyle = "rgba(255,255,255,.90)"; roundRect(g, x, y, w, h, r); g.fill();
+    g.restore();
+    g.strokeStyle = "rgba(255,255,255,.98)"; g.lineWidth = 3;
+    roundRect(g, x + 1.5, y + 1.5, w - 3, h - 3, r); g.stroke();
+    g.strokeStyle = "rgba(124,104,207,.16)"; g.lineWidth = 1.5;
+    roundRect(g, x + 14, y + 14, w - 28, h - 28, r - 12); g.stroke();
+
+    /* 글자 영역 — 카드 안 76px 더 들어가 좌우 164px(15.2%) 확보 */
+    var pad = x + 76, innerW = w - 152;
+
+    /* 머리 — MONGLE NOTE · 장 번호 */
+    fbFont(g, "800", 21, "7px", "mono"); g.fillStyle = LAV;
+    g.fillText("MONGLE NOTE", pad, y + 84);
+    fbFont(g, "700", 19, "2px", "mono"); g.fillStyle = "rgba(106,98,136,.66)";
+    g.textAlign = "right"; g.fillText(fbNum(idx, total), x + w - 76, y + 84); g.textAlign = "left";
+    fbRule(g, pad, y + 116, innerW, "rgba(124,104,207,.20)", 1);
+
+    /* 제목 — 최대 2줄 (표지도 본문도) */
+    var L = fbFitBox(g, "900", s.line || "", innerW, cover ? 300 : 268, cover ? 92 : 84, 44, 2, 1.18, "gothic", false);
+    var subM = (s.sub ? fbMeasure(g, "500", s.sub, innerW, 28, 21, 2, 1.58, "gothic", true) : { h: 0 });
+    var blockH = L.h + (s.sub ? 50 + subM.h : 0);
+    var top = y + 168, bot = y + h - 132;
+    var y0 = top + Math.max(0, (bot - top - blockH) / 2);
+    fbDraw(g, L, pad, y0 + Math.round(L.size * 0.84), INK, "left", "-1.5px", "900", "gothic", innerW);
+
+    if(s.sub){
+      var sy = y0 + L.h + 50;
+      g.fillStyle = "rgba(124,104,207,.50)"; g.fillRect(pad, sy + 22, 30, 4);
+      fbText(g, "500", s.sub, pad, sy + 62, innerW, 28, 21, 2, MUTED, "left", 1.58, "0px", "gothic", true);
+    }
+
+    /* 발 — 장 이름 · 저장 안내 · 핸들 (모두 y 956 위) */
+    var footY = y + h - 96;
+    fbRule(g, pad, footY - 66, innerW, "rgba(42,36,64,.10)", 1);
+    if(last){
+      fbPill(g, "저장해두기", pad, footY - 56, 24, INK, "#F6F3FD", 28, 14, "gothic", "800");
+      fbFont(g, "600", 20, "1px", "mono"); g.fillStyle = "rgba(106,98,136,.86)";
+      g.fillText("오늘 한 줄 적어두기", pad + 196, footY - 12);
+    } else {
+      fbFont(g, "700", 19, "4px", "mono"); g.fillStyle = cover ? CORAL : "rgba(106,98,136,.72)";
+      g.fillText(cover ? "TODAY'S NOTE" : (fbRole(s) || "NOTE"), pad, footY - 12);
+    }
+    fbFont(g, "600", 20, "1px", "mono"); g.fillStyle = "rgba(106,98,136,.86)";
+    g.textAlign = "right"; g.fillText(fbHandle(), x + w - 76, footY - 12); g.textAlign = "left";
+
+    /* 페이지 점 — 글자 아님 · y 990 (하단 25% 시작 1012 위) */
+    var dots = total, dw = 11, gap = 16, tw = dots * dw + (dots - 1) * gap;
+    var dx = (W - tw) / 2, dy = y + h - 36;
+    for(var i = 0; i < dots; i++){
+      g.fillStyle = (i === idx) ? LAV : "rgba(124,104,207,.24)";
+      g.beginPath(); g.arc(dx + i * (dw + gap) + dw / 2, dy, (i === idx) ? 5.5 : 4, 0, Math.PI * 2); g.fill();
     }
     g.restore();
   }
@@ -16397,7 +16522,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 92;
+  var OTA_APP_BUILD = 93;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19026,67 +19151,10 @@ var AiriaMp4 = (function(){
        · [바로 올리기] = 인스타그램 열기(로그인은 유진님이 직접)
      ========================================================================== */
   var CN_THEMES = [
-    /* ---- 빌드 71 시그니처 3종 (AriaFeed.themes 와 같은 순서 — 빌드 73 에서 이 목록에 합류) ---- */
-    { key: "monglememo", label: "몽글 시그니처",   note: "파스텔 라벤더·코랄 글로우 · 둥근 글래스 메모 · MONGLE NOTE", cat: "시그니처", photo: false },
-    { key: "impact",     label: "매거진 임팩트",   note: "굵은 헤드라인 · 핵심 키워드 코랄 박스 · 강한 여백 대비",   cat: "시그니처", photo: false },
-    { key: "points",     label: "포인트 리스트",   note: "01·02·03 번호 블록 · 2단 비교 카드 · 크림 종이",          cat: "시그니처", photo: false },
-    /* ---- 빌드 68 신규 16종 먼저 (스크롤 첫 화면에서 새 디자인이 보이게) ---- */
-    { key: "swiss",      label: "스위스 그리드",   note: "오프화이트 · 12칼럼 헤어라인 · 검정 초대형 · 빨강 한 점", cat: "미니멀", photo: false },
-    { key: "monomag",    label: "모노 매거진",     note: "순백 · 세리프 초대형 · 얇은 괘선 · 페이지 번호",       cat: "미니멀", photo: false },
-    { key: "noir",       label: "누아르",          note: "블랙 · 골드 헤어프레임 · 세리프 센터",                 cat: "다크",   photo: false },
-    { key: "slate",      label: "슬레이트 테크",   note: "딥 슬레이트 · 시안 헤어라인 · 모노 라벨 · 진행 점",     cat: "다크",   photo: false },
-    { key: "linen",      label: "리넨 저널",       note: "크림 종이 · 점선 테두리 · 세리프 이탤릭 · 스탬프",      cat: "종이",   photo: false },
-    { key: "gridnote",   label: "모눈 노트",       note: "모눈종이 · 파란 잉크 · 빨간 여백선 · 옆 탭",            cat: "종이",   photo: false },
-    { key: "kraft",      label: "크라프트",        note: "크라프트 종이 · 마스킹 테이프 · 검정 스탬프",           cat: "종이",   photo: false },
-    { key: "receipt",    label: "영수증",          note: "회색 바닥 위 흰 영수증 · 모노 · 점선 · 바코드",         cat: "종이",   photo: false },
-    { key: "sageblock",  label: "세이지 블록",     note: "세이지 × 테라코타 색면 · 흰 활자 · 모서리 라벨",         cat: "컬러",   photo: false },
-    { key: "tealstudio", label: "틸 스튜디오",     note: "딥틸 바탕 · 크림 활자 · 원형 배지 · 하단 라인",         cat: "컬러",   photo: false },
-    { key: "splitcol",   label: "스플릿 컬럼",     note: "좌 다크 텍스트 패널 / 우 라이트 인덱스 패널",           cat: "에디토리얼", photo: false },
-    { key: "steps",      label: "스텝 타임라인",   note: "세로 선 · 단계 점 · 원 번호 · 오른쪽 본문",             cat: "도표",   photo: false },
-    { key: "checkinfo",  label: "체크 인포그래픽", note: "굵은 체크박스 · 진행 바 · 퍼센트 도표",                cat: "도표",   photo: false },
-    { key: "notioncard", label: "노션 카드",       note: "라이트 UI · 흰 카드 · 체크박스 행 · 브레드크럼",        cat: "UI",     photo: false },
-    { key: "terminal",   label: "터미널",          note: "다크 그린 · 모노 · 커서 · 창 크롬",                     cat: "다크",   photo: false },
-    { key: "quotecard",  label: "세리프 인용",     note: "웜그레이 · 흰 카드 · 이탤릭 큰따옴표",                  cat: "아트",   photo: false },
-    /* ---- 빌드 60 노포토 3종 ---- */
-    { key: "minimal",    label: "미니멀 에디토리얼", note: "오프화이트 종이 · 얇은 괘선 · 큰 활자", cat: "미니멀", photo: false },
-    { key: "compare",    label: "비교표",          note: "2단 비교표 · VS 원 · 딥그린 헤더",      cat: "도표",   photo: false },
-    { key: "poll",       label: "질문·투표 훅",    note: "큰 물음표 · A/B 선택 바 · 코랄 포인트",  cat: "질문",   photo: false },
-    /* ---- 빌드 40 컬러·다크·아트 (빌드 71에서 뺀 원색 4종은 제외) ---- */
-    { key: "widget",     label: "위젯 다크",       note: "iOS 위젯 카드 · 클린 다크 UI",            cat: "다크",   photo: false },
-    { key: "mesh",       label: "메쉬 인용",       note: "라벤더·스카이 메쉬 그라데이션 인용",     cat: "아트",   photo: false },
-    { key: "pixel",      label: "픽셀 아카이브",   note: "딥네이비 그리드 · 모노 데이터",          cat: "아트",   photo: false },
-    /* ---- 사진형 (character photo 쓰는 대본용) ---- */
-    { key: "darkmag",    label: "다크 매거진",     note: "사진 100% · 하단 그라데이션 · 큰 매거진 활자", cat: "사진", photo: true },
-    { key: "glass",      label: "글래스",          note: "사진 100% · 프로스트 글래스 카드 · 쿨톤",      cat: "사진", photo: true },
-    { key: "y2k",        label: "Y2K 크롬",        note: "사진 100% · 크롬 메탈 활자 · 스티커 뱃지",      cat: "사진", photo: true },
-    { key: "lookbook",   label: "룩북 스플릿",     note: "사진 66% + 딥버건디/포레스트 블록",              cat: "사진", photo: true },
-    { key: "neonpop",    label: "네온 듀오톤",     note: "사진 100% 듀오톤 · 형광 오렌지 · 티커",         cat: "사진", photo: true },
-    { key: "dotpop",     label: "도트 팝",         note: "코랄 도트 패턴 · 검정 필 · 형광 하이라이트 바", cat: "아트", photo: true },
-    { key: "illopop",    label: "일러스트 팝",     note: "크림 배경 · 옐로 블롭 · 캐릭터 일러스트 카드",  cat: "사진", photo: true },
-    { key: "collage",    label: "증거 콜라주",     note: "사진 3컷 콜라주 · 검정 띠 · 흰 라벨 · 초대형 활자", cat: "사진", photo: true },
-    { key: "uimock",     label: "목업 옐로",       note: "퍼플 도트 · 흰 대화창 목업 · 옐로 형광",        cat: "사진", photo: true }
+    /* 빌드 93 — 유진님 피드백: “흰색·남색·갈색·연보라가 섞여 조각조각 나 보인다”
+       → 카드뉴스는 「몽글 연보라」 한 템플릿만 쓴다. (1080×1350 · 좌우 15% 안전 여백 · 제목 2줄 · 하단 25% 비움) */
+    { key: "monglelav", label: "몽글 연보라", note: "한 템플릿 · 좌우 15% 안전 여백 · 제목 2줄 · 하단 25% 비움", cat: "시그니처", photo: false }
   ];
-  /* 대본 순서 — 새 5편이 앞, 그다음 최근 점검 대본 */
-  var CN_IDEAS = ["s20", "s21", "s22", "s23", "s24", "s19", "s18", "s17", "s16", "s15"];
-  /* 빌드 64 — 대본이 늘어도 갤러리가 따라가게: 디자인마다 '그 디자인을 자기 피드로 가진 최신 대본'을 먼저 찾는다.
-     (예: poll → 새 대본 s25 · 최신 대본의 카드뉴스도 바로 4장 저장 가능) */
-  function cnPickFor(themeKey, ideas, used){
-    var i;
-    for(i = 0; i < ideas.length; i++){                     /* 1) 자기 피드 테마가 같은 최신 대본 */
-      var f = ideas[i] && ideas[i].scripts && ideas[i].scripts.feed;
-      if(f && String(f.feedTheme || "") === themeKey && !used[ideas[i].id]) return ideas[i];
-    }
-    for(i = 0; i < CN_IDEAS.length; i++){                   /* 2) 빌드 60 고정 순서(같은 테마의 옛 대본) */
-      var it = null;
-      for(var k = 0; k < ideas.length; k++) if(String(ideas[k].id) === String(CN_IDEAS[i])) { it = ideas[k]; break; }
-      if(it && !used[it.id]){
-        var ff = it.scripts && it.scripts.feed;
-        if(ff && String(ff.feedTheme || "") === themeKey) return it;
-      }
-    }
-    for(i = 0; i < ideas.length; i++) if(!used[ideas[i].id]) return ideas[i];   /* 3) 아무 최신 대본 */
-    return null;
-  }
   var CN_KEY = "arisia949_cn_done_v1";
   var CN_SHOW = 6;
   var cnPage = 1;              /* 디자인 더 보기 — 한 번에 6종씩 더 */
@@ -19114,18 +19182,15 @@ var AiriaMp4 = (function(){
     for(var i = 0; i < CN_THEMES.length; i++){ if(CN_THEMES[i].key === key) return CN_THEMES[i]; }
     return CN_THEMES[0];
   }
-  /* 갤러리 편 = 디자인 1종 × 대본 1편 (대본은 순서대로 돌려 쓴다) */
+  /* 갤러리 편 = 대본 1편 × 한 템플릿 (빌드 93 — 디자인이 하나라 대본마다 한 장) */
   function cnPieces(){
-    var out = [], ideas = cnIdeas().filter(function(i){ return cnIdeaOf(i.id) && i.scripts && i.scripts.feed && Array.isArray(i.scripts.feed.slides); });
-    var used = {};
-    for(var i = 0; i < CN_THEMES.length; i++){
-      var th = CN_THEMES[i];
-      var pick = cnPickFor(th.key, ideas, used);
-      if(!pick) pick = ideas[i % Math.max(1, ideas.length)];
-      if(!pick) continue;
-      used[pick.id] = 1;
-      out.push({ key: th.key + "|" + pick.id, theme: th.key, idea: pick, label: th.label, note: th.note,
-                 cat: th.cat || "기타", photo: !!th.photo });
+    var out = [], th = CN_THEMES[0];
+    var ideas = cnIdeas().filter(function(i){
+      return i && i.scripts && i.scripts.feed && Array.isArray(i.scripts.feed.slides) && i.scripts.feed.slides.length;
+    });
+    for(var i = 0; i < ideas.length; i++){
+      out.push({ key: th.key + "|" + ideas[i].id, theme: th.key, idea: ideas[i], label: th.label, note: th.note,
+                 cat: (String(ideas[i].group) === "mongle" ? "제작기" : "일상"), photo: false });
     }
     return out;
   }
@@ -19207,10 +19272,10 @@ var AiriaMp4 = (function(){
       '<section class="cn-block" id="cnBlock" aria-labelledby="cnTitle">' +
         '<div class="cn-head">' +
           '<p class="qr-eyebrow">Card news</p>' +
-          '<h2 class="cn-h2" id="cnTitle">🗂 카드뉴스 디자인 ' + CN_THEMES.length + '종 ' +
+          '<h2 class="cn-h2" id="cnTitle">🗂 카드뉴스 · 몽글 연보라 한 템플릿 ' +
             '<span class="qr-count">' + open.length + '편 남음' + (rest ? ' · 더 보기 ' + rest : '') + '</span></h2>' +
-          '<p class="cn-sub"><b>노포토 조판</b>이 기본이고, <b>사진형</b>은 사진이 있는 대본에서만 골라 써요. ' +
-            '카테고리를 골라 <b>스크롤하며 고르고</b> <b>4장 저장 → 바로 올리기</b>. ' +
+          '<p class="cn-sub"><b>한 템플릿</b>으로 통일했어요 — 바탕색이 슬라이드마다 바뀌지 않습니다. ' +
+            '<b>3:4 그리드</b>에서도 좌우·하단이 잘리지 않게 안전 여백을 두고, 표지 제목은 두 줄까지만, 하단 25%에는 글자를 놓지 않습니다. ' +
             '<b>[✅ 업로드 완료]</b>를 누르면 이 카드는 사라지고 다음 편이 올라옵니다.</p>' +
         '</div>' +
         '<div class="cn-cats">' + chips + '</div>' +
@@ -19218,7 +19283,7 @@ var AiriaMp4 = (function(){
           ? '<ul class="cn-list">' + shown.map(cnCardHtml).join('') + '</ul>'
           : '<p class="cn-note">‘' + esc(cnCat) + '’ 디자인은 오늘 다 올렸어요. 다른 카테고리를 골라 보세요.</p>') +
         (rest ? '<button type="button" class="cn-more" data-cn-more="1">＋ 디자인 더 보기 — ' + rest + '편 (전체 ' + open.length + '편)</button>' : '') +
-        '<p class="cn-foot">저장 파일은 1080×1350(4:5) 이고, 표지 → 본문 → 마지막 장 순서로 내려갑니다. 올리기는 유진님이 직접 눌러 주세요.</p>' +
+        '<p class="cn-foot">저장 파일은 1080×1350(4:5) · 좌우 안전 여백 15% · 제목 2줄 · 하단 25% 비움. 올리기는 유진님이 직접 눌러 주세요.</p>' +
       '</section>';
   }
   function cnMount(){
@@ -19349,7 +19414,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 92;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 93;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "reels", "youtube", "studio", "gallery", "quick", "reply", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -19593,7 +19658,7 @@ var AiriaMp4 = (function(){
       var tags = tagsOf(it, ch), tst = tagState(it, ch);
       var chips = tags.map(function(t){
         return '<button class="a71-chip tag" type="button" data-tag="' + esc(t) + '" data-tagch="' + esc(ch) + '" aria-pressed="' + (tst.off[t] ? "false" : "true") + '">' + esc(t) + "</button>";
-      }).join("") + sugTags(it).filter(function(t){ return tags.indexOf(t) < 0; }).map(function(t){
+      }).join("") + (ch === "threads" ? [] : sugTags(it)).filter(function(t){ return tags.indexOf(t) < 0; }).map(function(t){
         return '<button class="a71-chip" type="button" data-tag="' + esc(t) + '" data-tagch="' + esc(ch) + '" aria-pressed="' + (tst.on[t] ? "true" : "false") + '">＋ ' + esc(t) + "</button>";
       }).join("");
       return '<div class="a71-tags"><span class="a71-taglb">해시태그</span>' + chips + "</div>";
@@ -20830,6 +20895,68 @@ var AiriaMp4 = (function(){
     }
     /* ---------------------------------------------------------------- 채널 패널 (빌드 77)
        각 플랫폼마다 서로 다른 대본 5개. 맨 위 선택 바에서 제목·훅을 보고 고르면 그 카드가 그 자리에서 바뀐다. */
+    /* 스레드 글 규칙 — 스레드 탭 맨 위 (토픽 태그 1개 · 독백체/해요체 역할 분담) */
+    function threadRuleHtml(){
+      var g = D().profileGuide;
+      var rules = (g && Array.isArray(g.threadRules)) ? g.threadRules : [];
+      if(!rules.length) return "";
+      return '<div class="a71-card tight" id="a71ThreadRules">' +
+          '<div class="a71-h"><h2>스레드 글 규칙</h2><span class="right">빌드 93</span></div>' +
+          '<ul class="a71-cnrule">' + rules.map(function(x){ return "<li>" + esc(String(x)) + "</li>"; }).join("") + "</ul>" +
+          '<p class="a71-note">토픽 태그는 대본마다 <b>1개</b>만 붙입니다. 이 대본의 태그는 아래 해시태그 칩에서 확인하세요.</p>' +
+        "</div>";
+    }
+    /* ---------------------------------------------------------------- 인스타 프로필·피드·발행 가이드 (빌드 93)
+       유진님 피드백: “대시보드에서 바로 보고 복사해 인스타 프로필을 고칠 수 있게”.
+       내용은 data.plain.json 의 profileGuide 에서 온다(문구 고정 · 복사 버튼 포함). */
+    function profileGuideHtml(){
+      var g = D().profileGuide;
+      if(!g || typeof g !== "object") return "";
+      var bio = String(g.bio || "");
+      var hl = Array.isArray(g.highlights) ? g.highlights : [];
+      var rhythm = Array.isArray(g.rhythm) ? g.rhythm : [];
+      var cap = Array.isArray(g.captionRules) ? g.captionRules : [];
+      var cn = Array.isArray(g.cardRules) ? g.cardRules : [];
+      var tg = (g.threadTopics && typeof g.threadTopics === "object") ? g.threadTopics : null;
+      var pinned = (g.pinned && typeof g.pinned === "object") ? g.pinned : null;
+      var hlHtml = hl.map(function(x){ return "<span><em>◉</em>" + esc(String(x)) + "</span>"; }).join("");
+      var rhythmHtml = rhythm.map(function(r){
+        return '<div class="a71-pgrow"><span class="k">' + esc(String(r.label || "")) + '</span><span class="v"><b>' +
+          esc(String(r.value || "")) + "</b>" + (r.note ? " · " + esc(String(r.note)) : "") + "</span></div>";
+      }).join("");
+      var capHtml = cap.map(function(x){ return "<li>" + esc(String(x)) + "</li>"; }).join("");
+      var cnHtml = cn.map(function(x){ return "<li>" + esc(String(x)) + "</li>"; }).join("");
+      return '<div class="a71-pg" id="a71ProfileGuide">' +
+          '<div class="a71-h"><h2>인스타 프로필 · 피드 · 발행 루틴</h2><span class="right">' + esc(String(g.updated || "")) + "</span></div>" +
+          '<p class="a71-note" style="margin:0 0 9px">프로필 소개글은 [복사]로 그대로 붙여 넣으면 됩니다. 피드는 <b>‘엄마가 앱 만드는 하루’</b>로 모으고, 교회·행사 안내는 스토리로 돌립니다.</p>' +
+          '<div class="a71-pgbio" id="a71ProfileBio">' + esc(bio) + "</div>" +
+          '<div class="a71-btnrow" style="margin-top:8px">' +
+            '<button class="a71-btn solid sm wide" type="button" data-copybio="1">프로필 소개글 복사</button>' +
+          "</div>" +
+          '<div class="a71-sec" style="margin:14px 0 6px"><h2 style="font-size:12.5px">추천 하이라이트</h2><span>' + hl.length + "개</span></div>" +
+          '<div class="a71-pghl">' + hlHtml + "</div>" +
+          (g.name ? '<div class="a71-pgrow" style="margin-top:12px"><span class="k">연결 이름</span><span class="v"><b>' + esc(String(g.name)) + "</b> — 인스타·스레드에 같은 이름으로</span></div>" : "") +
+          (g.threadBio ? '<div class="a71-sec" style="margin:14px 0 6px"><h2 style="font-size:12.5px">스레드 추천 소개글</h2><span>복사</span></div>' +
+            '<div class="a71-pgbio" id="a71ThreadBio">' + esc(String(g.threadBio)) + "</div>" +
+            '<div class="a71-btnrow" style="margin-top:8px"><button class="a71-btn solid sm wide" type="button" data-copythreadbio="1">스레드 소개글 복사</button></div>' +
+            (g.threadBioNote ? '<p class="a71-note" style="margin-top:7px">' + esc(String(g.threadBioNote)) + "</p>" : "") : "") +
+          (tg ? '<div class="a71-sec" style="margin:14px 0 6px"><h2 style="font-size:12.5px">스레드 토픽 태그 정리</h2><span>태그 1개만</span></div>' +
+            '<div class="a71-pgtags">' +
+              '<div class="row"><span class="lb out">빼기</span>' + (tg.remove || []).map(function(x){ return '<span class="tg out">' + esc(String(x)) + "</span>"; }).join("") + "</div>" +
+              '<div class="row"><span class="lb keep">유지</span>' + (tg.keep || []).map(function(x){ return '<span class="tg keep">' + esc(String(x)) + "</span>"; }).join("") + "</div>" +
+              '<div class="row"><span class="lb add">추가</span>' + (tg.add || []).map(function(x){ return '<span class="tg add">' + esc(String(x)) + "</span>"; }).join("") + "</div>" +
+            "</div>" : "") +
+          (pinned && pinned.url ? '<div class="a71-sec" style="margin:14px 0 6px"><h2 style="font-size:12.5px">고정 글 추천</h2><span>프로필 상단</span></div>' +
+            '<div class="a71-pgpin"><b>' + esc(String(pinned.post || "")) + "</b><span>" + esc(String(pinned.note || "")) + "</span>" +
+            '<a href="' + esc(String(pinned.url)) + '" target="_blank" rel="noopener noreferrer">열기 ↗</a></div>' : "") +
+          (g.aiLabel ? '<div class="a71-pgrow" style="margin-top:10px"><span class="k">AI 표시</span><span class="v">' + esc(String(g.aiLabel)) + "</span></div>" : "") +
+          '<div class="a71-sec" style="margin:14px 0 4px"><h2 style="font-size:12.5px">이번 주 발행 리듬</h2><span>주간</span></div>' +
+          rhythmHtml +
+          (capHtml ? '<div class="a71-sec" style="margin:14px 0 4px"><h2 style="font-size:12.5px">캡션 규칙</h2><span>전면 적용</span></div><ul class="a71-pglist">' + capHtml + "</ul>" : "") +
+          (cnHtml ? '<div class="a71-sec" style="margin:14px 0 4px"><h2 style="font-size:12.5px">카드뉴스 규칙</h2><span>한 템플릿</span></div><ul class="a71-pglist">' + cnHtml + "</ul>" : "") +
+          '<p class="a71-note" style="margin-top:10px">' + esc(String(g.feedRule || "")) + "</p>" +
+        "</div>";
+    }
     /* 빌드 79 — 인스타 탭에서 보던 피드 대본을 그대로 카드뉴스 탭으로 넘긴다 */
     function cardNewsHtml(it, ch){
       if(ch !== "feed" || !it) return "";
@@ -20843,6 +20970,8 @@ var AiriaMp4 = (function(){
       var host = $(tab === "threads" ? "a71Threads" : (tab === "insta" ? "a71Insta" : (tab === "reels" ? "a71Reels" : "a71Youtube")));
       if(!host) return;
       var html = cycleNoticeHtml();
+      if(tab === "insta") html += profileGuideHtml();
+      if(tab === "threads") html += threadRuleHtml();
       chs.forEach(function(ch){
         var it = candIdea(ch, 0);
         if(!it){ html += '<div class="a71-card"><p class="a71-note">데이터를 기다리는 중이에요.</p></div>'; return; }
@@ -20948,10 +21077,7 @@ var AiriaMp4 = (function(){
       var it = studioIdea();
       if(!it){ host.innerHTML = '<div class="a71-card"><p class="a71-note">데이터를 기다리는 중이에요.</p></div>'; return; }
       var th = themes();
-      var sigKeys = ["monglememo", "impact", "points"];
-      var sig = th.filter(function(t){ return sigKeys.indexOf(t.key) >= 0; });
-      var rest = th.filter(function(t){ return sigKeys.indexOf(t.key) < 0; });
-      if(!sig.length) sig = th.slice(0, 3);
+      var CNT = "monglelav";
       var badges = BADGES.map(function(b){
         return '<button class="a71-chip" type="button" data-badge="' + esc(b.key) + '" aria-pressed="' + (S.badge === b.key) + '">' + esc(b.label) + "</button>";
       }).join("");
@@ -20960,49 +21086,42 @@ var AiriaMp4 = (function(){
       }).join("");
       var html =
         '<div class="a71-card tight">' +
-          '<div class="a71-h"><h2>인스타 카드뉴스</h2><span class="right">' + num(th.length) + "종 · PNG 저장</span></div>" +
-          '<p class="a71-note">대본 <b>' + esc(it.title) + "</b> — 카드뉴스 4장은 이 피드 대본의 문장 그대로(1장 훅 → 2·3장 장면·핵심 → 4장 열린 질문)입니다. 디자인을 고르면 1080×1350 네 장으로 저장됩니다.</p>" +
+          '<div class="a71-h"><h2>인스타 카드뉴스</h2><span class="right">몽글 연보라 · 한 템플릿</span></div>' +
+          '<p class="a71-note">대본 <b>' + esc(it.title) + "</b> — 카드뉴스 4장은 이 피드 대본의 문장 그대로(1장 훅 → 2·3장 장면·핵심 → 4장 열린 질문)입니다. " +
+            "디자인은 <b>몽글 연보라 한 가지</b>로 통일했어요 — 슬라이드마다 바탕색이 바뀌지 않습니다.</p>" +
           '<div class="a71-chiprow" style="margin-top:9px">' + ideaBar + "</div>" +
           '<div class="a71-sec" style="margin:12px 0 6px"><h2 style="font-size:12.5px">브랜딩 배지</h2><span>' + esc(S.badge) + "</span></div>" +
           '<div class="a71-chiprow">' + badges + "</div>" +
         "</div>" +
         studioPubHtml(it) +
-        '<div class="a71-sec"><h2>시그니처 3종</h2><span>먼저 이 셋</span></div>' +
+        '<div class="a71-sec"><h2>몽글 연보라 · 4장</h2><span>1080×1350</span></div>' +
         '<div class="a71-sig" id="a71Sig"></div>' +
-        '<div class="a71-sec"><h2>디자인 ' + num(rest.length) + "종</h2><span>눌러서 고르기</span></div>" +
-        '<div class="a71-grid" id="a71ThemeGrid"></div>' +
-        '<p class="a71-note" style="margin-top:10px">[🚀 4장+본문 바로 올리기]는 본문+해시태그를 클립보드에 넣고 고른 디자인 4장을 만들어 새 앱(1.9.0)에선 공유 창으로 바로 넘깁니다 — 갤러리에 저장하지 않아요. 올린 뒤에는 맨 위 [✓ 발행 완료 · 다음] 을 직접 눌러 주세요.</p>' +
-        '<p class="a71-note" style="margin-top:10px">카드뉴스는 글과 조판으로 승부합니다 — 작은 캐릭터 사진을 끼워 넣는 형식은 쓰지 않아요.</p>' +
+        '<div class="a71-card tight">' +
+          '<div class="a71-h"><h2>3:4 그리드 안전 규칙</h2><span class="right">빌드 93</span></div>' +
+          '<ul class="a71-cnrule">' +
+            "<li><b>좌우 안전 여백 15%</b> — 그리드에서 좌우가 잘려도 글자는 그대로 남습니다.</li>" +
+            "<li><b>표지 제목 2줄 이내</b> — 길면 글자 크기가 줄고, 말줄임으로 자르지 않습니다.</li>" +
+            "<li><b>하단 25%에는 글자 금지</b> — 인스타 그리드의 조회수 표시와 겹치지 않습니다.</li>" +
+          "</ul>" +
+        "</div>" +
+        '<p class="a71-note" style="margin-top:10px">[🚀 4장+본문 바로 올리기]는 본문+해시태그를 클립보드에 넣고 4장을 만들어 새 앱(1.9.0)에선 공유 창으로 바로 넘깁니다 — 갤러리에 저장하지 않아요. 올린 뒤에는 맨 위 [✓ 발행 완료 · 다음] 을 직접 눌러 주세요.</p>' +
+        '<p class="a71-note" style="margin-top:10px">카드뉴스는 <b>막힌 순간·감정을 담은 제작기</b>와 <b>릴스 반응 후속</b>만 씁니다 — 기능·규칙 설명형(노트 규칙, 3~5개, 악보 등)은 카드뉴스 소재에서 뺐어요. 주 1~2개가 적당합니다.</p>' +
         publishedListHtml();
       host.innerHTML = html;
 
       var sigHost = $("a71Sig");
-      sigHost.innerHTML = sig.map(function(t){
-        return '<div class="a71-sigcard" data-theme="' + esc(t.key) + '">' +
-          '<div class="head"><em>시그니처</em><b>' + esc(t.label) + '</b><span>' + esc(t.cat === "시그니처" ? "4장" : (t.cat || "")) + "</span></div>" +
-          '<div class="shots" data-shots="' + esc(t.key) + '"></div>' +
+      sigHost.innerHTML = '<div class="a71-sigcard" data-theme="' + CNT + '">' +
+          '<div class="head"><em>한 템플릿</em><b>몽글 연보라</b><span>4장</span></div>' +
+          '<div class="shots" data-shots="' + CNT + '"></div>' +
           '<div class="foot">' +
-            '<button class="a71-btn sm" type="button" data-settheme="' + esc(t.key) + '">이 디자인 쓰기</button>' +
-            '<button class="a71-btn solid sm" type="button" data-save4="' + esc(t.key) + '">4장 PNG 저장</button>' +
-            '<button class="a71-btn cardnews sm share4" type="button" data-share4="' + esc(t.key) + '">🚀 4장+본문 바로 올리기</button>' +
+            '<button class="a71-btn solid sm" type="button" data-save4="' + CNT + '">4장 PNG 저장</button>' +
+            '<button class="a71-btn cardnews sm share4" type="button" data-share4="' + CNT + '">🚀 4장+본문 바로 올리기</button>' +
           "</div>" +
-          '<p class="a71-note" style="padding:0 12px 12px">' + esc(t.note || "") + "</p>" +
+          '<p class="a71-note" style="padding:0 12px 12px">연보라 한 색 · 흰 메모 카드 · MONGLE NOTE</p>' +
         "</div>";
-      }).join("");
-
-      var grid = $("a71ThemeGrid");
-      grid.innerHTML = rest.map(function(t, i){
-        return '<div class="a71-thumb" data-theme="' + esc(t.key) + '">' +
-          '<div data-thumb="' + esc(t.key) + '"><div style="aspect-ratio:4/5;background:#F2F1EC"></div></div>' +
-          '<div class="lb">' + esc(t.label) + "<small>" + esc(t.note || "") + "</small></div>" +
-          '<div class="sh4"><button class="a71-btn cardnews sm" type="button" data-share4="' + esc(t.key) + '">🚀 4장+본문 바로 올리기</button></div>' +
-          '<button class="pick" type="button" data-settheme="' + esc(t.key) + '">쓰기</button>' +
-        "</div>";
-      }).join("");
 
       studioQueue = [];
-      sig.forEach(function(t){ studioQueue.push({ key: t.key, host: '[data-shots="' + t.key + '"]', four: true }); });
-      rest.forEach(function(t){ studioQueue.push({ key: t.key, host: '[data-thumb="' + t.key + '"]', four: false }); });
+      studioQueue.push({ key: CNT, host: '[data-shots="' + CNT + '"]', four: true });
       pumpStudio(it);
     }
     function pumpStudio(it){
@@ -21525,6 +21644,7 @@ var AiriaMp4 = (function(){
           return '<div class="a71-qitem" data-rqid="' + esc(x.id) + '">' +
             '<div class="row"><span class="a71-pf ' + esc(x.platform) + '">' + esc(x.kind) + "</span><b>" + esc(atName(x.handle)) + "</b>" +
               (x.owner ? '<span class="a71-pend">직접 응대</span>' : "") +
+              (x.tone ? '<span class="a71-tone">' + esc(x.tone) + "로</span>" : "") +
               '<span class="when" style="margin-left:auto">' + esc(x.when || "") + "</span></div>" +
             '<div class="t">' + esc(nl(x.text || x.post || "")) + "</div>" +
             rotated.map(function(o, oi){
@@ -21670,7 +21790,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-share4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-replyall],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset],[data-copyopen]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-share4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-replyall],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset],[data-copyopen],[data-copybio],[data-copythreadbio]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -21822,6 +21942,18 @@ var AiriaMp4 = (function(){
         }
         /* 빌드 91 — 유진님 지시 “복사해서 열면 그 아이디 위치로 가서 바로 붙여넣으면 좋겠어”
            맨 위 후보를 클립보드에 복사하고, 그 댓글(commentUrl)·글로 바로 연다. 열었으면 그 항목은 완료로 넘긴다. */
+        if(t.hasAttribute("data-copythreadbio")){
+          var tg2 = D().profileGuide || {};
+          copyText(nl(String(tg2.threadBio || "")));
+          toast("스레드 소개글을 복사했어요 — 스레드 프로필 편집에 붙여 넣으세요");
+          return;
+        }
+        if(t.hasAttribute("data-copybio")){
+          var pg = D().profileGuide || {};
+          copyText(nl(String(pg.bio || "")));
+          toast("프로필 소개글을 복사했어요 — 인스타 프로필 편집에 붙여 넣으세요");
+          return;
+        }
         if(t.hasAttribute("data-copyopen")){
           var cp = t.getAttribute("data-copyopen").split("|");
           var cpKind = cp[0], cpId = cp[1], cpIdx = parseInt(cp[2] || "0", 10) || 0;
@@ -22242,7 +22374,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 92;
+    var BUILD = 93;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
