@@ -2722,10 +2722,76 @@
   #v71App .a71-fold[open] > summary::after{content:" ▴"}
   #v71App .a71-fold ul{margin:0; padding:0 10px 10px}
 
+  /* ---------- 빌드 91 — 유튜브 성장 카드 ---------- */
+  .a71-ytcard{
+    margin-top:8px; background:var(--a-card); border:1px solid var(--a-line);
+    border-radius:var(--a-r); padding:14px 14px 12px;
+  }
+  .a71-ytcard .a71-h{margin-bottom:9px}
+  .a71-ytcard .a71-h h2{display:flex; align-items:center; gap:6px}
+  .a71-ytcard .a71-h h2 .ytp{color:var(--a-coral); font-size:12px}
+  .a71-ytstats{display:grid; grid-template-columns:repeat(3,1fr); gap:7px}
+  .a71-ytstat{border:1px solid var(--a-line2); border-radius:var(--a-r-sm); padding:9px 10px; background:var(--a-bg2); min-width:0}
+  .a71-ytstat .k{display:block; font-size:10px; font-weight:700; color:var(--a-muted); letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .a71-ytstat .v{display:block; font-size:19px; font-weight:800; letter-spacing:-.02em; line-height:1.25; margin-top:1px; font-variant-numeric:tabular-nums}
+  .a71-ytstat .v small{font-size:11px; color:var(--a-muted); font-weight:700; letter-spacing:0; margin-left:1px}
+  .a71-ytstat .d{display:block; font-size:10.5px; font-weight:700; color:var(--a-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .a71-ytstat .d.up{color:var(--a-ok)} .a71-ytstat .d.down{color:var(--a-danger)}
+  .a71-yttrend{margin-top:11px}  .a71-yttrend .lbl{display:flex; align-items:baseline; gap:6px; margin:0 0 6px}
+  .a71-yttrend .lbl b{font-size:11.5px; font-weight:800; color:var(--a-ink2); letter-spacing:-.01em}
+  .a71-yttrend .lbl span{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--a-faint)}
+  .a71-ytmini{display:flex; flex-direction:column; gap:6px}
+  .a71-ytminirow{display:grid; grid-template-columns:40px 1fr 58px; gap:8px; align-items:center}
+  .a71-ytminirow .dt{font-size:10.5px; font-weight:800; color:var(--a-muted); font-variant-numeric:tabular-nums; letter-spacing:.01em}
+  .a71-ytminirow .tr{height:9px; border-radius:999px; background:var(--a-line2); overflow:hidden}
+  .a71-ytminirow .tr i{display:block; height:100%; border-radius:999px; background:var(--a-coral)}
+  .a71-ytminirow .tr i.lav{background:var(--a-lav)}
+  .a71-ytminirow .n{font-size:10.5px; font-weight:800; color:var(--a-ink2); text-align:right; font-variant-numeric:tabular-nums}
+  .a71-ytvids{margin-top:12px; border-top:1px solid var(--a-line2); padding-top:10px}
+  .a71-ytvid{padding:8px 0 0; margin-top:8px; border-top:1px solid var(--a-line2)}
+  .a71-ytvid:first-of-type{border-top:0; margin-top:0; padding-top:0}
+  .a71-ytvid .top{display:flex; align-items:baseline; gap:6px; font-size:10.5px; font-weight:800; color:var(--a-faint)}
+  .a71-ytvid .top .kd{color:var(--a-lav); background:var(--a-lav-soft); border-radius:999px; padding:1px 6px; font-size:9.5px; letter-spacing:.03em}
+  .a71-ytvid .top .vw{margin-left:auto; color:var(--a-ink2); font-variant-numeric:tabular-nums}
+  .a71-ytvid .ti{font-size:12px; font-weight:700; color:var(--a-ink); line-height:1.45; letter-spacing:-.01em; margin-top:3px}
+  .a71-ytvid .tr{height:6px; border-radius:999px; background:var(--a-line2); overflow:hidden; margin-top:5px}
+  .a71-ytvid .tr i{display:block; height:100%; border-radius:999px; background:var(--a-char)}
+  .a71-ytvid .mt{margin-top:4px; font-size:10.5px; font-weight:700; color:var(--a-muted); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap}
+  .a71-ytvid .mt a{margin-left:auto; color:var(--a-lav); font-weight:800; text-decoration:none}
+  .a71-ythead{display:flex; align-items:baseline; gap:6px; margin:0 0 4px}
+  .a71-ythead b{font-size:11.5px; font-weight:800; color:var(--a-ink2); letter-spacing:-.01em}
+  .a71-ythead span{margin-left:auto; font-size:10.5px; font-weight:700; color:var(--a-faint)}
+
+  /* YPP 목표 진행률 (빌드 91) */
+  .a71-ypp{margin-top:12px; border-top:1px solid var(--a-line2); padding-top:11px}
+  .a71-ypphead{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin:0 0 9px}
+  .a71-ypphead b{font-size:11.5px; font-weight:800; color:var(--a-ink2); letter-spacing:-.01em}
+  .a71-ypphead .dday{background:var(--a-coral-soft); color:var(--a-coral); border-radius:999px; padding:1px 7px; font-size:10px; font-weight:800; letter-spacing:.02em}
+  .a71-ypphead .pd{margin-left:auto; font-size:10px; font-weight:700; color:var(--a-faint); white-space:nowrap}
+  .a71-yppblk{border:1px solid var(--a-line2); border-radius:var(--a-r-sm); padding:9px 10px 8px; background:var(--a-bg2); margin-bottom:7px}
+  .a71-yppblk.fan{background:#fff; border-style:dashed}
+  .a71-yppblk .tt{display:flex; align-items:baseline; gap:6px; margin:0 0 7px}
+  .a71-yppblk .tt b{font-size:11px; font-weight:800; color:var(--a-ink); letter-spacing:-.01em}
+  .a71-yppblk .tt span{margin-left:auto; font-size:9.5px; font-weight:700; color:var(--a-faint)}
+  .a71-ypprow{margin:0 0 7px}
+  .a71-ypprow:last-child{margin-bottom:0}
+  .a71-ypprow .ln{display:flex; align-items:baseline; gap:6px; font-size:10.5px; line-height:1.35}
+  .a71-ypprow .gl{font-weight:700; color:var(--a-muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .a71-ypprow .gv{margin-left:auto; font-weight:800; color:var(--a-ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .a71-ypprow .gv small{font-size:9.5px; font-weight:700; color:var(--a-faint); margin-left:1px}
+  .a71-ypprow .gp{flex:0 0 auto; min-width:38px; text-align:right; font-size:10px; font-weight:800; color:var(--a-coral); font-variant-numeric:tabular-nums}
+  .a71-yppblk.fan .a71-ypprow .gp{color:var(--a-lav)}
+  .a71-ypprow .tr{height:6px; border-radius:999px; background:var(--a-line); overflow:hidden; margin-top:4px}
+  .a71-ypprow .tr i{display:block; height:100%; border-radius:999px; background:var(--a-coral)}
+  .a71-yppblk.fan .a71-ypprow .tr i{background:var(--a-lav)}
+  .a71-yppsmall{margin:0 0 5px; font-size:9.5px; font-weight:700; color:var(--a-faint); line-height:1.5}
+  .a71-yppnote{margin:0; font-size:10px; font-weight:600; color:var(--a-faint); line-height:1.5}
+
   @media (max-width:420px){
     .a71-kpis{grid-template-columns:repeat(3,1fr)}
     .a71-kpi .v{font-size:20px}
     .a71-guard .metrics{grid-template-columns:repeat(3,1fr)}
+    .a71-ytminirow{grid-template-columns:36px 1fr 52px; gap:6px}
   }
 
 </style>
@@ -2789,7 +2855,7 @@
       </div>
     </div>
     <div class="a71-topbtns">
-      <span class="a71-build" id="a71Build">빌드 90</span>
+      <span class="a71-build" id="a71Build">빌드 91</span>
       <button id="a71Refresh" type="button" title="암호화된 최신 데이터를 다시 불러옵니다">↻</button>
       <button id="a71Lock" type="button" title="지금 잠그기">🔒</button>
     </div>
@@ -2803,6 +2869,7 @@
       <div class="a71-chartwrap" id="a71Chart"></div>
       <div class="a71-legend" id="a71Legend"></div>
     </div>
+    <div class="a71-ytcard" id="a71Yt"></div>
     <div class="a71-tablecard" id="a71Table"></div>
     <div id="a71GuardTop"></div>
   </section>
@@ -2860,7 +2927,7 @@
 
   <section class="a71-panel" data-p="manage" role="tabpanel" aria-label="관리">
     <div id="a71Manage"></div>
-    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 90</span></div>
+    <div class="a71-sec"><h2>⚙️ 앱 · 알림 · 데이터</h2><span>빌드 91</span></div>
     <div id="a71ManageHost"></div>
   </section>
 
@@ -3573,7 +3640,8 @@
       shortsIdeas: (d.shortsIdeas && typeof d.shortsIdeas === "object") ? d.shortsIdeas : null,
       quickReach: (d.quickReach && Array.isArray(d.quickReach.items)) ? d.quickReach : null,
       replyQueue: (d.replyQueue && Array.isArray(d.replyQueue.items)) ? d.replyQueue : null,
-      photoGroups: (d.photoGroups && typeof d.photoGroups === "object") ? d.photoGroups : null
+      photoGroups: (d.photoGroups && typeof d.photoGroups === "object") ? d.photoGroups : null,
+      youtube: (d.youtube && typeof d.youtube === "object") ? d.youtube : null
     };
   }
 
@@ -16329,7 +16397,7 @@ var AiriaMp4 = (function(){
   var OTA_BODY_URL = "https://raw.githubusercontent.com/choungyujin/woo/master/board/app.enc.json";
   var OTA_PIN = "099900";
   var OTA_APP_VERSION = "1.10";
-  var OTA_APP_BUILD = 90;
+  var OTA_APP_BUILD = 91;
   var OTA_TIMEOUT = 5000;          /* 버전 확인: 비차단 5초 */
   var OTA_BODY_TIMEOUT = 90000;    /* 본문 내려받기 */
   var OTA_CHUNK = 192 * 1024;      /* 저장 청크(원본 바이트) */
@@ -19281,7 +19349,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 90;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
+    var BUILD = 91;   /* 화면 배지 — app_version.py 의 APP_BUILD 를 따라간다 */
     var KEY = "arisia949_v71_v1";
     var TABS = ["package", "threads", "insta", "reels", "youtube", "studio", "gallery", "quick", "reply", "manage"];
     var CH = ["threads", "feed", "reels", "shorts"];
@@ -20284,11 +20352,176 @@ var AiriaMp4 = (function(){
       openUrl(uploadUrl(ch || "threads", text));
     }
 
+    /* ---------------------------------------------------------------- 유튜브 성장 카드 (빌드 91)
+       유진님 지시: “유튜브 채널도 구독자랑 성장 추이볼수있게해줘”.
+       · D().youtube.snapshots = 점검마다 한 줄(날짜·구독자·영상 수·총 조회수) — 2026-11-28 이 첫 기록.
+       · D().youtube.videos = 최근 공개 영상·쇼츠(게시일·길이·조회수·좋아요·댓글) — 첫날부터 영상별 추이를 본다.
+       · 기록이 없는 과거 구독자 수는 그리지도 지어내지도 않는다. */
+    function ytData(){ var y = D().youtube; return (y && typeof y === "object") ? y : null; }
+    function ytSnaps(){
+      var y = ytData(), a = (y && Array.isArray(y.snapshots)) ? y.snapshots.slice() : [];
+      a = a.filter(function(r){ return r && r.date; });
+      a.sort(function(x, z){ return String(x.date) < String(z.date) ? -1 : 1; });
+      return a;
+    }
+    function ytVids(){
+      var y = ytData(), a = (y && Array.isArray(y.videos)) ? y.videos.slice() : [];
+      return a.filter(function(v){ return v && v.title; });
+    }
+    function ytNum(field){
+      var a = ytSnaps();
+      for(var i = a.length - 1; i >= 0; i--) if(typeof a[i][field] === "number") return a[i][field];
+      return null;
+    }
+    function ytDelta(field){
+      var a = ytSnaps(), cur = null, prev = null;
+      for(var i = a.length - 1; i >= 0; i--){
+        if(typeof a[i][field] === "number"){
+          if(cur == null) cur = a[i][field];
+          else { prev = a[i][field]; break; }
+        }
+      }
+      return (cur == null || prev == null) ? null : cur - prev;
+    }
+    function ytMini(field, cls){      var rows = ytSnaps();
+      var nums = rows.map(function(r){ return typeof r[field] === "number" ? r[field] : null; });
+      var has = nums.filter(function(v){ return v !== null; });
+      if(!has.length) return '<div class="a71-chartempty">기록이 아직 없어요.</div>';
+      var max = Math.max.apply(null, has) || 1;
+      return '<div class="a71-ytmini">' + rows.map(function(r, i){
+        var v = nums[i];
+        var pct = (v === null) ? 0 : Math.max(8, Math.round(v / max * 100));
+        return '<div class="a71-ytminirow"><span class="dt">' + esc(String(r.date).slice(5).replace("-", ".")) + '</span>' +
+          '<span class="tr"><i class="' + (cls || "") + '" style="width:' + pct + '%"></i></span>' +
+          '<span class="n">' + (v === null ? "—" : num(v)) + '</span></div>';
+      }).join("") + "</div>";
+    }
+    /* 빌드 91 — YPP(유튜브 파트너 프로그램) 목표 진행률.
+       2027-02-01 시행 기준: 구독자 1,000명 + 최근 90일 Shorts 유효 조회수 2,000만 회(또는 365일 8,000시간).
+       1단계(팬 후원·쇼핑)는 구독자 500명 · 300만 회(또는 3,000시간)로 그대로. */
+    function yppData(){ var y = ytData(); return (y && y.ypp && typeof y.ypp === "object") ? y.ypp : null; }
+    function yppDDay(dateStr){
+      try{
+        var target = new Date(String(dateStr) + "T00:00:00+09:00");
+        if(isNaN(target.getTime())) return null;
+        return Math.ceil((target.getTime() - Date.now()) / 86400000);
+      }catch(e){ return null; }
+    }
+    function yppPct(v, t){
+      if(!t || typeof v !== "number") return 0;
+      return Math.max(0, Math.min(100, v / t * 100));
+    }
+    function yppPctText(p){
+      if(p >= 0.1) return (Math.round(p * 10) / 10).toFixed(1) + "%";
+      if(p > 0) return (Math.round(p * 100) / 100).toFixed(2) + "%";
+      return "0%";
+    }
+    function yppNum(v){
+      if(typeof v !== "number") return "—";
+      if(v >= 100000000) return num(Math.round(v / 100000000 * 10) / 10).replace(/\.0$/, "") + "억";
+      if(v >= 10000) return num(Math.round(v / 10000 * 10) / 10).replace(/\.0$/, "") + "만";
+      return num(v);
+    }
+    function yppGoalRow(label, cur, target, fmt){
+      var p = yppPct(cur, target);
+      var w = Math.min(100, Math.max(p > 0 ? 1.5 : 0, p));
+      return '<div class="a71-ypprow">' +
+        '<div class="ln"><span class="gl">' + esc(label) + '</span>' +
+          '<span class="gv">' + fmt(cur) + ' <small>/ ' + fmt(target) + '</small></span>' +
+          '<span class="gp">' + yppPctText(p) + '</span></div>' +
+        '<div class="tr"><i style="width:' + w.toFixed(2) + '%"></i></div>' +
+      '</div>';
+    }
+    function renderYppCard(){
+      var y = yppData();
+      if(!y || !Array.isArray(y.tiers)) return "";
+      var cur = y.current || {};
+      var dd = yppDDay(y.policyDate || "2027-02-01");
+      var cnt = function(v){ return (typeof v === "number") ? num(v) : "—"; };
+      var hrs = function(v){ return (typeof v === "number") ? num(Math.round(v * 10) / 10) + "시간" : "—"; };
+      var fan = null, full = null;
+      y.tiers.forEach(function(t){ if(t.key === "fan") fan = t; else if(t.key === "full") full = t; });
+      var html = '<div class="a71-ypp">' +
+        '<div class="a71-ypphead"><b>YPP 수익 창출 목표</b>' +
+          '<span class="dday">' + (dd === null ? "—" : (dd > 0 ? "D-" + dd : "D-day 지남")) + '</span>' +
+          '<span class="pd">' + esc(String(y.policyDate || "").replace(/-/g, ".")) + ' 시행 기준</span></div>';
+      if(full){
+        html += '<div class="a71-yppblk"><div class="tt"><b>' + esc(full.label) + '</b><span>' + esc(full.note || "") + '</span></div>' +
+          yppGoalRow("구독자", cur.subscribers, full.subscribers, cnt) +
+          yppGoalRow("90일 Shorts 유효 조회수", cur.shortsViews90d, full.shortsViews, yppNum) +
+          yppGoalRow("365일 시청 시간", cur.watchHours365d, full.watchHours, hrs) +
+        '</div>';
+      }
+      if(fan){
+        html += '<div class="a71-yppblk fan"><div class="tt"><b>' + esc(fan.label) + '</b><span>' + esc(fan.note || "") + '</span></div>' +
+          yppGoalRow("구독자", cur.subscribers, fan.subscribers, cnt) +
+          yppGoalRow("90일 Shorts 유효 조회수", cur.shortsViews90d, fan.shortsViews, yppNum) +
+          yppGoalRow("365일 시청 시간", cur.watchHours365d, fan.watchHours, hrs) +
+        '</div>';
+      }
+      if(y.legacy){
+        html += '<p class="a71-yppsmall">' + esc(y.legacy.label) + ' · 구독자 ' + num(y.legacy.subscribers) + '명 · Shorts ' +
+          yppNum(y.legacy.shortsViews) + '회 · 시청 시간 ' + num(y.legacy.watchHours) + '시간</p>';
+      }
+      html += '<p class="a71-yppnote">' + esc(y.note || "") + '</p></div>';
+      return html;
+    }
+    function renderYoutubeCard(){
+      var host = $("a71Yt");
+      if(!host) return;
+      var y = ytData();
+      if(!y){ host.innerHTML = '<div class="a71-h"><h2><span class="ytp">▶</span> 유튜브</h2></div><p class="a71-note">유튜브 기록이 아직 없어요.</p>'; return; }
+      var subs = ytNum("subscribers"), vids = ytNum("videos"), views = ytNum("views");
+      var dsub = ytDelta("subscribers"), dviews = ytDelta("views");
+      var snap = ytSnaps(), lastSnap = snap.length ? snap[snap.length - 1] : null;
+      function deltaHtml(d){
+        if(d === null) return '<span class="d">오늘 첫 기록</span>';
+        if(!d) return '<span class="d">변화 없음</span>';
+        return '<span class="d ' + (d > 0 ? "up" : "down") + '">' + (d > 0 ? "▲ " : "▼ ") + num(Math.abs(d)) + " 직전 대비</span>";
+      }
+      var list = ytVids(), maxV = 1;
+      list.forEach(function(v){ if(typeof v.views === "number" && v.views > maxV) maxV = v.views; });
+      host.innerHTML =
+        '<div class="a71-h"><h2><span class="ytp">▶</span> 유튜브 ' + esc(y.handle || "") + '</h2>' +
+          '<span class="right">확인 ' + esc(String(y.checkedAt || y.updated || "").slice(5)) + '</span></div>' +
+        '<div class="a71-ytstats">' +
+          '<div class="a71-ytstat"><span class="k">구독자</span><span class="v">' + (subs == null ? "—" : num(subs)) + '</span>' + deltaHtml(dsub) + '</div>' +
+          '<div class="a71-ytstat"><span class="k">동영상</span><span class="v">' + (vids == null ? "—" : num(vids)) + '<small>개</small></span><span class="d">공개 기준</span></div>' +
+          '<div class="a71-ytstat"><span class="k">총 조회수</span><span class="v">' + (views == null ? "—" : num(views)) + '</span>' + deltaHtml(dviews) + '</div>' +
+        '</div>' +
+        renderYppCard() +
+        '<div class="a71-yttrend"><div class="lbl"><b>구독자 성장 추이</b><span>기록 ' + snap.length + '회' +
+          (snap.length < 2 ? " · 다음 점검부터 이어집니다" : "") + '</span></div>' + ytMini("subscribers", "") + '</div>' +
+        '<div class="a71-yttrend"><div class="lbl"><b>총 조회수 추이</b><span>' +
+          (snap.length ? esc(String(snap[0].date).slice(5)) + " → " + esc(String(lastSnap.date).slice(5)) : "—") + '</span></div>' + ytMini("views", "lav") + '</div>' +
+        (list.length ?
+          '<div class="a71-ytvids"><div class="a71-ythead"><b>영상별 조회수</b><span>' + list.length + '편 · 최근 순</span></div>' +
+            list.map(function(v){
+              var w = (typeof v.views === "number" && maxV) ? Math.max(3, Math.round(v.views / maxV * 100)) : 0;
+              var meta = [];
+              if(typeof v.likes === "number") meta.push("좋아요 " + num(v.likes));
+              if(typeof v.comments === "number") meta.push("댓글 " + num(v.comments));
+              if(!meta.length) meta.push("좋아요·댓글 확인 전");
+              return '<div class="a71-ytvid">' +
+                '<div class="top"><span>' + esc(String(v.date || "").slice(5).replace("-", ".")) + '</span>' +
+                  '<span class="kd">' + esc(v.kind === "shorts" ? "쇼츠" : "동영상") + (v.length ? " " + esc(v.length) : "") + '</span>' +
+                  '<span class="vw">' + (typeof v.views === "number" ? num(v.views) + "회" : "—") + '</span></div>' +
+                '<div class="ti">' + esc(String(v.title || "")) + '</div>' +
+                '<div class="tr"><i style="width:' + w + '%"></i></div>' +
+                '<div class="mt">' + esc(meta.join(" · ")) +
+                  (v.url ? '<a href="' + esc(v.url) + '" target="_blank" rel="noopener">열기 ↗</a>' : "") + '</div>' +
+              '</div>';
+            }).join("") +
+          '</div>' : "") +
+        '<p class="a71-note" style="margin:10px 0 0">' + esc(y.note || "") + '</p>';
+    }
+
     /* ---------------------------------------------------------------- 요약 렌더 */
     function renderSummary(){
       var rows = growthMerged();
       var ig = lastNum(rows, "igFollowers"), th = lastNum(rows, "thFollowers");
       var igd = deltaOf(rows, "igFollowers"), thd = deltaOf(rows, "thFollowers");
+      var ytSub = ytNum("subscribers"), ytSubD = ytDelta("subscribers");
       var pendIn = pendingCount("instagram"), pendTh = pendingCount("threads");
       var todo = CH.length - slotDoneCount();
 
@@ -20301,7 +20534,8 @@ var AiriaMp4 = (function(){
       var kpi = [
         { k: "인스타 팔로워", v: ig ? num(ig.v) : "—", d: dHTML(igd, ig ? "" : "기록 없음") },
         { k: "스레드 팔로워", v: th ? num(th.v) : "—", d: dHTML(thd, th ? "" : "아직 pending") },
-        { k: "유튜브 구독자", v: "—", d: dHTML(null, "pending · 확인 전") },
+        { k: "유튜브 구독자", v: ytSub == null ? "—" : num(ytSub),
+          d: (ytSub == null ? dHTML(null, "기록 없음") : (ytSubD == null ? '<span class="d">오늘 첫 기록</span>' : dHTML(ytSubD))) },
         { k: "미답변 댓글", v: num(pendIn + pendTh), d: '<span class="d">인스타 ' + pendIn + " · 스레드 " + pendTh + "</span>" },
         { k: "DM 대기", v: num(dmPending()), d: '<span class="d">메시지 요청 포함</span>' },
         { k: "오늘 할 일", v: String(todo), d: '<span class="d">' + (CH.length - todo) + " / " + CH.length + " 완료</span>" }
@@ -20353,10 +20587,13 @@ var AiriaMp4 = (function(){
           "<tr><td>스레드</td><td>" + cell(th ? num(th.v) : "—", thd == null ? null : thd) + "</td><td>" +
             (thd == null ? "—" : (thd > 0 ? "+" : "") + thd) + "</td><td>" + pendTh + "</td><td>" +
             (s.threads ? "완료" : "대기") + "</td></tr>" +
-          "<tr><td>유튜브</td><td>" + cell("—", null) + "</td><td>—</td><td>0</td><td>" +
+          "<tr><td>유튜브</td><td>" + cell(ytSub == null ? "—" : num(ytSub), ytSubD) + "</td><td>" +
+            (ytSubD == null ? "—" : (ytSubD > 0 ? "+" : "") + ytSubD) + "</td><td>" + pendingCount("youtube") + "</td><td>" +
             (s.shorts ? "완료" : "대기") + "</td></tr>" +
           "</tbody></table>";
       }
+      /* 빌드 91 — 유튜브 @릴리의리스트 구독자·총 조회수·영상별 추이 카드 */
+      renderYoutubeCard();
     }
 
     function lineChart(rows){
@@ -21122,6 +21359,15 @@ var AiriaMp4 = (function(){
       for(var i = 0; i < q.length; i++) if(String(q[i].id) === String(id)) return q[i];
       return null;
     }
+    /* 빌드 91 — [열기]는 그 댓글 자리로 간다: commentUrl(개별 댓글 퍼머링크) → postUrl(원글) 순 */
+    function replyLinkOf(x){ return (x && (x.commentUrl || x.postUrl)) || ""; }
+    function quickLinkOf(x){ return (x && (x.commentUrl || x.postUrl)) || ""; }
+    function rotatedOpts(item){
+      var oo = (item && Array.isArray(item.options)) ? item.options : [];
+      if(!oo.length) return [];
+      var rot = (S.replyRot || 0) % Math.max(1, oo.length);
+      return oo.slice(rot).concat(oo.slice(0, rot));
+    }
     function quickDoneToday(it){ return !!(it && S.quickDone && S.quickDone[it.id]); }
     function quickPool(){
       var pool = quickItems().filter(function(it){ return (it.cat || "일상·생각정리") === S.quick.cat; });
@@ -21239,9 +21485,12 @@ var AiriaMp4 = (function(){
             '<button class="a71-btn coral sm" type="button" data-opendone="' + esc(it.id) + '" style="flex:1">✓ 완료 · 다음</button>' +
           "</div>" +
           '<div class="a71-btnrow" style="margin:0 0 4px">' +
+            '<button class="a71-btn solid sm wide" type="button" data-copyopen="quick|' + esc(it.id) + '|0">⚡ 맨 위 후보 복사 + 글로 열기</button>' +
+          "</div>" +
+          '<div class="a71-btnrow" style="margin:0 0 4px">' +
             '<button class="a71-btn ghost sm" type="button" data-qskip="1" style="flex:1">이 항목은 건너뛰기 →</button>' +
           "</div>" +
-          '<p class="a71-note" style="margin-top:2px">후보를 복사한 뒤 [바로 열기]를 누르면 그 항목은 완료되고 다음 항목으로 넘어갑니다.</p>' +
+          '<p class="a71-note" style="margin-top:2px">후보를 복사한 뒤 [바로 열기]를 누르면 그 항목은 완료되고 다음 항목으로 넘어갑니다. [⚡ 복사 + 글로 열기]는 맨 위 후보를 복사하면서 그 글을 바로 엽니다.</p>' +
           quickDoneHtml()
           : '<div class="a71-card"><p class="a71-note">이 카테고리 선댓글은 다 마쳤어요. 다른 카테고리를 고르거나 아래로 다시 돌려볼 수 있어요.</p>' +
             '<div class="a71-btnrow" style="margin-top:8px"><button class="a71-btn sm" type="button" data-qreset="1">↺ 마친 선댓글 다시 보기</button></div></div>' +
@@ -21285,8 +21534,12 @@ var AiriaMp4 = (function(){
             }).join("") +
             '<div class="a71-btnrow" style="margin-top:8px">' +
               '<button class="a71-btn" type="button" data-replydone="' + esc(x.id) + '" style="flex:1">✓ 답변 완료 · 다음</button>' +
-              (x.postUrl ? '<button class="a71-btn ghost" type="button" data-openreply="' + esc(x.id) + '">열기</button>' : "") +
+              (replyLinkOf(x) ? '<button class="a71-btn ghost" type="button" data-openreply="' + esc(x.id) + '">열기</button>' : "") +
             "</div>" +
+            (replyLinkOf(x) ? '<div class="a71-btnrow" style="margin-top:6px">' +
+              '<button class="a71-btn solid sm wide" type="button" data-copyopen="reply|' + esc(x.id) + '|0">⚡ 복사 + 댓글로 열기</button>' +
+            "</div>" : "") +
+            (x.commentUrl ? '<p class="a71-note" style="margin:6px 0 0">열면 이 댓글이 보이는 자리로 바로 가서 붙여넣기만 하면 됩니다.</p>' : "") +
           "</div>";
         }).join("") : '<div class="a71-card"><p class="a71-note">오늘 들어온 댓글·DM 답글을 모두 정리했어요.' +
           (doneN ? " 아래 [완료 표시 초기화]로 다시 대기로 돌릴 수 있어요." : "") + "</p></div>") +
@@ -21417,7 +21670,7 @@ var AiriaMp4 = (function(){
       });
 
       app.addEventListener("click", function(e){
-        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-share4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-replyall],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset]") : null;
+        var t = e.target.closest ? e.target.closest("[data-pkg],[data-chan],[data-slot],[data-copych],[data-opench],[data-settheme],[data-save4],[data-share4],[data-badge],[data-studioidea],[data-galtab],[data-setphoto],[data-delphoto],[data-upload],[data-qcat],[data-copyopt],[data-copyreply],[data-replydone],[data-openreply],[data-replyall],[data-limit],[data-opendone],[data-tag],[data-savephoto],[data-copyphoto],[data-copyphototext],[data-sharenow],[data-opencardnews],[data-pubdone],[data-unpub],[data-cand],[data-cycle],[data-qskip],[data-qreset],[data-copyopen]") : null;
         if(!t) return;
         var it = pkgIdea(S.pkgIdx || 0);
 
@@ -21561,10 +21814,39 @@ var AiriaMp4 = (function(){
         if(t.hasAttribute("data-openreply")){
           var rid2 = t.getAttribute("data-openreply");
           var ritem = replyItemById(rid2);
-          if(ritem && ritem.postUrl) openUrl(ritem.postUrl);
+          if(ritem && replyLinkOf(ritem)) openUrl(replyLinkOf(ritem));
           /* 빌드 75 — 후보를 복사해 둔 항목이면 열면서 바로 답변 완료로 넘긴다 */
           if(ritem && S.replyCopied && S.replyCopied[rid2]) markReplyDone(rid2);
           else if(ritem) toast("후보를 복사한 뒤 [열기]를 누르면 답변 완료로 넘어가요");
+          return;
+        }
+        /* 빌드 91 — 유진님 지시 “복사해서 열면 그 아이디 위치로 가서 바로 붙여넣으면 좋겠어”
+           맨 위 후보를 클립보드에 복사하고, 그 댓글(commentUrl)·글로 바로 연다. 열었으면 그 항목은 완료로 넘긴다. */
+        if(t.hasAttribute("data-copyopen")){
+          var cp = t.getAttribute("data-copyopen").split("|");
+          var cpKind = cp[0], cpId = cp[1], cpIdx = parseInt(cp[2] || "0", 10) || 0;
+          if(cpKind === "reply"){
+            var rIt = replyItemById(cpId);
+            if(!rIt) return;
+            var rOpts = rotatedOpts(rIt);
+            var rPick = rOpts[cpIdx];
+            var rUrl = replyLinkOf(rIt);
+            if(rPick && rPick.text){ copyText(nl(rPick.text)); recordCopy(rPick.text); S.replyCopied[rIt.id] = nowMs(); save(); }
+            if(rUrl) openUrl(rUrl);
+            if(rUrl) markReplyDone(rIt.id);
+            return;
+          }
+          if(cpKind === "quick"){
+            var qIt = quickItemById(cpId) || quickCurrent();
+            if(!qIt) return;
+            var qOpts = fourOptions(qIt);
+            var qPick = qOpts[cpIdx] || qOpts[0];
+            var qUrl = quickLinkOf(qIt);
+            if(qPick && qPick.text){ copyText(qPick.text); recordCopy(qPick.text); S.quickCopied[qIt.id] = nowMs(); save(); }
+            if(qUrl) openUrl(qUrl);
+            if(qUrl) markCommentDone(qIt);
+            return;
+          }
           return;
         }
         if(t.hasAttribute("data-savephoto")){
@@ -21683,7 +21965,7 @@ var AiriaMp4 = (function(){
         if(id === "a71Reshuffle"){ S.quick.idx = (S.quick.idx || 0) + 1 + Math.floor(Math.random() * 2); save(); renderQuick(); toast("새 4지선다를 뽑았어요"); }
         if(id === "a71OpenTarget"){
           var cur2 = quickCurrent();
-          if(cur2) openUrl(cur2.postUrl);
+          if(cur2) openUrl(quickLinkOf(cur2));
           /* 빌드 75 — 후보를 복사한 뒤 열었으면 그 자리에서 완료하고 다음 항목으로 */
           if(cur2 && S.quickCopied && S.quickCopied[cur2.id]) markCommentDone(cur2);
           else if(cur2) toast("후보를 복사한 뒤 [바로 열기]를 누르면 완료되고 다음 항목으로 넘어가요");
@@ -21960,7 +22242,7 @@ var AiriaMp4 = (function(){
      ========================================================================== */
   (function(){
     "use strict";
-    var BUILD = 90;
+    var BUILD = 91;
     function $(id){ return document.getElementById(id); }
     function weekday(d){ return ["일","월","화","수","목","금","토"][d.getDay()]; }
     function dateText(){
